@@ -8,4 +8,6 @@
 
     <string name="btn_txt_login">Login</string>
     <string name="btn_txt_register">Register</string>
+
+    <string name="msg_empty">Opps!! nothing here</string>
 </resources>
