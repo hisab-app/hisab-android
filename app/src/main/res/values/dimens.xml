@@ -3,4 +3,23 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="btn_padding_low">4dp</dimen>
+    <dimen name="btn_padding_mid">8dp</dimen>
+    <dimen name="btn_padding_high">16dp</dimen>
+
+    <dimen name="btn_margin_low">4dp</dimen>
+    <dimen name="btn_margin_mid">8dp</dimen>
+    <dimen name="btn_margin_high">16dp</dimen>
+
+    <dimen name="txt_padding_low">4dp</dimen>
+    <dimen name="txt_padding_mid">8dp</dimen>
+    <dimen name="txt_padding_high">16dp</dimen>
+
+    <dimen name="txt_margin_low">4dp</dimen>
+    <dimen name="txt_margin_mid">8dp</dimen>
+    <dimen name="txt_margin_high">16dp</dimen>
+
+    <dimen name="cardview_padding_default">4dp</dimen>
+    <dimen name="cardview_margin_default">4dp</dimen>
 </resources>

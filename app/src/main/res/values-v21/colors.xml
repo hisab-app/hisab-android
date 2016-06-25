@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorTextOnPrimary">@color/colorPrimary</color>
+    <color name="colorTextOnPrimaryDark">@color/colorPrimaryDark</color>
+    <color name="colorTextOnAccent">@color/colorAccent</color>
+    <color name="colorTextOnWarning">@color/colorWarning</color>
+    <color name="colorTextOnDanger">@color/colorDanger</color>
+</resources>

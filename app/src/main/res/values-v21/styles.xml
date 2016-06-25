@@ -6,4 +6,22 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="BtnPrimary" parent="Btn">
+        <item name="android:color">@drawable/btn_primary_selector</item>
+        <item name="android:textColor">@color/colorTextOnPrimary</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
+
+    <style name="BtnWarning" parent="Btn">
+        <item name="android:color">@drawable/btn_warning_selector</item>
+        <item name="android:textColor">@color/colorTextOnWarning</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
+
+    <style name="BtnDanger" parent="Btn">
+        <item name="android:color">@drawable/btn_danger_selector</item>
+        <item name="android:textColor">@color/colorTextOnDanger</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
 </resources>

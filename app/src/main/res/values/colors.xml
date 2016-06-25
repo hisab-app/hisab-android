@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/md_red_500</color>
-    <color name="colorPrimaryDark">@color/md_red_800</color>
-    <color name="colorAccent">@color/md_red_50</color>
+    <color name="colorPrimary">@color/md_blue_500</color>
+    <color name="colorTextOnPrimary">@color/md_white_1000</color>
 
+    <color name="colorPrimaryDark">@color/md_blue_800</color>
+    <color name="colorTextOnPrimaryDark">@color/md_white_1000</color>
+
+    <color name="colorAccent">@color/md_blue_50</color>
+    <color name="colorTextOnAccent">@color/md_black_1000</color>
+
+    <color name="colorWarning">@color/md_deep_orange_500</color>
+    <color name="colorWarningDark">@color/md_deep_orange_800</color>
+    <color name="colorTextOnWarning">@color/md_white_1000</color>
+
+    <color name="colorDanger">@color/md_red_500</color>
+    <color name="colorDangerDark">@color/md_red_800</color>
+    <color name="colorTextOnDanger">@color/md_white_1000</color>
     <!-- google's material design colours from
 http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
 

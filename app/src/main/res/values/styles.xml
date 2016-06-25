@@ -17,4 +17,37 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+    <style name="Btn" parent="Base.Widget.AppCompat.Button.Borderless"></style>
+
+    <style name="BtnPrimary" parent="Btn">
+        <item name="android:background">@drawable/btn_primary_selector</item>
+        <item name="android:textColor">@color/colorTextOnPrimary</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
+
+    <style name="BtnWarning" parent="Btn">
+        <item name="android:background">@drawable/btn_warning_selector</item>
+        <item name="android:textColor">@color/colorTextOnWarning</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
+
+    <style name="BtnDanger" parent="Btn">
+        <item name="android:background">@drawable/btn_danger_selector</item>
+        <item name="android:textColor">@color/colorTextOnDanger</item>
+        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    </style>
+
+    <style name="Txt" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Medium
+        </item>
+        <item name="android:padding">@dimen/txt_padding_mid</item>
+    </style>
+
+    <style name="Txt.LARGE" parent="Txt">
+        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Large</item>
+    </style>
+
+    <style name="Txt.SMALL" parent="Txt">
+        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Small</item>
+    </style>
 </resources>
