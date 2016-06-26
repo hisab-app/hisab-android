@@ -72,16 +72,11 @@ public class DetailGroupActivityFragment extends Fragment implements ChildEventL
         outState.putParcelableArrayList("expenses", expenses);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        dbRef.removeEventListener(this);
-    }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        dbRef.addChildEventListener(this);
+    public void onStop() {
+        super.onStop();
+        dbRef.removeEventListener(this);
     }
 
     //firebase listners

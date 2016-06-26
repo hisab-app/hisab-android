@@ -57,6 +57,7 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
         //TODO: create group usign firebase ref
         Group group = new Group();
         group.setName(groupName);
+        group.setCreatedOn(java.util.Calendar.getInstance().getTimeInMillis());
         dbRef.child("groups").push().setValue(group);
         Toast.makeText(this, "creating group " + groupName, Toast.LENGTH_SHORT).show();
     }

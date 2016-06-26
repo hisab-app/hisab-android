@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
  * A placeholder fragment containing a simple view.
  */
 public class GroupsActivityFragment extends Fragment implements GroupItemClickClbk,
-        ChildEventListener {
+        ChildEventListener{
     public static final String TAG = GroupsActivityFragment.class.getSimpleName();
 
     //member views
@@ -88,16 +89,11 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
             Log.d(TAG, "" + this.groups);
         }
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        dbRef.removeEventListener(this);
-    }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        dbRef.addChildEventListener(this);
+    public void onStop() {
+        super.onStop();
+        dbRef.removeEventListener(this);
     }
     //Firebase data listeners
 

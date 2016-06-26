@@ -14,15 +14,17 @@ public class Group implements Parcelable {
     String name;
     String moderatorId;
     List<String> membersIds;
-
+    long createdOn;
     public Group() {
     }
 
-    public Group(List<String> membersIds, String name, String id, String moderatorId) {
-        this.membersIds = membersIds;
-        this.name = name;
+    public Group(String id, String name, String moderatorId, List<String> membersIds, long
+            createdOn) {
         this.id = id;
+        this.name = name;
         this.moderatorId = moderatorId;
+        this.membersIds = membersIds;
+        this.createdOn = createdOn;
     }
 
     public Group(String name) {
@@ -67,6 +69,14 @@ public class Group implements Parcelable {
 
     public void setMembersIds(List<String> membersIds) {
         this.membersIds = membersIds;
+    }
+
+    public long getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(long createdOn) {
+        this.createdOn = createdOn;
     }
 
     @Override

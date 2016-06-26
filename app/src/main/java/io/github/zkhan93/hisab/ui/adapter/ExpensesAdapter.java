@@ -9,7 +9,6 @@ import java.util.List;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
-import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 
@@ -106,6 +105,11 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 notifyItemRemoved(index);
             }
         }
+    }
+
+    public void clear() {
+        expenses.clear();
+        notifyDataSetChanged();
     }
 
     interface TYPE {

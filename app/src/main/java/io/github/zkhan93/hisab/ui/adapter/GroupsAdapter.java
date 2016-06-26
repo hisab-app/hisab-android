@@ -114,6 +114,11 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+    public void clear() {
+        groups.clear();
+        notifyDataSetChanged();
+    }
+
     interface TYPE {
         int EMPTY = 0;
         int NORMAL = 1;

@@ -12,6 +12,8 @@ import android.view.View;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -76,6 +78,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     public void createExpense(String description, float amount) {
         ExpenseItem expenseItem = new ExpenseItem(description, amount);
+        expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
         dbRef.push().setValue(expenseItem);
     }
 }
