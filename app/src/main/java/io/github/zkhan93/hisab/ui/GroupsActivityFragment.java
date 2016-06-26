@@ -88,7 +88,17 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
             Log.d(TAG, "" + this.groups);
         }
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbRef.removeEventListener(this);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        dbRef.addChildEventListener(this);
+    }
     //Firebase data listeners
 
     @Override

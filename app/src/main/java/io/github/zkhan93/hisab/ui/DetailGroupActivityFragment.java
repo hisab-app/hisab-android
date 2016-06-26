@@ -72,7 +72,19 @@ public class DetailGroupActivityFragment extends Fragment implements ChildEventL
         outState.putParcelableArrayList("expenses", expenses);
     }
 
-//firebase listners
+    @Override
+    public void onPause() {
+        super.onPause();
+        dbRef.removeEventListener(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        dbRef.addChildEventListener(this);
+    }
+
+    //firebase listners
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
