@@ -3,6 +3,7 @@ package io.github.zkhan93.hisab.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,37 +12,29 @@ import java.util.List;
 public class Group implements Parcelable {
     String id;
     String name;
-    User moderator;
-    List<User> members;
+    String moderatorId;
+    List<String> membersIds;
 
     public Group() {
     }
 
-    public Group(List<User> members, String name, String id, User moderator) {
-        this.members = members;
+    public Group(List<String> membersIds, String name, String id, String moderatorId) {
+        this.membersIds = membersIds;
         this.name = name;
         this.id = id;
-        this.moderator = moderator;
+        this.moderatorId = moderatorId;
     }
 
-    public Group(Parcel parcel){
-
-    }
-
-    public List<User> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<User> members) {
-        this.members = members;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Group(String name) {
         this.name = name;
+    }
+
+    public Group(Parcel parcel) {
+        id = parcel.readString();
+        name = parcel.readString();
+        moderatorId = parcel.readString();
+        membersIds = new ArrayList<>();
+        parcel.readList(membersIds, User.class.getClassLoader());
     }
 
     public String getId() {
@@ -52,12 +45,28 @@ public class Group implements Parcelable {
         this.id = id;
     }
 
-    public User getModerator() {
-        return moderator;
+    public String getName() {
+        return name;
     }
 
-    public void setModerator(User moderator) {
-        this.moderator = moderator;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getModeratorId() {
+        return moderatorId;
+    }
+
+    public void setModeratorId(String moderatorId) {
+        this.moderatorId = moderatorId;
+    }
+
+    public List<String> getMembersIds() {
+        return membersIds;
+    }
+
+    public void setMembersIds(List<String> membersIds) {
+        this.membersIds = membersIds;
     }
 
     @Override
@@ -69,11 +78,11 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel parcel, int flag) {
         parcel.writeString(id);
         parcel.writeString(name);
-        parcel.writeParcelable(moderator,flag);
-        parcel.writeTypedList(members);
+        parcel.writeString(moderatorId);
+        parcel.writeList(membersIds);
     }
 
-    public static Creator<Group> CREATOR=new Creator<Group>() {
+    public static Creator<Group> CREATOR = new Creator<Group>() {
         @Override
         public Group createFromParcel(Parcel parcel) {
             return new Group(parcel);
@@ -84,4 +93,14 @@ public class Group implements Parcelable {
             return new Group[i];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", moderator=" + moderatorId +
+                ", membersIds=" + membersIds +
+                '}';
+    }
 }

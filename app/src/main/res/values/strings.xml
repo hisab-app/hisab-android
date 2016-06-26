@@ -1,13 +1,23 @@
 <resources>
     <string name="app_name">Hisab</string>
-    <string name="title_activity_entry">EntryActivity</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_groups">GroupsActivity</string>
-    <string name="title_activity_detail_group">DetailGroupActivity</string>
 
+    <string name="title_activity_entry">@string/app_name</string>
+    <string name="title_activity_groups">Groups</string>
+    <string name="title_activity_detail_group">Expenses in %1$s</string>
+    <string name="title_create_grp">Crate a new group</string>
+    <string name="title_create_expense">Crate a expense</string>
+
+    <string name="action_settings">Settings</string>
 
     <string name="btn_txt_login">Login</string>
     <string name="btn_txt_register">Register</string>
 
     <string name="msg_empty">Opps!! nothing here</string>
+
+    <string name="hint_grp_name">New Group\'s Name</string>
+    <string name="hint_desc">Description</string>
+    <string name="hint_amount">Amount</string>
+
+    <string name="label_create">Create</string>
+    <string name="label_cancel">Cancel</string>
 </resources>
