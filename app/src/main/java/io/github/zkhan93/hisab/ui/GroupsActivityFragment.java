@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,12 +17,13 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GroupsActivityFragment extends Fragment {
+public class GroupsActivityFragment extends Fragment implements GroupItemClickClbk{
     public static final String TAG = GroupsActivityFragment.class.getSimpleName();
 
     //member views
@@ -59,5 +61,12 @@ public class GroupsActivityFragment extends Fragment {
         groupsAdapter = new GroupsAdapter(groups);
         groupList.setAdapter(groupsAdapter);
         return rootView;
+    }
+
+    @Override
+    public void GroupClicked(Group group) {
+        Intent intent=new Intent(getActivity(),DetailGroupActivity.class);
+        intent.putExtra("Group",group);
+        startActivity(intent);
     }
 }
