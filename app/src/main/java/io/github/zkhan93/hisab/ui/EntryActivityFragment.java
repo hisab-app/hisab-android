@@ -24,10 +24,6 @@ public class EntryActivityFragment extends Fragment implements View.OnClickListe
     Button btnLogin;
     @BindView(R.id.btn_register)
     Button btnRegister;
-    @BindView(R.id.btn_quit)
-    Button btnQuit;
-    @BindView(R.id.btn_confusion)
-    Button btnConfusion;
 
     public EntryActivityFragment() {
     }
@@ -42,10 +38,6 @@ public class EntryActivityFragment extends Fragment implements View.OnClickListe
             btnLogin.setOnClickListener(this);
         if (btnRegister != null)
             btnRegister.setOnClickListener(this);
-        if (btnQuit != null)
-            btnQuit.setOnClickListener(this);
-        if (btnConfusion != null)
-            btnConfusion.setOnClickListener(this);
         return rootView;
     }
 
@@ -57,12 +49,6 @@ public class EntryActivityFragment extends Fragment implements View.OnClickListe
                 break;
             case R.id.btn_register:
                 registerClick();
-                break;
-            case R.id.btn_confusion:
-                confusionClick();
-                break;
-            case R.id.btn_quit:
-                quitClick();
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -76,10 +62,6 @@ public class EntryActivityFragment extends Fragment implements View.OnClickListe
 
     public void registerClick() {
         Toast.makeText(getActivity(), "Register", Toast.LENGTH_SHORT).show();
-    }
-
-    public void quitClick() {
-        Toast.makeText(getActivity(), "Quit", Toast.LENGTH_SHORT).show();
     }
 
     public void confusionClick() {
