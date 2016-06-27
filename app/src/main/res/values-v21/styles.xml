@@ -7,21 +7,24 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="BtnPrimary" parent="Btn">
-        <item name="android:color">@drawable/btn_primary_selector</item>
-        <item name="android:textColor">@color/colorTextOnPrimary</item>
-        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    <style name="Btn.Primary">
+        <item name="android:colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
-    <style name="BtnWarning" parent="Btn">
-        <item name="android:color">@drawable/btn_warning_selector</item>
-        <item name="android:textColor">@color/colorTextOnWarning</item>
-        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    <style name="Btn.Success">
+        <item name="android:colorButtonNormal">@color/md_green_500</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
-    <style name="BtnDanger" parent="Btn">
-        <item name="android:color">@drawable/btn_danger_selector</item>
-        <item name="android:textColor">@color/colorTextOnDanger</item>
-        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    <style name="Btn.Warning">
+        <item name="android:colorButtonNormal">@color/colorWarning</item>
+        <item name="android:textColor">@color/md_white_1000</item>
+
+    </style>
+
+    <style name="Btn.Danger">
+        <item name="android:colorButtonNormal">@color/colorDanger</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 </resources>

@@ -17,24 +17,34 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="Btn" parent="Base.Widget.AppCompat.Button.Borderless"></style>
-
-    <style name="BtnPrimary" parent="Btn">
-        <item name="android:background">@drawable/btn_primary_selector</item>
-        <item name="android:textColor">@color/colorTextOnPrimary</item>
+    <style name="Btn" parent="Base.Widget.AppCompat.Button.Colored">
         <item name="android:layout_margin">@dimen/btn_margin_low</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="BtnWarning" parent="Btn">
-        <item name="android:background">@drawable/btn_warning_selector</item>
-        <item name="android:textColor">@color/colorTextOnWarning</item>
-        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    <style name="Btn.Success">
+        <item name="colorButtonNormal">@color/md_green_500</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
-    <style name="BtnDanger" parent="Btn">
-        <item name="android:background">@drawable/btn_danger_selector</item>
-        <item name="android:textColor">@color/colorTextOnDanger</item>
-        <item name="android:layout_margin">@dimen/btn_margin_low</item>
+    <style name="Btn.Primary">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textColor">@color/md_white_1000</item>
+    </style>
+
+    <style name="BtnLarge">
+        <item name="android:textAppearance">?android:textAppearanceButton</item>
+        <item name="android:padding">@dimen/btn_padding_high</item>
+    </style>
+
+    <style name="Btn.Warning">
+        <item name="colorButtonNormal">@color/colorWarning</item>
+        <item name="android:textColor">@color/md_white_1000</item>
+    </style>
+
+    <style name="Btn.Danger">
+        <item name="colorButtonNormal">@color/colorDanger</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
     <style name="Txt" parent="android:Widget.TextView">

@@ -9,37 +9,23 @@
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
               tools:context="io.github.zkhan93.hisab.ui.EntryActivityFragment"
-              tools:showIn="@layout/activity_entry">
+    >
 
     <Button
         android:id="@+id/btn_login"
-        style="@style/BtnPrimary"
+        style="@style/BtnLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/btn_txt_login"
+        android:theme="@style/Btn.Success"
         />
 
     <Button
         android:id="@+id/btn_register"
-        style="@style/BtnPrimary"
+        style="@style/BtnLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/btn_txt_register"
-        />
-
-    <Button
-        android:id="@+id/btn_confusion"
-        style="@style/BtnWarning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_txt_register"
-        />
-
-    <Button
-        android:id="@+id/btn_quit"
-        style="@style/BtnDanger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_txt_register"
+        android:theme="@style/Btn.Primary"
         />
 </LinearLayout>
