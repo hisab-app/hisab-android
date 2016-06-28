@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -28,7 +30,8 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    DatabaseReference dbRef;
+    private DatabaseReference dbRef;
+    private FirebaseUser firebaseUser;
     private String groupId, groupName;
 
     @Override
@@ -39,6 +42,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         groupId = getIntent().getStringExtra("groupId");
         groupName = getIntent().getStringExtra("groupName");
         dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
         if (getSupportActionBar() != null)
@@ -79,6 +83,8 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     public void createExpense(String description, float amount) {
         ExpenseItem expenseItem = new ExpenseItem(description, amount);
         expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
+        expenseItem.setAuthorId(firebaseUser.getUid());
+//        expenseItem.setGroupId(groupId); no need to set this as data is already under the group id branch
         dbRef.push().setValue(expenseItem);
     }
 }

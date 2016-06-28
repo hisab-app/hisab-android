@@ -9,8 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +30,7 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     private DatabaseReference dbRef;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,7 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
         dbRef = FirebaseDatabase.getInstance().getReference();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
@@ -54,10 +60,14 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void createGroup(String groupName) {
-        //TODO: create group usign firebase ref
+        //TODO: create group using firebase reference
         Group group = new Group();
         group.setName(groupName);
         group.setCreatedOn(java.util.Calendar.getInstance().getTimeInMillis());
+        ArrayList<String> memberIds = new ArrayList<>();
+        memberIds.add(firebaseUser.getUid());
+        group.setModeratorId(memberIds.get(0));
+        group.setMembersIds(memberIds);
         dbRef.child("groups").push().setValue(group);
         Toast.makeText(this, "creating group " + groupName, Toast.LENGTH_SHORT).show();
     }
