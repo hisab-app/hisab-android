@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,13 +31,13 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public static final String TAG = SignUpFragment.class.getSimpleName();
 
     @BindView(R.id.name)
-    EditText edtTxtName;
+    TextInputEditText edtTxtName;
     @BindView(R.id.email)
-    EditText edtTxtEmail;
+    TextInputEditText edtTxtEmail;
     @BindView(R.id.password)
-    EditText edtTxtPswd;
+    TextInputEditText edtTxtPswd;
     @BindView(R.id.confirm_password)
-    EditText edtTxtConfirmPswd;
+    TextInputEditText edtTxtConfirmPswd;
     @BindView(R.id.btn_sign_up)
     Button btnRegister;
     @BindView(R.id.form)
@@ -139,7 +140,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public boolean checkForValidValues() {
         boolean result = true;
         //checking for empty values
-        EditText[] edTxts = new EditText[]{edtTxtName, edtTxtEmail, edtTxtPswd, edtTxtConfirmPswd};
+        TextInputEditText[] edTxts = new TextInputEditText[]{edtTxtName, edtTxtEmail, edtTxtPswd, edtTxtConfirmPswd};
         for (EditText et : edTxts) {
             if (et.getText().toString().isEmpty()) {
                 String msg = "";

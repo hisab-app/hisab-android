@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +20,9 @@ import io.github.zkhan93.hisab.ui.DetailGroupActivity;
  */
 public class CreateExpenseItemDialog extends DialogFragment {
     @BindView(R.id.description)
-    EditText description;
+    TextInputEditText description;
     @BindView(R.id.amount)
-    EditText amount;
+    TextInputEditText amount;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

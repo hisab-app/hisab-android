@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,7 @@ import io.github.zkhan93.hisab.ui.GroupsActivity;
  */
 public class CreateGroupDialog extends DialogFragment {
     @BindView(R.id.group_name)
-    EditText groupName;
+    TextInputEditText groupName;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
