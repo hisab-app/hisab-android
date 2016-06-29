@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,9 +44,9 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private static final int RC_SIGN_IN = 12;
 
     @BindView(R.id.email)
-    TextInputEditText edtTxtEmail;
+    AppCompatEditText edtTxtEmail;
     @BindView(R.id.password)
-    TextInputEditText edtTxtPswd;
+    AppCompatEditText edtTxtPswd;
     @BindView(R.id.btn_sign_in)
     Button btnLogin;
     @BindView(R.id.form)

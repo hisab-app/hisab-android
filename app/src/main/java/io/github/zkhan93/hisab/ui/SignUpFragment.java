@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,13 +32,13 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public static final String TAG = SignUpFragment.class.getSimpleName();
 
     @BindView(R.id.name)
-    TextInputEditText edtTxtName;
+    AppCompatEditText edtTxtName;
     @BindView(R.id.email)
-    TextInputEditText edtTxtEmail;
+    AppCompatEditText edtTxtEmail;
     @BindView(R.id.password)
-    TextInputEditText edtTxtPswd;
+    AppCompatEditText edtTxtPswd;
     @BindView(R.id.confirm_password)
-    TextInputEditText edtTxtConfirmPswd;
+    AppCompatEditText edtTxtConfirmPswd;
     @BindView(R.id.btn_sign_up)
     Button btnRegister;
     @BindView(R.id.form)
@@ -140,7 +141,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public boolean checkForValidValues() {
         boolean result = true;
         //checking for empty values
-        TextInputEditText[] edTxts = new TextInputEditText[]{edtTxtName, edtTxtEmail, edtTxtPswd, edtTxtConfirmPswd};
+        AppCompatEditText[] edTxts = new AppCompatEditText[]{edtTxtName, edtTxtEmail, edtTxtPswd, edtTxtConfirmPswd};
         for (EditText et : edTxts) {
             if (et.getText().toString().isEmpty()) {
                 String msg = "";
