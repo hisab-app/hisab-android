@@ -155,7 +155,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     public boolean checkForValidValues() {
         boolean result = true;
         //checking for empty values
-        EditText[] edTxts = new EditText[]{edtTxtEmail, edtTxtPswd};
+        AppCompatEditText[] edTxts = new AppCompatEditText[]{edtTxtEmail, edtTxtPswd};
         for (EditText et : edTxts) {
             if (et.getText().toString().isEmpty()) {
                 String msg = "";
