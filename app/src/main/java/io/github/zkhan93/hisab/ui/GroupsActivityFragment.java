@@ -16,7 +16,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -24,14 +23,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class GroupsActivityFragment extends Fragment implements GroupItemClickClbk,
-        ChildEventListener{
+        ChildEventListener {
     public static final String TAG = GroupsActivityFragment.class.getSimpleName();
 
     //member views
@@ -41,6 +42,7 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
     private ArrayList<Group> groups;
     private DatabaseReference dbRef;
     private GroupsAdapter groupsAdapter;
+    private User me;
 
     public GroupsActivityFragment() {
     }
@@ -48,8 +50,10 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dbRef = FirebaseDatabase.getInstance().getReference("groups");
+        dbRef = FirebaseDatabase.getInstance().getReference("groups/" + Util.getUserId(getContext
+                ()));
         dbRef.addChildEventListener(this);
+        me = Util.getUser(getContext());
     }
 
     @Override
@@ -64,7 +68,7 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
         } else {
             groups = savedInstanceState.getParcelableArrayList("groups");
         }
-        groupsAdapter = new GroupsAdapter(groups, this);
+        groupsAdapter = new GroupsAdapter(groups, this, me);
         groupList.setAdapter(groupsAdapter);
         return rootView;
     }

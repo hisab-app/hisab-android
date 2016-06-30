@@ -22,7 +22,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -37,6 +39,7 @@ public class DetailGroupActivityFragment extends Fragment implements ChildEventL
     ExpensesAdapter expensesAdapter;
     ArrayList<ExpenseItem> expenses;
     DatabaseReference dbRef;
+    private User me;
 
     public DetailGroupActivityFragment() {
     }
@@ -48,6 +51,7 @@ public class DetailGroupActivityFragment extends Fragment implements ChildEventL
         groupId = bundle.getString("groupId");
         dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
         dbRef.addChildEventListener(this);
+        me = Util.getUser(getContext());
     }
 
     @Override
@@ -61,7 +65,7 @@ public class DetailGroupActivityFragment extends Fragment implements ChildEventL
         } else {
             expenses = savedInstanceState.getParcelableArrayList("expense");
         }
-        expensesAdapter = new ExpensesAdapter(null);
+        expensesAdapter = new ExpensesAdapter(null, me);
         expensesList.setAdapter(expensesAdapter);
         return rootView;
     }

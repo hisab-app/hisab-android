@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.math.BigInteger;
@@ -27,6 +28,8 @@ import java.security.SecureRandom;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -102,12 +105,12 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     }
 
     public void registerClick() {
-        String name, pswd;
+        String pswd;
 
         if (!checkForValidValues())
             return;
         final String email = edtTxtEmail.getText().toString();
-        name = edtTxtName.getText().toString();
+        final String name = edtTxtName.getText().toString();
         pswd = new BigInteger(40, new SecureRandom()).toString(32);
         showProgress();
         firebaseAuth.createUserWithEmailAndPassword(email, pswd).addOnCompleteListener
@@ -119,17 +122,25 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                                     .LENGTH_SHORT).show();
                             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
                         } else {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            String email = firebaseUser.getEmail();
+                            String userId = Util.encodedEmail(email);
+                            User user = new User(name,email,userId);
+                            firebaseDatabase.getReference("users/" +userId).setValue(user);
                             firebaseAuth.signOut();
-                            //firebaseDatabase.getReference("users").
-                            firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d(TAG, "sign up successful");
-                                    hideProgress();
-                                    Snackbar.make(getView(), "Sign up successful, check your email for password", Snackbar.LENGTH_LONG).show();
-                                    ((EntryActivity) getActivity()).loadLoginFragment();
-                                }
-                            });
+                            firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener
+                                    (getActivity(), new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Log.d(TAG, "sign up successful");
+                                            hideProgress();
+                                            Snackbar.make(getView(), "Sign up successful, check " +
+                                                    "your " +
+                                                    "email for password", Snackbar.LENGTH_LONG)
+                                                    .show();
+                                            ((EntryActivity) getActivity()).loadLoginFragment();
+                                        }
+                                    });
                         }
                     }
                 });

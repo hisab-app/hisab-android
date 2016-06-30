@@ -12,17 +12,17 @@ import java.util.List;
 public class Group implements Parcelable {
     String id;
     String name;
-    String moderatorId;
+    User moderator;
     List<String> membersIds;
     long createdOn;
     public Group() {
     }
 
-    public Group(String id, String name, String moderatorId, List<String> membersIds, long
+    public Group(String id, String name, User moderator, List<String> membersIds, long
             createdOn) {
         this.id = id;
         this.name = name;
-        this.moderatorId = moderatorId;
+        this.moderator = moderator;
         this.membersIds = membersIds;
         this.createdOn = createdOn;
     }
@@ -34,7 +34,7 @@ public class Group implements Parcelable {
     public Group(Parcel parcel) {
         id = parcel.readString();
         name = parcel.readString();
-        moderatorId = parcel.readString();
+        moderator = parcel.readParcelable(User.class.getClassLoader());
         membersIds = new ArrayList<>();
         parcel.readList(membersIds, User.class.getClassLoader());
     }
@@ -55,12 +55,12 @@ public class Group implements Parcelable {
         this.name = name;
     }
 
-    public String getModeratorId() {
-        return moderatorId;
+    public User getModerator() {
+        return moderator;
     }
 
-    public void setModeratorId(String moderatorId) {
-        this.moderatorId = moderatorId;
+    public void setModerator(User moderator) {
+        this.moderator = moderator;
     }
 
     public List<String> getMembersIds() {
@@ -88,7 +88,7 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel parcel, int flag) {
         parcel.writeString(id);
         parcel.writeString(name);
-        parcel.writeString(moderatorId);
+        parcel.writeParcelable(moderator,flag);
         parcel.writeList(membersIds);
     }
 
@@ -109,7 +109,7 @@ public class Group implements Parcelable {
         return "Group{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", moderator=" + moderatorId +
+                ", moderator=" + moderator +
                 ", membersIds=" + membersIds +
                 '}';
     }

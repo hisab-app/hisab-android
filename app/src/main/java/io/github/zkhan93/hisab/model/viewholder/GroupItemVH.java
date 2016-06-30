@@ -8,6 +8,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 
 /**
@@ -30,16 +31,19 @@ public class GroupItemVH extends RecyclerView.ViewHolder {
         this.groupItemClickClbk = groupItemClickClbk;
     }
 
-    public void setGroup(final Group group) {
+    public void setGroup(final Group group, User me) {
         name.setText(group.getName());
         if (group.getMembersIds() != null)
             members.setText(String.valueOf(group.getMembersIds().size()));
-        moderator.setText(group.getModeratorId() + " is Moderator");
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                groupItemClickClbk.GroupClicked(group.getId(),group.getName());
+                groupItemClickClbk.GroupClicked(group.getId(), group.getName());
             }
         });
+        if (me.getEmail().equals(group.getModerator().getEmail()))
+            moderator.setText("Created by You");
+        else
+            moderator.setText("Created by " + group.getModerator().getName());
     }
 }

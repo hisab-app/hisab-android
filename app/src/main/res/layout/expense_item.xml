@@ -34,7 +34,7 @@
                 android:text="Milk"/>
 
             <TextView
-                android:id="@+id/author"
+                android:id="@+id/owner"
                 style="@style/Txt.SMALL"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

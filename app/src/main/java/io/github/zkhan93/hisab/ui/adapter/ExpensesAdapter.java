@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 
@@ -16,13 +17,15 @@ import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    List<ExpenseItem> expenses;
+    private List<ExpenseItem> expenses;
+    private User me;
 
-    public ExpensesAdapter(List<ExpenseItem> expenses) {
+    public ExpensesAdapter(List<ExpenseItem> expenses, User me) {
         if (expenses != null)
             this.expenses = expenses;
         else
             this.expenses = new ArrayList<>();
+        this.me = me;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE.NORMAL) {
-            ((ExpenseItemVH) holder).setExpense(expenses.get(position));
+            ((ExpenseItemVH) holder).setExpense(expenses.get(position),me);
         }
     }
 

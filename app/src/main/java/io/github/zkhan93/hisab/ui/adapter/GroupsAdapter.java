@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
@@ -20,13 +21,15 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public static final String TAG = GroupsAdapter.class.getSimpleName();
     List<Group> groups;
     GroupItemClickClbk groupItemClickClbk;
+    private User me;
 
-    public GroupsAdapter(List<Group> groups, GroupItemClickClbk groupItemClickClbk) {
+    public GroupsAdapter(List<Group> groups, GroupItemClickClbk groupItemClickClbk, User me) {
         if (groups != null)
             this.groups = groups;
         else
             this.groups = new ArrayList<>();
         this.groupItemClickClbk = groupItemClickClbk;
+        this.me = me;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE.NORMAL) {
             GroupItemVH gHolder = (GroupItemVH) holder;
-            gHolder.setGroup(groups.get(position));
+            gHolder.setGroup(groups.get(position),me);
         }
     }
 

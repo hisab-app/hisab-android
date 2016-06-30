@@ -9,7 +9,7 @@ import android.os.Parcelable;
 public class ExpenseItem implements Parcelable {
     String id;
     String groupId;
-    String authorId;
+    User owner;
     String description;
     float amount;
     long createdOn;
@@ -17,12 +17,12 @@ public class ExpenseItem implements Parcelable {
     public ExpenseItem() {
     }
 
-    public ExpenseItem(String id, String groupId, String authorId, String description, float
+    public ExpenseItem(String id, String groupId, User owner, String description, float
             amount, long
                                createdOn) {
         this.id = id;
         this.groupId = groupId;
-        this.authorId = authorId;
+        this.owner = owner;
         this.description = description;
         this.amount = amount;
         this.createdOn = createdOn;
@@ -36,7 +36,7 @@ public class ExpenseItem implements Parcelable {
     public ExpenseItem(Parcel parcel) {
         id = parcel.readString();
         groupId = parcel.readString();
-        authorId = parcel.readString();
+        owner = parcel.readParcelable(User.class.getClassLoader());
         description = parcel.readString();
         amount = parcel.readFloat();
         createdOn = parcel.readLong();
@@ -58,12 +58,12 @@ public class ExpenseItem implements Parcelable {
         this.groupId = groupId;
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public String getDescription() {
@@ -95,7 +95,7 @@ public class ExpenseItem implements Parcelable {
         return "ExpenseItem{" +
                 "id='" + id + '\'' +
                 ", groupId='" + groupId + '\'' +
-                ", authorId='" + authorId + '\'' +
+                ", owner='" + owner + '\'' +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", createdOn=" + createdOn +
@@ -111,7 +111,7 @@ public class ExpenseItem implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeString(groupId);
-        parcel.writeString(authorId);
+        parcel.writeParcelable(owner,i);
         parcel.writeString(description);
         parcel.writeFloat(amount);
         parcel.writeLong(createdOn);

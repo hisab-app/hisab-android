@@ -1,7 +1,9 @@
 package io.github.zkhan93.hisab.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,10 +30,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -56,6 +61,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     SignInButton signInButton;
 
     private FirebaseAuth firebaseAuth;
+    private FirebaseDatabase firebaseDatabase;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
@@ -67,6 +73,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -77,6 +84,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                     startActivity(new Intent(getActivity(), GroupsActivity.class));
                 } else {
                     Log.d(TAG, "user signed_out");
+                    Util.clearPreferences(getActivity());
                 }
             }
         };
@@ -200,7 +208,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "in sign in result");
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignInResult(result);
@@ -213,9 +220,19 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         Log.d(TAG, "google sign in result" + result.isSuccess());
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
-            FirebaseAuthWithGoogle(account);
+            if (account != null) {
+                String userId, name, email;
+                email = account.getEmail();
+                userId = Util.encodedEmail(email);
+                name = account.getDisplayName();
+                firebaseDatabase.getReference("users/" + userId).setValue(new User(name, email,
+                        userId));
+                FirebaseAuthWithGoogle(account);
+            } else {
+                Log.d(TAG, "account is null");
+            }
         } else {
-
+            Log.d(TAG, "google sign in result failed");
         }
     }
 
@@ -223,6 +240,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this);
+
     }
 
     @Override
@@ -232,8 +250,13 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                     .LENGTH_SHORT).show();
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
         } else {
-            Log.d(TAG, "login successful" + task.getResult().getUser().getUid());
-
+            SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String userId, name;
+            FirebaseUser firebaseUser = task.getResult().getUser();
+            userId = Util.encodedEmail(firebaseUser.getEmail());
+            name = firebaseUser.getDisplayName();
+            spf.edit().putString("user_id", userId).putString("name", name)
+                    .apply();
         }
         hideProgress();
     }

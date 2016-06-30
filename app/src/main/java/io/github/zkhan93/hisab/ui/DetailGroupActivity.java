@@ -20,7 +20,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.ui.dialog.CreateExpenseItemDialog;
+import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
@@ -33,10 +35,12 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     private DatabaseReference dbRef;
     private FirebaseUser firebaseUser;
     private String groupId, groupName;
+    private User me;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        me = Util.getUser(getApplicationContext());
         setContentView(R.layout.activity_detail_group);
         ButterKnife.bind(this);
         groupId = getIntent().getStringExtra("groupId");
@@ -83,8 +87,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     public void createExpense(String description, float amount) {
         ExpenseItem expenseItem = new ExpenseItem(description, amount);
         expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
-        expenseItem.setAuthorId(firebaseUser.getUid());
-//        expenseItem.setGroupId(groupId); no need to set this as data is already under the group id branch
+        expenseItem.setOwner(me);
+//        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
+// id branch
         dbRef.push().setValue(expenseItem);
     }
 }
