@@ -15,8 +15,8 @@ import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class GroupItemVH extends RecyclerView.ViewHolder {
-    @BindView(R.id.members)
-    TextView members;
+    @BindView(R.id.share_status)
+    TextView share;
     @BindView(R.id.name)
     TextView name;
     @BindView(R.id.moderator)
@@ -33,14 +33,17 @@ public class GroupItemVH extends RecyclerView.ViewHolder {
 
     public void setGroup(final Group group, User me) {
         name.setText(group.getName());
-        if (group.getMembersIds() != null)
-            members.setText(String.valueOf(group.getMembersIds().size()));
+        if (group.getMembersIds() == null || group.getMembersIds().size() == 0)
+            share.setText("Private");
+        else
+            share.setText("Shared with " + String.valueOf(group.getMembersIds().size()));
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 groupItemClickClbk.GroupClicked(group.getId(), group.getName());
             }
         });
+
         if (me.getEmail().equals(group.getModerator().getEmail()))
             moderator.setText("Created by You");
         else

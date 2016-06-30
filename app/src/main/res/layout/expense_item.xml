@@ -5,9 +5,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/cardview_margin_default"
     android:layout_marginBottom="@dimen/cardview_margin_default"
     android:layout_marginTop="@dimen/cardview_margin_default"
-    android:layout_margin="@dimen/cardview_margin_default"
     android:padding="@dimen/cardview_padding_default"
     app:cardCornerRadius="@dimen/cardview_default_radius"
     app:cardElevation="@dimen/cardview_default_elevation"
@@ -17,39 +17,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/description"
                 style="@style/Txt"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
                 android:text="Milk"/>
 
+
             <TextView
-                android:id="@+id/owner"
+                android:id="@+id/amount"
                 style="@style/Txt.SMALL"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:backgroundTint="@color/colorDanger"
-                android:drawableStart="@drawable/ic_account_circle_white_24dp"
-                android:gravity="center_vertical"
-                android:text="Shiv"/>
+                android:text="48.0"/>
         </LinearLayout>
 
         <TextView
-            android:id="@+id/amount"
-            style="@style/Txt"
+            android:id="@+id/owner"
+            style="@style/Txt.SMALL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="48.0"/>
+            android:layout_margin="0dp"
+            android:gravity="center_vertical"
+            android:paddingTop="0dp"
+            android:text="Shiv"/>
     </LinearLayout>
 </android.support.v7.widget.CardView>
