@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
@@ -41,7 +40,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         .OnConnectionFailedListener, OnCompleteListener<AuthResult> {
 
     public static final String TAG = SignInFragment.class.getSimpleName();
-    private static final int RC_SIGN_IN = 12;
+    private static final int RC_SIGN_IN = 1;
 
     @BindView(R.id.email)
     AppCompatEditText edtTxtEmail;
@@ -201,10 +200,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RC_SIGN_IN) {
+        Log.d(TAG, "in sign in result");
+        if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignInResult(result);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -232,6 +233,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
         } else {
             Log.d(TAG, "login successful" + task.getResult().getUser().getUid());
+
         }
         hideProgress();
     }
