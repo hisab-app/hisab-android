@@ -59,7 +59,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleApiClient googleApiClient;
-
+    private GoogleSignInOptions gso;
 
     public SignInFragment() {
     }
@@ -67,6 +67,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -80,7 +81,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 }
             }
         };
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions
                 .DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -91,10 +92,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                  */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
-        signInButton.setSize(SignInButton.SIZE_WIDE);
-        signInButton.setScopes(gso.getScopeArray());
-        signInButton.setOnClickListener(this);
     }
 
     @Override
@@ -105,13 +102,16 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
 
         if (btnLogin != null)
             btnLogin.setOnClickListener(this);
+        signInButton.setSize(SignInButton.SIZE_WIDE);
+        signInButton.setScopes(gso.getScopeArray());
+        signInButton.setOnClickListener(this);
         return rootView;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btn_sign_up:
+            case R.id.btn_sign_in:
                 loginBtnAction();
                 break;
             case R.id.btn_google_sign_in:
@@ -169,8 +169,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                     case R.id.password:
                         msg = String.format(getString(R.string.err_required), "Password");
                         break;
-                    case R.id.confirm_password:
-                        msg = "You need to confirm your password";
                 }
                 et.setError(msg);
                 et.requestFocus();

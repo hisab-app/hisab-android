@@ -21,11 +21,14 @@ public class EntryActivity extends AppCompatActivity {
     }
 
     public void loadLoginFragment(View view) {
+        loadLoginFragment();
+    }
+
+    public void loadLoginFragment() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignInFragment.TAG);
         if (fragment == null)
             fragment = new SignInFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 SignInFragment.TAG).commit();
     }
-
 }

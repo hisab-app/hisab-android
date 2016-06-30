@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
@@ -20,6 +21,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,10 +40,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     AppCompatEditText edtTxtName;
     @BindView(R.id.email)
     AppCompatEditText edtTxtEmail;
-    @BindView(R.id.password)
-    AppCompatEditText edtTxtPswd;
-    @BindView(R.id.confirm_password)
-    AppCompatEditText edtTxtConfirmPswd;
+    //    @BindView(R.id.password)
+//    AppCompatEditText edtTxtPswd;
+//    @BindView(R.id.confirm_password)
+//    AppCompatEditText edtTxtConfirmPswd;
     @BindView(R.id.btn_sign_up)
     Button btnRegister;
     @BindView(R.id.form)
@@ -47,7 +52,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     View progressView;
 
     private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private FirebaseDatabase firebaseDatabase;
 
     public SignUpFragment() {
     }
@@ -56,18 +61,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         firebaseAuth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                if (firebaseUser != null) {
-                    Log.d(TAG, "user signed_in" + firebaseUser.getUid());
-                    startActivity(new Intent(getActivity(), GroupsActivity.class));
-                } else {
-                    Log.d(TAG, "user signed_out");
-                }
-            }
-        };
+        firebaseDatabase = FirebaseDatabase.getInstance();
     }
 
     @Override
@@ -95,14 +89,14 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        firebaseAuth.addAuthStateListener(authStateListener);
+//        firebaseAuth.addAuthStateListener(authStateListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (firebaseAuth != null)
-            firebaseAuth.removeAuthStateListener(authStateListener);
+//        if (firebaseAuth != null)
+//            firebaseAuth.removeAuthStateListener(authStateListener);
     }
 
     public void loginClick() {
@@ -110,12 +104,13 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     }
 
     public void registerClick() {
-        String name, email, pswd, cnfPswd;
+        String name, pswd;
+
         if (!checkForValidValues())
             return;
-//        Toast.makeText(getActivity(), "Register", Toast.LENGTH_SHORT).show();
-        email = edtTxtEmail.getText().toString();
-        pswd = edtTxtPswd.getText().toString();
+        final String email = edtTxtEmail.getText().toString();
+        name = edtTxtName.getText().toString();
+        pswd = new BigInteger(40, new SecureRandom()).toString(32);
         showProgress();
         firebaseAuth.createUserWithEmailAndPassword(email, pswd).addOnCompleteListener
                 (getActivity(), new OnCompleteListener<AuthResult>() {
@@ -126,11 +121,22 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                                     .LENGTH_SHORT).show();
                             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
                         } else {
-                            Log.d(TAG, "signup successful" + task.getResult().getUser().getUid());
+                            firebaseAuth.signOut();
+                            //firebaseDatabase.getReference("users").
+                            firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d(TAG, "sign up successful");
+                                    hideProgress();
+                                    Snackbar.make(getView(), "Sign up successful, check your email for password", Snackbar.LENGTH_LONG).show();
+                                    ((EntryActivity) getActivity()).loadLoginFragment();
+                                }
+                            });
                         }
-                        hideProgress();
                     }
                 });
+
+
     }
 
     /**
@@ -141,7 +147,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     public boolean checkForValidValues() {
         boolean result = true;
         //checking for empty values
-        AppCompatEditText[] edTxts = new AppCompatEditText[]{edtTxtName, edtTxtEmail, edtTxtPswd, edtTxtConfirmPswd};
+        AppCompatEditText[] edTxts = new AppCompatEditText[]{edtTxtName, edtTxtEmail};
         for (EditText et : edTxts) {
             if (et.getText().toString().isEmpty()) {
                 String msg = "";
@@ -152,22 +158,11 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                     case R.id.email:
                         msg = String.format(getString(R.string.err_required), "Email");
                         break;
-                    case R.id.password:
-                        msg = String.format(getString(R.string.err_required), "Password");
-                        break;
-                    case R.id.confirm_password:
-                        msg = "You need to confirm your password";
                 }
                 et.setError(msg);
                 et.requestFocus();
                 result = false;
             }
-        }
-        //check for both password match
-        if (!edtTxtConfirmPswd.getText().toString().equals(edtTxtPswd.getText().toString())) {
-            edtTxtConfirmPswd.setError("Password dows not match");
-            edtTxtConfirmPswd.requestFocus();
-            result = false;
         }
         //TODO: implement other validations is required
         return result;
