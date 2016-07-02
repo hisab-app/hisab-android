@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -114,6 +115,6 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void showShareGroupUi() {
-
+        startActivity(new Intent(getApplicationContext(), ShareActivity.class));
     }
 }

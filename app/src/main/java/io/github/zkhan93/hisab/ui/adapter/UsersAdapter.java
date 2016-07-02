@@ -16,7 +16,9 @@ import java.util.List;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.UserItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
+import io.github.zkhan93.hisab.model.callback.UserItemUiClickClbk;
+import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.UserVH;
 
@@ -24,19 +26,19 @@ import io.github.zkhan93.hisab.model.viewholder.UserVH;
  * Created by Zeeshan Khan on 7/3/2016.
  */
 public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener {
+        ChildEventListener, UserItemUiClickClbk {
 
     public static final String TAG = UsersAdapter.class.getSimpleName();
 
-    private List<User> users;
+    private List<ExUser> users;
     private DatabaseReference dbRef;
-    private UserItemClickClbk callback;
+    private UserItemActionClickClbk actionCallback;
 
-    public UsersAdapter(UserItemClickClbk callback) {
+
+    public UsersAdapter(UserItemActionClickClbk actionCallback) {
         users = new ArrayList<>();
-        this.callback = callback;
+        this.actionCallback = actionCallback;
         dbRef = FirebaseDatabase.getInstance().getReference("users");
-        dbRef.addChildEventListener(this);
     }
 
 
@@ -47,13 +49,13 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     parent, false));
         else
             return new UserVH(LayoutInflater.from(parent.getContext()).inflate(R.layout
-                    .user_item, parent, false));
+                    .user_item, parent, false),actionCallback,this);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE.NORMAL) {
-            ((UserVH) holder).setUser(users.get(position), callback);
+            ((UserVH) holder).setUser(users.get(position));
         }
     }
 
@@ -77,7 +79,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         User user = dataSnapshot.getValue(User.class);
         if (user != null && user.getId() != null && !user.getId().isEmpty()) {
-            this.users.add(user);
+            this.users.add(new ExUser(user));
             notifyItemChanged(users.size() - 1);
         }
     }
@@ -87,7 +89,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         User user = dataSnapshot.getValue(User.class);
         int index = findUserIndex(user.getId());
         if (index != -1) {
-            users.set(index, user);
+            users.set(index, new ExUser(user));
             notifyItemChanged(index);
         }
     }
@@ -127,9 +129,31 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return index;
     }
 
+    public void clear() {
+        users.clear();
+        notifyDataSetChanged();
+    }
+
+    public void registerChildListener() {
+        dbRef.addChildEventListener(this);
+    }
+
+    public void unregisterChildListener() {
+        dbRef.removeEventListener(this);
+    }
+
+    @Override
+    public void updateUi(ExUser user) {
+        int index = findUserIndex(user.getId());
+        if (index != -1) {
+            notifyItemChanged(index);
+        }
+    }
+
     private interface VIEW_TYPE {
         int NORMAL = 0;
         int EMPTY = 1;
     }
+
 
 }

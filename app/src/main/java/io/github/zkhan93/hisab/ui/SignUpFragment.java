@@ -41,10 +41,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     AppCompatEditText edtTxtName;
     @BindView(R.id.email)
     AppCompatEditText edtTxtEmail;
-    //    @BindView(R.id.password)
-//    AppCompatEditText edtTxtPswd;
-//    @BindView(R.id.confirm_password)
-//    AppCompatEditText edtTxtConfirmPswd;
     @BindView(R.id.btn_sign_up)
     Button btnRegister;
     @BindView(R.id.form)
@@ -54,6 +50,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
     public SignUpFragment() {
     }
@@ -63,6 +60,19 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    Log.d(TAG, "user signed_in" + firebaseUser.getUid());
+                    startActivity(new Intent(getActivity(), GroupsActivity.class));
+                } else {
+                    Log.d(TAG, "user signed_out");
+                    Util.clearPreferences(getActivity());
+                }
+            }
+        };
     }
 
     @Override
@@ -90,18 +100,14 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-//        firebaseAuth.addAuthStateListener(authStateListener);
+        firebaseAuth.addAuthStateListener(authStateListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-//        if (firebaseAuth != null)
-//            firebaseAuth.removeAuthStateListener(authStateListener);
-    }
-
-    public void loginClick() {
-        startActivity(new Intent(getActivity(), GroupsActivity.class));
+        if (firebaseAuth != null)
+            firebaseAuth.removeAuthStateListener(authStateListener);
     }
 
     public void registerClick() {
@@ -125,8 +131,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                             String email = firebaseUser.getEmail();
                             String userId = Util.encodedEmail(email);
-                            User user = new User(name,email,userId);
-                            firebaseDatabase.getReference("users/" +userId).setValue(user);
+                            User user = new User(name, email, userId);
+                            firebaseDatabase.getReference("users/" + userId).setValue(user);
                             firebaseAuth.signOut();
                             firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener
                                     (getActivity(), new OnCompleteListener<Void>() {
@@ -173,7 +179,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                 result = false;
             }
         }
-        //TODO: implement other validations is required
+        //TODO: implement other required validations
         return result;
     }
 

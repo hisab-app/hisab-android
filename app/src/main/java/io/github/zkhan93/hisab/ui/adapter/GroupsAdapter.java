@@ -1,8 +1,15 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,19 +24,19 @@ import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
+        ChildEventListener {
     public static final String TAG = GroupsAdapter.class.getSimpleName();
     List<Group> groups;
     GroupItemClickClbk groupItemClickClbk;
     private User me;
+    private DatabaseReference dbRef;
 
-    public GroupsAdapter(List<Group> groups, GroupItemClickClbk groupItemClickClbk, User me) {
-        if (groups != null)
-            this.groups = groups;
-        else
-            this.groups = new ArrayList<>();
+    public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me) {
+        groups = new ArrayList<>();
         this.groupItemClickClbk = groupItemClickClbk;
         this.me = me;
+        dbRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId());
     }
 
     @Override
@@ -39,7 +46,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE.EMPTY:
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             default:
-                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false));
+                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false),groupItemClickClbk);
         }
     }
 
@@ -47,7 +54,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE.NORMAL) {
             GroupItemVH gHolder = (GroupItemVH) holder;
-            gHolder.setGroup(groups.get(position), me, groupItemClickClbk);
+            gHolder.setGroup(groups.get(position), me);
         }
     }
 
@@ -65,60 +72,70 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return count == 0 ? 1 : count;
     }
 
-    public void setGroups(List<Group> groups) {
-        if (groups != null && groups.size() > 0) {
-            this.groups.clear();
-            this.groups.addAll(groups);
-            notifyDataSetChanged();
+    public int findGroupIndex(String id) {
+        int index = -1;
+        int len = groups.size();
+        for (int i = 0; i < len; i++) {
+            if (groups.get(i).getId().equals(id)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        Group group = dataSnapshot.getValue(Group.class);
+        group.setId(dataSnapshot.getKey());
+        groups.add(group);
+        notifyItemInserted(groups.size());
+    }
+
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        Group group = dataSnapshot.getValue(Group.class);
+        group.setId(dataSnapshot.getKey());
+        int index = findGroupIndex(dataSnapshot.getKey());
+        if (index != -1) {
+            groups.set(index, group);
+            notifyItemChanged(index);
         }
     }
 
-    public void addGroup(Group group) {
-        if (group != null) {
-            groups.add(group);
-            notifyItemInserted(groups.size());
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+        Log.d(TAG, dataSnapshot.toString());
+        Group group = dataSnapshot.getValue(Group.class);
+        group.setId(dataSnapshot.getKey());
+        int index = findGroupIndex(dataSnapshot.getKey());
+        if (index != -1) {
+            groups.remove(index);
+            notifyItemRemoved(index);
         }
     }
 
-    public void modifyGroup(Group group) {
-        if (group != null) {
-            int index = 0;
-            boolean found = false;
-            for (Group g : groups) {
-                if (g.getId().equals(group.getId())) {
-                    found = true;
-                    break;
-                }
-                index += 1;
-            }
-            if (found) {
-                groups.set(index, group);
-                notifyItemChanged(index);
-            }
-        }
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+        Log.d(TAG, "onChildMoved");
     }
 
-    public void removeGroup(Group group) {
-        if (group != null) {
-            int index = 0;
-            boolean found = false;
-            for (Group g : groups) {
-                if (g.getId().equals(group.getId())) {
-                    found = true;
-                    break;
-                }
-                index += 1;
-            }
-            if (found) {
-                groups.remove(index);
-                notifyItemRemoved(index);
-            }
-        }
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+        Log.d(TAG, "onCancelled");
     }
 
     public void clear() {
         groups.clear();
         notifyDataSetChanged();
+    }
+
+    public void registerChildEventListener() {
+        dbRef.addChildEventListener(this);
+    }
+
+    public void unregisterChildEventListener() {
+        dbRef.removeEventListener(this);
     }
 
     interface TYPE {

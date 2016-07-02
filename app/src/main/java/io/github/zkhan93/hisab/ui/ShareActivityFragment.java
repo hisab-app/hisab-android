@@ -13,13 +13,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.UserItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ShareActivityFragment extends Fragment implements UserItemClickClbk {
+public class ShareActivityFragment extends Fragment implements UserItemActionClickClbk {
     public static final String TAG = ShareActivityFragment.class.getSimpleName();
 
     @BindView(R.id.users)
@@ -39,6 +39,19 @@ public class ShareActivityFragment extends Fragment implements UserItemClickClbk
         usersAdapter = new UsersAdapter(this);
         usersListView.setAdapter(usersAdapter);
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        usersAdapter.registerChildListener();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        usersAdapter.unregisterChildListener();
+        usersAdapter.clear();
     }
 
     @Override

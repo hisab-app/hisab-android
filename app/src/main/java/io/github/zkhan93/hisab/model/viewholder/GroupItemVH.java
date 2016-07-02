@@ -14,38 +14,42 @@ import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class GroupItemVH extends RecyclerView.ViewHolder {
+public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClickListener {
     @BindView(R.id.share_status)
     TextView share;
     @BindView(R.id.name)
     TextView name;
     @BindView(R.id.moderator)
     TextView moderator;
-    private View itemView;
 
-    public GroupItemVH(View itemView) {
+    private View itemView;
+    private GroupItemClickClbk groupItemClickClbk;
+    private Group group;
+
+    public GroupItemVH(View itemView, GroupItemClickClbk groupItemClickClbk) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         this.itemView = itemView;
-
+        this.groupItemClickClbk = groupItemClickClbk;
     }
 
-    public void setGroup(final Group group, User me, final GroupItemClickClbk groupItemClickClbk) {
+    public void setGroup(Group group, User me) {
         name.setText(group.getName());
         if (group.getMembersIds() == null || group.getMembersIds().size() == 0)
             share.setText("Private");
         else
             share.setText("Shared with " + String.valueOf(group.getMembersIds().size()));
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                groupItemClickClbk.GroupClicked(group.getId(), group.getName());
-            }
-        });
+        itemView.setOnClickListener(this);
 
         if (me.getEmail().equals(group.getModerator().getEmail()))
             moderator.setText("Created by You");
         else
             moderator.setText("Created by " + group.getModerator().getName());
+        this.group = group;
+    }
+
+    @Override
+    public void onClick(View view) {
+        groupItemClickClbk.GroupClicked(group.getId(), group.getName());
     }
 }
