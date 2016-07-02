@@ -219,15 +219,19 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private void handleGoogleSignInResult(GoogleSignInResult result) {
         Log.d(TAG, "google sign in result" + result.isSuccess());
         if (result.isSuccess()) {
-            GoogleSignInAccount account = result.getSignInAccount();
+            final GoogleSignInAccount account = result.getSignInAccount();
             if (account != null) {
                 String userId, name, email;
                 email = account.getEmail();
                 userId = Util.encodedEmail(email);
                 name = account.getDisplayName();
                 firebaseDatabase.getReference("users/" + userId).setValue(new User(name, email,
-                        userId));
-                FirebaseAuthWithGoogle(account);
+                        userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        FirebaseAuthWithGoogle(account);
+                    }
+                });
             } else {
                 Log.d(TAG, "account is null");
             }
