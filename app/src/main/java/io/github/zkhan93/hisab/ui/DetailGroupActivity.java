@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -73,6 +75,24 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_detail_group, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_share:
+                showShareGroupUi();
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void showAddExpenseView() {
         DialogFragment dialog = new CreateExpenseItemDialog();
         dialog.show(getFragmentManager(), "dialog");
@@ -91,5 +111,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
 // id branch
         dbRef.push().setValue(expenseItem);
+    }
+
+    private void showShareGroupUi() {
+
     }
 }

@@ -22,16 +22,15 @@ public class GroupItemVH extends RecyclerView.ViewHolder {
     @BindView(R.id.moderator)
     TextView moderator;
     private View itemView;
-    private GroupItemClickClbk groupItemClickClbk;
 
-    public GroupItemVH(View itemView, final GroupItemClickClbk groupItemClickClbk) {
+    public GroupItemVH(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         this.itemView = itemView;
-        this.groupItemClickClbk = groupItemClickClbk;
+
     }
 
-    public void setGroup(final Group group, User me) {
+    public void setGroup(final Group group, User me, final GroupItemClickClbk groupItemClickClbk) {
         name.setText(group.getName());
         if (group.getMembersIds() == null || group.getMembersIds().size() == 0)
             share.setText("Private");

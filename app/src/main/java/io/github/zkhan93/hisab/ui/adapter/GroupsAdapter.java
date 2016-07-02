@@ -39,8 +39,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE.EMPTY:
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             default:
-                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false),
-                        groupItemClickClbk);
+                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false));
         }
     }
 
@@ -48,7 +47,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE.NORMAL) {
             GroupItemVH gHolder = (GroupItemVH) holder;
-            gHolder.setGroup(groups.get(position),me);
+            gHolder.setGroup(groups.get(position), me, groupItemClickClbk);
         }
     }
 

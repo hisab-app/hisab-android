@@ -42,7 +42,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE.NORMAL) {
-            ((ExpenseItemVH) holder).setExpense(expenses.get(position),me);
+            ((ExpenseItemVH) holder).setExpense(expenses.get(position), me);
         }
     }
 
@@ -118,5 +118,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     interface TYPE {
         int EMPTY = 0;
         int NORMAL = 1;
+        int SUMMARY = 2;
     }
 }

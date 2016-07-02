@@ -37,7 +37,7 @@
 
             <TextView
                 android:id="@+id/amount"
-                style="@style/Txt.SMALL"
+                style="@style/Txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="48.0"/>

@@ -1,0 +1,13 @@
+<android.support.v7.widget.RecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/users"
+    app:listitem="@layout/user_item"
+    tools:context="io.github.zkhan93.hisab.ui.ShareActivityFragment"
+    tools:showIn="@layout/activity_share">
+
+
+</android.support.v7.widget.RecyclerView>
