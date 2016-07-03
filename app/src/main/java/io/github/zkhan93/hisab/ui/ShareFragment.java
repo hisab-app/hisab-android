@@ -28,8 +28,8 @@ import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ShareActivityFragment extends Fragment implements UserItemActionClickClbk {
-    public static final String TAG = ShareActivityFragment.class.getSimpleName();
+public class ShareFragment extends Fragment implements UserItemActionClickClbk {
+    public static final String TAG = ShareFragment.class.getSimpleName();
 
     @BindView(R.id.users)
     RecyclerView usersListView;
@@ -39,7 +39,7 @@ public class ShareActivityFragment extends Fragment implements UserItemActionCli
     private DatabaseReference shareDbRef;
     private User me;
 
-    public ShareActivityFragment() {
+    public ShareFragment() {
     }
 
     @Override
@@ -66,6 +66,7 @@ public class ShareActivityFragment extends Fragment implements UserItemActionCli
         usersListView.setLayoutManager(new LinearLayoutManager(getContext()));
         usersAdapter = new UsersAdapter(this,me);
         usersListView.setAdapter(usersAdapter);
+        getActivity().setTitle(R.string.title_fragment_share);
         return rootView;
     }
 

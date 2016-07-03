@@ -32,15 +32,52 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<ExpenseItem> expenses;
     private User me;
-    private DatabaseReference dbRef;
+    private DatabaseReference expensesRef, dbRef, sharedRef;
     private ExpenseItemClbk expenseItemClbk;
+    private int noOfMembers;
+    private ChildEventListener membersListener;
+    private String groupId;
+
+    {
+        membersListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                noOfMembers += 1;
+                notifyItemChanged(expenses.size());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                noOfMembers -= 1;
+                notifyItemChanged(expenses.size());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
 
     public ExpensesAdapter(User me, String groupId,
                            ExpenseItemClbk expenseItemClbk) {
         expenses = new ArrayList<>();
         this.me = me;
-        dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        expensesRef = dbRef.child("expenses/" + groupId);
+        sharedRef = dbRef.child("shareWith").child(groupId);
         this.expenseItemClbk = expenseItemClbk;
+        this.groupId = groupId;
     }
 
     @Override
@@ -65,7 +102,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position), me);
                 break;
             case TYPE.SUMMARY:
-                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount());
+                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(),noOfMembers);
                 break;
         }
     }
@@ -148,12 +185,14 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    public void registerChildEventListener() {
-        dbRef.addChildEventListener(this);
+    public void registerEventListener() {
+        expensesRef.addChildEventListener(this);
+        sharedRef.addChildEventListener(membersListener);
     }
 
-    public void unregisterChildEventListener() {
-        dbRef.removeEventListener(this);
+    public void unregisterEventListener() {
+        expensesRef.removeEventListener(this);
+        sharedRef.removeEventListener(membersListener);
     }
 
     private float getTotalAmount() {

@@ -57,16 +57,16 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         fab.setOnClickListener(this);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag
-                (DetailGroupActivityFragment.TAG);
-        if (fragment == null) {
-            fragment = new DetailGroupActivityFragment();
-            fragment.setArguments(getIntent().getExtras());
+        if (savedInstanceState == null) {
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag
+                    (ExpensesFragment.TAG);
+            if (fragment == null) {
+                fragment = new ExpensesFragment();
+                fragment.setArguments(getIntent().getExtras());
+            }
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
+                    ExpensesFragment.TAG).commit();
         }
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
-                DetailGroupActivityFragment.TAG).commit();
-        setTitle(groupName);
     }
 
     @Override
@@ -119,16 +119,17 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void showShareGroupUi() {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShareActivityFragment
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShareFragment
                 .TAG);
-        if (fragment == null)
-            fragment = new ShareActivityFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("groupId", groupId);
-        bundle.putParcelable("me", me);
-        fragment.setArguments(bundle);
+        if (fragment == null) {
+            fragment = new ShareFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("groupId", groupId);
+            bundle.putParcelable("me", me);
+            fragment.setArguments(bundle);
+        }
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
-                ShareActivityFragment.TAG).addToBackStack(DetailGroupActivityFragment.TAG).commit();
+                ShareFragment.TAG).addToBackStack(ExpensesFragment.TAG).commit();
         setTitle("Share with");
     }
 

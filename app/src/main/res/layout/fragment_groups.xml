@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.github.zkhan93.hisab.ui.GroupsActivityFragment"
+    tools:context=".ui.GroupsFragment"
     tools:listitem="@layout/group_item"
     tools:showIn="@layout/activity_groups">
 

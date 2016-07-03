@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -13,6 +14,8 @@ import io.github.zkhan93.hisab.R;
  */
 public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
 
+    public static final String TAG = ExpenseSummaryVH.class.getSimpleName();
+
     @BindView(R.id.amount)
     TextView amount;
     @BindView(R.id.per_person)
@@ -23,8 +26,14 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void setSummaryExpense(float amount) {
+    public void setSummaryExpense(float amount, int noOfMembers) {
         this.amount.setText(String.valueOf(amount));
-        individualAmount.setText(String.format("Per person %.2f", amount / 3));
+        noOfMembers += 1;//including self
+        if (noOfMembers > 0)
+            individualAmount.setText(String.format("Per member %.2f", amount / noOfMembers));
+        else {
+            individualAmount.setText("Invalid value");
+            Log.e(TAG, "invalid members count encountered");
+        }
     }
 }

@@ -35,15 +35,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.github.zkhan93.hisab.ui.GroupsActivity"/>
         </activity>
-        <activity
-            android:name=".ui.ShareActivity"
-            android:label="@string/title_activity_share"
-            android:parentActivityName=".ui.DetailGroupActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.github.zkhan93.hisab.ui.DetailGroupActivity"/>
-        </activity>
     </application>
 
 </manifest>

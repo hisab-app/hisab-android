@@ -30,9 +30,9 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailGroupActivityFragment extends Fragment implements
+public class ExpensesFragment extends Fragment implements
         ValueEventListener {
-    public static final String TAG = DetailGroupActivityFragment.class.getSimpleName();
+    public static final String TAG = ExpensesFragment.class.getSimpleName();
     //member views
     @BindView(R.id.expenses)
     RecyclerView expensesList;
@@ -43,7 +43,7 @@ public class DetailGroupActivityFragment extends Fragment implements
     private DatabaseReference groupNameRef;
     private DatabaseReference dbRef;
 
-    public DetailGroupActivityFragment() {
+    public ExpensesFragment() {
     }
 
     @Override
@@ -75,6 +75,7 @@ public class DetailGroupActivityFragment extends Fragment implements
         expensesAdapter = new ExpensesAdapter(me, groupId, (DetailGroupActivity) getActivity());
         expensesList.setAdapter(expensesAdapter);
         setHasOptionsMenu(true);
+        getActivity().setTitle(groupName);
         return rootView;
     }
 
@@ -107,14 +108,14 @@ public class DetailGroupActivityFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        expensesAdapter.registerChildEventListener();
+        expensesAdapter.registerEventListener();
         groupNameRef.addValueEventListener(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        expensesAdapter.unregisterChildEventListener();
+        expensesAdapter.unregisterEventListener();
         expensesAdapter.clear();
         groupNameRef.removeEventListener(this);
     }

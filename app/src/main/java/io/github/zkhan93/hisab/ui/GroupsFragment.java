@@ -21,8 +21,8 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GroupsActivityFragment extends Fragment implements GroupItemClickClbk {
-    public static final String TAG = GroupsActivityFragment.class.getSimpleName();
+public class GroupsFragment extends Fragment implements GroupItemClickClbk {
+    public static final String TAG = GroupsFragment.class.getSimpleName();
 
     //member views
     @BindView(R.id.groups)
@@ -31,7 +31,7 @@ public class GroupsActivityFragment extends Fragment implements GroupItemClickCl
     private GroupsAdapter groupsAdapter;
     private User me;
 
-    public GroupsActivityFragment() {
+    public GroupsFragment() {
     }
 
     @Override

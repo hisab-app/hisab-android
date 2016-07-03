@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:id="@+id/users"
     tools:listitem="@layout/user_item"
-    tools:context="io.github.zkhan93.hisab.ui.ShareActivityFragment"
-    tools:showIn="@layout/activity_share">
+    tools:context=".ui.ShareFragment"
+    tools:showIn="@layout/activity_groups">
 
 
 </android.support.v7.widget.RecyclerView>

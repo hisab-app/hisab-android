@@ -7,7 +7,7 @@
     <string name="title_create_grp">Crate a new group</string>
     <string name="title_create_expense">Expense</string>
     <string name="title_edit_expense">Edit expense</string>
-    <string name="title_activity_share">Share with</string>
+    <string name="title_fragment_share">Share with</string>
     <string name="title_rename_grp">Rename</string>
 
     <string name="action_settings">Settings</string>
