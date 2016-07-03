@@ -3,9 +3,15 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="io.github.zkhan93.hisab.ui.DetailGroupActivity">
     <item
+        android:id="@+id/action_rename"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:orderInCategory="100"
+        android:title="@string/action_rename"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_share"
         android:icon="@android:drawable/ic_menu_share"
         android:orderInCategory="100"
         android:title="@string/action_share"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 </menu>

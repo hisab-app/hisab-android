@@ -79,9 +79,25 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
                 if (firebaseUser != null) {
-                    Log.d(TAG, "user signed_in" + firebaseUser.getUid());
-                    startActivity(new Intent(getActivity(), GroupsActivity.class));
+                    Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
+                            .getProviderId());
+                    String userId = Util.encodedEmail(firebaseUser.getEmail());
+                    firebaseDatabase.getReference("users/" + userId).setValue(new User
+                            (firebaseUser.getDisplayName(), firebaseUser.getEmail(), userId))
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        startActivity(new Intent(getActivity(), GroupsActivity
+                                                .class));
+                                    } else {
+                                        Log.d(TAG, "error creating user");
+                                    }
+                                }
+                            });
+
                 } else {
                     Log.d(TAG, "user signed_out");
                     Util.clearPreferences(getActivity());
@@ -221,17 +237,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         if (result.isSuccess()) {
             final GoogleSignInAccount account = result.getSignInAccount();
             if (account != null) {
-                String userId, name, email;
-                email = account.getEmail();
-                userId = Util.encodedEmail(email);
-                name = account.getDisplayName();
-                firebaseDatabase.getReference("users/" + userId).setValue(new User(name, email,
-                        userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        FirebaseAuthWithGoogle(account);
-                    }
-                });
+                FirebaseAuthWithGoogle(account);
             } else {
                 Log.d(TAG, "account is null");
             }

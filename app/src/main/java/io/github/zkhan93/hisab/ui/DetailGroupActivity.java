@@ -75,23 +75,6 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_detail_group, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_share:
-                showShareGroupUi();
-                return true;
-            default:
-                return false;
-        }
-    }
 
     private void showAddExpenseView() {
         DialogFragment dialog = new CreateExpenseItemDialog();
@@ -113,12 +96,14 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         dbRef.push().setValue(expenseItem);
     }
 
-    private void showShareGroupUi() {
+    public void showShareGroupUi() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShareActivityFragment
                 .TAG);
         if (fragment == null)
             fragment = new ShareActivityFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 ShareActivityFragment.TAG).addToBackStack(DetailGroupActivityFragment.TAG).commit();
+        setTitle("Share with");
     }
+
 }

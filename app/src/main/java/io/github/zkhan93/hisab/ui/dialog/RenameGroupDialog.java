@@ -6,40 +6,48 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
-import io.github.zkhan93.hisab.ui.DetailGroupActivity;
+import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class CreateExpenseItemDialog extends DialogFragment {
+public class RenameGroupDialog extends DialogFragment {
 
-    public static final String TAG = CreateExpenseItemDialog.class.getSimpleName();
+    public static final String TAG = RenameGroupDialog.class.getSimpleName();
 
-    @BindView(R.id.description)
-    TextInputEditText description;
-    @BindView(R.id.amount)
-    TextInputEditText amount;
+    @BindView(R.id.group_name)
+    TextInputEditText groupName;
+    GroupRenameClbk groupRenameClbk;
+
+    public void addGroupRenameCallback(GroupRenameClbk groupRenameClbk) {
+        this.groupRenameClbk = groupRenameClbk;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.title_create_expense);
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_create_expense,
+        builder.setTitle(R.string.title_rename_grp);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rename_group,
                 null);
         ButterKnife.bind(this, view);
         builder.setView(view);
-        builder.setPositiveButton(R.string.label_create, new DialogInterface
+        builder.setPositiveButton(R.string.label_done, new DialogInterface
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ((DetailGroupActivity) getActivity()).createExpense(description.getText()
-                        .toString(), Float.parseFloat(amount.getText().toString()));
+                if (groupRenameClbk != null)
+                    groupRenameClbk.renameTo(groupName.getText().toString());
+                else
+                    Log.e(TAG, "no GroupRenameCallback added to RenameGroupDialog, you might want to add callback " +
+                            "listener");
+
             }
         }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             @Override

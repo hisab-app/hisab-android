@@ -19,6 +19,9 @@ import io.github.zkhan93.hisab.ui.GroupsActivity;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class CreateGroupDialog extends DialogFragment {
+
+    public static final String TAG = CreateGroupDialog.class.getSimpleName();
+
     @BindView(R.id.group_name)
     TextInputEditText groupName;
 
