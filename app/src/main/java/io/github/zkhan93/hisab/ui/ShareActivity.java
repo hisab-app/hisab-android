@@ -42,7 +42,7 @@ public class ShareActivity extends AppCompatActivity implements View.OnClickList
         int id = view.getId();
         switch (id) {
             default:
-                Log.d(TAG, "click not inplement");
+                Log.d(TAG, "click not implement");
         }
     }
 

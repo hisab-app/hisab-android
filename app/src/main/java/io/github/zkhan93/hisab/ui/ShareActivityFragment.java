@@ -14,6 +14,7 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
+import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
 
 /**
@@ -55,8 +56,11 @@ public class ShareActivityFragment extends Fragment implements UserItemActionCli
     }
 
     @Override
-    public void UserCLicked(User user) {
+    public void UserClicked(ExUser user) {
         //TODO: add this user to me's fried list
-        Log.d(TAG, "adding " + user.getName() + " as afriend ");
+        if(user.isChecked())
+            Log.d(TAG, "adding " + user.getName() + " to share list ");
+        else
+            Log.d(TAG, "removing " + user.getName() + " from sharing list");
     }
 }

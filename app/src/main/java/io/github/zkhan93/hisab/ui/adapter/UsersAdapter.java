@@ -17,7 +17,6 @@ import java.util.List;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
-import io.github.zkhan93.hisab.model.callback.UserItemUiClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.UserVH;
@@ -26,7 +25,7 @@ import io.github.zkhan93.hisab.model.viewholder.UserVH;
  * Created by Zeeshan Khan on 7/3/2016.
  */
 public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener, UserItemUiClickClbk {
+        ChildEventListener {
 
     public static final String TAG = UsersAdapter.class.getSimpleName();
 
@@ -49,7 +48,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     parent, false));
         else
             return new UserVH(LayoutInflater.from(parent.getContext()).inflate(R.layout
-                    .user_item, parent, false),actionCallback,this);
+                    .user_item, parent, false),actionCallback);
     }
 
     @Override
@@ -140,14 +139,6 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public void unregisterChildListener() {
         dbRef.removeEventListener(this);
-    }
-
-    @Override
-    public void updateUi(ExUser user) {
-        int index = findUserIndex(user.getId());
-        if (index != -1) {
-            notifyItemChanged(index);
-        }
     }
 
     private interface VIEW_TYPE {
