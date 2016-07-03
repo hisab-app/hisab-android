@@ -26,7 +26,6 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemActionClbk;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemUiClbk;
-import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.RenameGroupDialog;
@@ -35,13 +34,13 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailGroupActivityFragment extends Fragment implements GroupRenameClbk,
+public class DetailGroupActivityFragment extends Fragment implements
         ValueEventListener, ExpenseItemUiClbk {
     public static final String TAG = DetailGroupActivityFragment.class.getSimpleName();
     //member views
     @BindView(R.id.expenses)
     RecyclerView expensesList;
-    String groupId;
+    String groupId, groupName;
     //other members
     ExpensesAdapter expensesAdapter;
     private User me;
@@ -57,9 +56,11 @@ public class DetailGroupActivityFragment extends Fragment implements GroupRename
             Bundle bundle = getArguments();
             if (bundle != null) {
                 groupId = bundle.getString("groupId");
+                groupName = bundle.getString("groupName");
             }
         } else {
             groupId = savedInstanceState.getString("groupId");
+            groupName = savedInstanceState.getString("groupName");
         }
         me = Util.getUser(getContext());
         groupNameRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId() + "/" +
@@ -73,7 +74,7 @@ public class DetailGroupActivityFragment extends Fragment implements GroupRename
         ButterKnife.bind(this, rootView);
         expensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        expensesAdapter = new ExpensesAdapter(me, groupId,this);
+        expensesAdapter = new ExpensesAdapter(me, groupId, this);
         expensesList.setAdapter(expensesAdapter);
         setHasOptionsMenu(true);
         return rootView;
@@ -102,6 +103,7 @@ public class DetailGroupActivityFragment extends Fragment implements GroupRename
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("groupId", groupId);
+        outState.putString("groupName", groupName);
     }
 
     @Override
@@ -119,32 +121,20 @@ public class DetailGroupActivityFragment extends Fragment implements GroupRename
         groupNameRef.removeEventListener(this);
     }
 
-    @Override
-    public void renameTo(String newName) {
-        if (newName == null || newName.isEmpty()) {
-            Log.e(TAG, "invalid new name, cannot rename groups");
-            return;
-        }
-        if (me == null || me.getId() == null || me.getId().isEmpty()) {
-            Log.e(TAG, "user id is not valid cannot rename group");
-            return;
-        }
-        if (groupId == null || groupId.isEmpty()) {
-            Log.e(TAG, "groupId is not valid cannot rename group");
-            return;
-        }
-        groupNameRef.setValue(newName);
-    }
 
     private void showRenameUi() {
         RenameGroupDialog renameDialog = new RenameGroupDialog();
-        renameDialog.addGroupRenameCallback(this);
+        Bundle bundle = new Bundle();
+        bundle.putString("name", groupName);
+        renameDialog.setArguments(bundle);
         renameDialog.show(getActivity().getFragmentManager(), RenameGroupDialog.TAG);
     }
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        getActivity().setTitle(dataSnapshot.getValue().toString());
+        groupName = dataSnapshot.getValue().toString();
+        if (isVisible())
+            getActivity().setTitle(groupName);
     }
 
     @Override

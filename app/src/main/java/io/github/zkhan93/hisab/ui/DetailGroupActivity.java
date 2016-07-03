@@ -21,10 +21,12 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.ui.dialog.CreateExpenseItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
-public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener {
+public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
+        GroupRenameClbk {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
@@ -32,7 +34,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    private DatabaseReference dbRef;
+    private DatabaseReference dbRef, dbGrpNameRef;
     private FirebaseUser firebaseUser;
     private String groupId, groupName;
     private User me;
@@ -46,6 +48,8 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         groupId = getIntent().getStringExtra("groupId");
         groupName = getIntent().getStringExtra("groupName");
         dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
+        dbGrpNameRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId() + "/" +
+                groupId).child("name");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
@@ -84,6 +88,23 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+    }
+
+    @Override
+    public void renameTo(String newName) {
+        if (newName == null || newName.isEmpty()) {
+            Log.e(TAG, "invalid new name, cannot rename groups");
+            return;
+        }
+        if (me == null || me.getId() == null || me.getId().isEmpty()) {
+            Log.e(TAG, "user id is not valid cannot rename group");
+            return;
+        }
+        if (groupId == null || groupId.isEmpty()) {
+            Log.e(TAG, "groupId is not valid cannot rename group");
+            return;
+        }
+        dbGrpNameRef.setValue(newName);
     }
 
     public void createExpense(String description, float amount) {
