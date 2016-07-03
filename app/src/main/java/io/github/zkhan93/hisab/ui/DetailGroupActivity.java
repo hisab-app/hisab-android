@@ -21,12 +21,14 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.ui.dialog.CreateExpenseItemDialog;
+import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
-        GroupRenameClbk {
+        GroupRenameClbk, ExpenseItemClbk {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
@@ -34,7 +36,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    private DatabaseReference dbRef, dbGrpNameRef;
+    private DatabaseReference groupExpensesRef, dbGrpNameRef, dbRef;
     private FirebaseUser firebaseUser;
     private String groupId, groupName;
     private User me;
@@ -47,9 +49,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         ButterKnife.bind(this);
         groupId = getIntent().getStringExtra("groupId");
         groupName = getIntent().getStringExtra("groupName");
-        dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
-        dbGrpNameRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId() + "/" +
-                groupId).child("name");
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        groupExpensesRef = dbRef.child("expenses").child(groupId);
+        dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
@@ -113,7 +115,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         expenseItem.setOwner(me);
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
 // id branch
-        dbRef.push().setValue(expenseItem);
+        groupExpensesRef.push().setValue(expenseItem);
     }
 
     public void showShareGroupUi() {
@@ -130,4 +132,22 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         setTitle("Share with");
     }
 
+    @Override
+    public void showEditUi(ExpenseItem expense) {
+        EditExpenseItemDialog dialog = new EditExpenseItemDialog();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("expense", expense);
+        dialog.setArguments(bundle);
+        dialog.show(getFragmentManager(), EditExpenseItemDialog.TAG);
+    }
+
+    @Override
+    public void delete(String expenseId) {
+        groupExpensesRef.child(expenseId).removeValue();
+    }
+
+    @Override
+    public void update(ExpenseItem expense) {
+        groupExpensesRef.child(expense.getId()).setValue(expense);
+    }
 }

@@ -17,8 +17,7 @@ import java.util.List;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemActionClbk;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemUiClbk;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
@@ -27,20 +26,21 @@ import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener, ExpenseItemActionClbk {
+        ChildEventListener {
 
     public static final String TAG = ExpensesAdapter.class.getSimpleName();
 
     private List<ExpenseItem> expenses;
     private User me;
     private DatabaseReference dbRef;
-    private ExpenseItemUiClbk uiCallback;
+    private ExpenseItemClbk expenseItemClbk;
 
-    public ExpensesAdapter(User me, String groupId, ExpenseItemUiClbk uiCallback) {
+    public ExpensesAdapter(User me, String groupId,
+                           ExpenseItemClbk expenseItemClbk) {
         expenses = new ArrayList<>();
         this.me = me;
         dbRef = FirebaseDatabase.getInstance().getReference("expenses/" + groupId);
-        this.uiCallback = uiCallback;
+        this.expenseItemClbk = expenseItemClbk;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         parent, false));
             default:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item, parent, false),
-                        this, uiCallback);
+                        expenseItemClbk);
         }
     }
 
@@ -163,18 +163,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 res += ex.getAmount();
         }
         return res;
-    }
-
-    @Override
-    public void delete(String expenseId) {
-        if(dbRef!=null)
-        dbRef.child(expenseId).removeValue();
-    }
-
-    @Override
-    public void update(ExpenseItem expense) {
-        if(dbRef!=null)
-        dbRef.child(expense.getId()).setValue(expense);
     }
 
     interface TYPE {

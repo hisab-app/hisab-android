@@ -22,12 +22,8 @@ import com.google.firebase.database.ValueEventListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
-import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemActionClbk;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemUiClbk;
 import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
-import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.RenameGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
@@ -35,7 +31,7 @@ import io.github.zkhan93.hisab.util.Util;
  * A placeholder fragment containing a simple view.
  */
 public class DetailGroupActivityFragment extends Fragment implements
-        ValueEventListener, ExpenseItemUiClbk {
+        ValueEventListener {
     public static final String TAG = DetailGroupActivityFragment.class.getSimpleName();
     //member views
     @BindView(R.id.expenses)
@@ -45,6 +41,7 @@ public class DetailGroupActivityFragment extends Fragment implements
     ExpensesAdapter expensesAdapter;
     private User me;
     private DatabaseReference groupNameRef;
+    private DatabaseReference dbRef;
 
     public DetailGroupActivityFragment() {
     }
@@ -65,6 +62,7 @@ public class DetailGroupActivityFragment extends Fragment implements
         me = Util.getUser(getContext());
         groupNameRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId() + "/" +
                 groupId).child("name");
+        dbRef = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -74,7 +72,7 @@ public class DetailGroupActivityFragment extends Fragment implements
         ButterKnife.bind(this, rootView);
         expensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        expensesAdapter = new ExpensesAdapter(me, groupId, this);
+        expensesAdapter = new ExpensesAdapter(me, groupId, (DetailGroupActivity) getActivity());
         expensesList.setAdapter(expensesAdapter);
         setHasOptionsMenu(true);
         return rootView;
@@ -142,11 +140,5 @@ public class DetailGroupActivityFragment extends Fragment implements
         Log.d(TAG, "name fetching operation cancelled");
     }
 
-    @Override
-    public void showEditUi(ExpenseItem expense, ExpenseItemActionClbk actionClbk) {
-        EditExpenseItemDialog dialog = new EditExpenseItemDialog();
-        dialog.setExpense(expense);
-        dialog.setActionClbk(actionClbk);
-        dialog.show(getActivity().getFragmentManager(), EditExpenseItemDialog.TAG);
-    }
+
 }

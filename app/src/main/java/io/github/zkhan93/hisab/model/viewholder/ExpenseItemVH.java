@@ -11,8 +11,7 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemActionClbk;
-import io.github.zkhan93.hisab.model.callback.ExpenseItemUiClbk;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -32,16 +31,15 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     @BindView(R.id.delete)
     Button delete;
 
-    private ExpenseItemActionClbk actionClbk;
-    private ExpenseItemUiClbk uiCallback;
+    private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
 
-    public ExpenseItemVH(View itemView, ExpenseItemActionClbk actionClbk, ExpenseItemUiClbk
-            uiCallback) {
+    public ExpenseItemVH(View itemView, ExpenseItemClbk
+            expenseItemClbk) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        this.actionClbk = actionClbk;
-        this.uiCallback = uiCallback;
+        this.expenseItemClbk = expenseItemClbk;
+
     }
 
     public void setExpense(ExpenseItem expense, User me) {
@@ -69,7 +67,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 update();
                 break;
             case R.id.delete:
-                actionClbk.delete(expense.getId());
+                expenseItemClbk.delete(expense.getId());
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -77,6 +75,6 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     }
 
     private void update() {
-        uiCallback.showEditUi(expense, actionClbk);
+        expenseItemClbk.showEditUi(expense);
     }
 }
