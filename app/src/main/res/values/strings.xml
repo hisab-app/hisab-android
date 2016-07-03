@@ -5,7 +5,8 @@
     <string name="title_activity_groups">Groups</string>
     <string name="title_activity_detail_group">Expenses in %1$s</string>
     <string name="title_create_grp">Crate a new group</string>
-    <string name="title_create_expense">Crate a expense</string>
+    <string name="title_create_expense">Expense</string>
+    <string name="title_edit_expense">Edit expense</string>
     <string name="title_activity_share">Share with</string>
     <string name="title_rename_grp">Rename</string>
 
@@ -16,6 +17,8 @@
     <string name="action_share">Share</string>
 
     <string name="btn_txt_login">Login</string>
+    <string name="btn_txt_edit">Edit</string>
+    <string name="btn_txt_delete">Delete</string>
     <string name="btn_txt_signup">create account</string>
     <string name="btn_txt_google_login">Sign In with Google</string>
 

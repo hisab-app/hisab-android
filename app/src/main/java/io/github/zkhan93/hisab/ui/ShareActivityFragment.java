@@ -64,7 +64,7 @@ public class ShareActivityFragment extends Fragment implements UserItemActionCli
         View rootView = inflater.inflate(R.layout.fragment_share, container, false);
         ButterKnife.bind(this, rootView);
         usersListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        usersAdapter = new UsersAdapter(this);
+        usersAdapter = new UsersAdapter(this,me);
         usersListView.setAdapter(usersAdapter);
         return rootView;
     }

@@ -18,15 +18,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/name"
-            style="@style/Txt"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="0dp"
-            android:text="Group Name"/>
+            android:layout_gravity="center"
+            android:paddingBottom="5dp">
+
+            <TextView
+                android:id="@+id/name"
+                style="@style/Txt"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
+                android:paddingTop="0dp"
+                android:text="Group Name"/>
+
+            <TextView
+                android:id="@+id/time"
+                style="@style/Txt.SMALL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="2, Jan 2016"/>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,6 +60,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
                 android:paddingTop="0dp"
                 android:text="Zeeshan is Moderator"/>
 
@@ -50,6 +72,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:gravity="center"
+                android:paddingBottom="0dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
                 android:text="shared with 2"/>
 
 

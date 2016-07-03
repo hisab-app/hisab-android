@@ -32,14 +32,14 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<ExUser> users;
     private DatabaseReference dbRef;
     private UserItemActionClickClbk actionCallback;
+    private User me;
 
-
-    public UsersAdapter(UserItemActionClickClbk actionCallback) {
+    public UsersAdapter(UserItemActionClickClbk actionCallback, User me) {
         users = new ArrayList<>();
         this.actionCallback = actionCallback;
         dbRef = FirebaseDatabase.getInstance().getReference("users");
+        this.me = me;
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,7 +48,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     parent, false));
         else
             return new UserVH(LayoutInflater.from(parent.getContext()).inflate(R.layout
-                    .user_item, parent, false),actionCallback);
+                    .user_item, parent, false), actionCallback);
     }
 
     @Override
@@ -77,7 +77,8 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         User user = dataSnapshot.getValue(User.class);
-        if (user != null && user.getId() != null && !user.getId().isEmpty()) {
+        if (user != null && user.getId() != null && !user.getId().isEmpty() && !user.getId()
+                .equals(me.getId())) {
             this.users.add(new ExUser(user));
             notifyItemChanged(users.size() - 1);
         }
@@ -86,6 +87,8 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
         User user = dataSnapshot.getValue(User.class);
+        if (user == null || user.getId().equals(me.getId()))
+            return;
         int index = findUserIndex(user.getId());
         if (index != -1) {
             users.set(index, new ExUser(user));
@@ -96,6 +99,8 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
         User user = dataSnapshot.getValue(User.class);
+        if (user == null || user.getId().equals(me.getId()))
+            return;
         int index = findUserIndex(user.getId());
         if (index != -1) {
             users.remove(index);

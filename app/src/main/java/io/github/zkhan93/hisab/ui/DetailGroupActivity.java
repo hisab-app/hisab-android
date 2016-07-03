@@ -54,9 +54,10 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
         Fragment fragment = getSupportFragmentManager().findFragmentByTag
                 (DetailGroupActivityFragment.TAG);
-        if (fragment == null)
+        if (fragment == null) {
             fragment = new DetailGroupActivityFragment();
-        fragment.setArguments(getIntent().getExtras());
+            fragment.setArguments(getIntent().getExtras());
+        }
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 DetailGroupActivityFragment.TAG).commit();
         setTitle(groupName);
