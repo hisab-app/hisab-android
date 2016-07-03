@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -101,6 +99,10 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                 .TAG);
         if (fragment == null)
             fragment = new ShareActivityFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("groupId", groupId);
+        bundle.putParcelable("me", me);
+        fragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 ShareActivityFragment.TAG).addToBackStack(DetailGroupActivityFragment.TAG).commit();
         setTitle("Share with");
