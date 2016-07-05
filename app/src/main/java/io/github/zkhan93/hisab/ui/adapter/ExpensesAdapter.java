@@ -193,6 +193,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void unregisterEventListener() {
         expensesRef.removeEventListener(this);
         sharedRef.removeEventListener(membersListener);
+        noOfMembers=0;
     }
 
     private float getTotalAmount() {

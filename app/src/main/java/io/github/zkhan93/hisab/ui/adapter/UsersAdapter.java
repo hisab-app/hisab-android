@@ -10,6 +10,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +31,81 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public static final String TAG = UsersAdapter.class.getSimpleName();
 
     private List<ExUser> users;
-    private DatabaseReference dbRef;
+    private User moderator;
+    private DatabaseReference dbRef, shareRef, groupAuthorRef;
     private UserItemActionClickClbk actionCallback;
     private User me;
+    private ChildEventListener shareChildListeners;
+    private ValueEventListener moderatorListener;
 
-    public UsersAdapter(UserItemActionClickClbk actionCallback, User me) {
+    {
+        shareChildListeners = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                User user = dataSnapshot.getValue(User.class);
+                ExUser exUser = new ExUser(user);
+                exUser.setChecked(true);
+                int index = findUserIndex(exUser.getId());
+                if (index != -1) {
+                    users.set(index, exUser);
+                    notifyItemChanged(index);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                User user = dataSnapshot.getValue(User.class);
+                ExUser exUser = new ExUser(user);
+                exUser.setChecked(true);
+                int index = findUserIndex(exUser.getId());
+                if (index != -1) {
+                    users.set(index, exUser);
+                    notifyItemChanged(index);
+                }
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                int index = findUserIndex(user.getId());
+                if (index != -1) {
+                    users.set(index, new ExUser(user));
+                    notifyItemChanged(index);
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "share child moved");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "share child cancelled");
+            }
+        };
+        moderatorListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                moderator = dataSnapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    public UsersAdapter(UserItemActionClickClbk actionCallback, User me, String groupId) {
         users = new ArrayList<>();
         this.actionCallback = actionCallback;
-        dbRef = FirebaseDatabase.getInstance().getReference("users");
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        shareRef = dbRef.child("shareWith").child(groupId);
+        dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
+                .addListenerForSingleValueEvent(moderatorListener);
+        dbRef = dbRef.child("users");
         this.me = me;
     }
 
@@ -78,7 +146,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         User user = dataSnapshot.getValue(User.class);
         if (user != null && user.getId() != null && !user.getId().isEmpty() && !user.getId()
-                .equals(me.getId())) {
+                .equals(me.getId()) && !moderator.getId().equals(user.getId())) {
             this.users.add(new ExUser(user));
             notifyItemChanged(users.size() - 1);
         }
@@ -138,12 +206,14 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         notifyDataSetChanged();
     }
 
-    public void registerChildListener() {
+    public void registerEventListener() {
         dbRef.addChildEventListener(this);
+        shareRef.addChildEventListener(shareChildListeners);
     }
 
-    public void unregisterChildListener() {
+    public void unregisterEventListener() {
         dbRef.removeEventListener(this);
+        shareRef.removeEventListener(shareChildListeners);
     }
 
     private interface VIEW_TYPE {

@@ -64,7 +64,7 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk {
         View rootView = inflater.inflate(R.layout.fragment_share, container, false);
         ButterKnife.bind(this, rootView);
         usersListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        usersAdapter = new UsersAdapter(this,me);
+        usersAdapter = new UsersAdapter(this,me,groupId);
         usersListView.setAdapter(usersAdapter);
         getActivity().setTitle(R.string.title_fragment_share);
         return rootView;
@@ -73,13 +73,13 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk {
     @Override
     public void onStart() {
         super.onStart();
-        usersAdapter.registerChildListener();
+        usersAdapter.registerEventListener();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        usersAdapter.unregisterChildListener();
+        usersAdapter.unregisterEventListener();
         usersAdapter.clear();
     }
 

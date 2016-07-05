@@ -6,6 +6,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -19,6 +22,7 @@ import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public static final String TAG = ExpenseItemVH.class.getSimpleName();
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM");
 
     @BindView(R.id.description)
     TextView description;
@@ -33,27 +37,31 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 
     private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
+    private Calendar calendar;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
             expenseItemClbk) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         this.expenseItemClbk = expenseItemClbk;
-
+        calendar = Calendar.getInstance();
     }
 
     public void setExpense(ExpenseItem expense, User me) {
         this.expense = expense;
         description.setText(expense.getDescription());
         amount.setText(String.valueOf(expense.getAmount()));
+        calendar.setTimeInMillis(expense.getCreatedOn());
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            owner.setText("added by You");
+            owner.setText(String.format("added by You on %s", DATE_FORMAT.format(calendar.getTime
+                    ())));
             rename.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
             rename.setOnClickListener(this);
             delete.setOnClickListener(this);
         } else {
-            owner.setText("added by " + expense.getOwner().getName());
+            owner.setText(String.format("added by %s on %s", expense.getOwner().getName(),
+                    DATE_FORMAT.format(calendar.getTime())));
             rename.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }

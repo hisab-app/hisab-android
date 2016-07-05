@@ -130,6 +130,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 ShareFragment.TAG).addToBackStack(ExpensesFragment.TAG).commit();
+        fab.hide();
         setTitle("Share with");
     }
 
@@ -150,5 +151,11 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void update(ExpenseItem expense) {
         groupExpensesRef.child(expense.getId()).setValue(expense);
+    }
+
+    @Override
+    public void onBackPressed() {
+        fab.show();
+        super.onBackPressed();
     }
 }

@@ -92,6 +92,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                                     if (task.isSuccessful()) {
                                         startActivity(new Intent(getActivity(), GroupsActivity
                                                 .class));
+                                        getActivity().finish();
                                     } else {
                                         Log.d(TAG, "error creating user");
                                     }

@@ -30,7 +30,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
         this.amount.setText(String.valueOf(amount));
         noOfMembers += 1;//including self
         if (noOfMembers > 0)
-            individualAmount.setText(String.format("Per member %.2f", amount / noOfMembers));
+            individualAmount.setText(String.format("Per member(%d) %.2f",noOfMembers, amount / noOfMembers));
         else {
             individualAmount.setText("Invalid value");
             Log.e(TAG, "invalid members count encountered");

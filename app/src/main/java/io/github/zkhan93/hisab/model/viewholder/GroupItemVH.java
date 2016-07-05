@@ -22,8 +22,6 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     public static final String TAG = GroupItemVH.class.getSimpleName();
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM yyyy");
 
-    @BindView(R.id.share_status)
-    TextView share;
     @BindView(R.id.name)
     TextView name;
     @BindView(R.id.moderator)
@@ -46,10 +44,6 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
 
     public void setGroup(Group group, User me) {
         name.setText(group.getName());
-        if (group.getMembersIds() == null || group.getMembersIds().size() == 0)
-            share.setText("Private");
-        else
-            share.setText("Shared with " + String.valueOf(group.getMembersIds().size()));
         itemView.setOnClickListener(this);
 
         if (me.getEmail().equals(group.getModerator().getEmail()))

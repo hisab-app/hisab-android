@@ -10,7 +10,8 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/common_full_open_on_phone"/>
+        android:src="@drawable/empty_glass"
+        android:tint="@color/md_grey_500"/>
 
     <TextView
         style="@style/Txt"

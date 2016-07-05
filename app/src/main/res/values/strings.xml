@@ -22,7 +22,7 @@
     <string name="btn_txt_signup">create account</string>
     <string name="btn_txt_google_login">Sign In with Google</string>
 
-    <string name="msg_empty">Opps!! nothing here</string>
+    <string name="msg_empty">Oops!! Looks like nothing in here</string>
     <string name="msg_in_progress">Hold on! loading..</string>
     <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
     <string name="msg_signin_forget_pswd">Forget password? <b>Reset</b></string>
