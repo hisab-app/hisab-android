@@ -74,14 +74,16 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         archiveClickClbk = new ArchiveClickClbk() {
             @Override
             public void archiveGrp() {
-                Map<String, Object> map = new HashMap<>();
+
+//                Map<String, Object> map = new HashMap<>();
                 Map<String, Object> mExpenses = new HashMap<>();
                 for (ExpenseItem e : expenses) {
                     mExpenses.put(e.getId(), e.toMap());
                 }
-                map.put("archive/" + groupId, mExpenses);
-                map.put("expenses/" + groupId, null);
-                dbRef.updateChildren(map);
+                archiveRef.push().setValue(mExpenses);
+                expensesRef.setValue(null);
+//                map.put("expenses/" + groupId, null);
+//                dbRef.updateChildren(map);
             }
         };
     }

@@ -3,6 +3,7 @@ package io.github.zkhan93.hisab.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
  */
 @IgnoreExtraProperties
 public class ExpenseItem implements Parcelable {
+    @Exclude
     String id;
     String groupId;
     User owner;
@@ -136,7 +138,6 @@ public class ExpenseItem implements Parcelable {
     };
     public Map<String,Object> toMap(){
         Map<String,Object> map=new HashMap<>();
-        map.put("id",id);
         map.put("groupId",groupId);
         map.put("owner",owner.toMap());
         map.put("description",description);
