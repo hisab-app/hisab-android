@@ -14,7 +14,10 @@ public class Util {
     }
 
     public static String decodedEmail(String email) {
+        if (email == null)
+            return "";
         return email.replace(',', '.');
+
     }
 
     public static String getUserId(Context context) {

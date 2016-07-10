@@ -12,11 +12,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.ArchiveClickClbk;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
@@ -32,8 +35,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<ExpenseItem> expenses;
     private User me;
-    private DatabaseReference expensesRef, dbRef, sharedRef;
+    private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef;
     private ExpenseItemClbk expenseItemClbk;
+    private ArchiveClickClbk archiveClickClbk;
     private int noOfMembers;
     private ChildEventListener membersListener;
     private String groupId;
@@ -67,6 +71,19 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             }
         };
+        archiveClickClbk = new ArchiveClickClbk() {
+            @Override
+            public void archiveGrp() {
+                Map<String, Object> map = new HashMap<>();
+                Map<String, Object> mExpenses = new HashMap<>();
+                for (ExpenseItem e : expenses) {
+                    mExpenses.put(e.getId(), e.toMap());
+                }
+                map.put("archive/" + groupId, mExpenses);
+                map.put("expenses/" + groupId, null);
+                dbRef.updateChildren(map);
+            }
+        };
     }
 
     public ExpensesAdapter(User me, String groupId,
@@ -76,6 +93,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         dbRef = FirebaseDatabase.getInstance().getReference();
         expensesRef = dbRef.child("expenses/" + groupId);
         sharedRef = dbRef.child("shareWith").child(groupId);
+        archiveRef = dbRef.child("archive").child(groupId);
         this.expenseItemClbk = expenseItemClbk;
         this.groupId = groupId;
     }
@@ -102,7 +120,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position), me);
                 break;
             case TYPE.SUMMARY:
-                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(),noOfMembers);
+                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), noOfMembers,
+                        archiveClickClbk);
                 break;
         }
     }
@@ -193,7 +212,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void unregisterEventListener() {
         expensesRef.removeEventListener(this);
         sharedRef.removeEventListener(membersListener);
-        noOfMembers=0;
+        noOfMembers = 0;
     }
 
     private float getTotalAmount() {

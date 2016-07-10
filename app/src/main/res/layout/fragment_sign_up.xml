@@ -3,7 +3,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              tools:context=".ui.SignUpFragment"
-             >
+    >
 
     <ImageView
         android:layout_width="match_parent"
@@ -57,36 +57,36 @@
                     />
             </android.support.design.widget.TextInputLayout>
 
-           <!-- <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+            <!-- <android.support.design.widget.TextInputLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 >
 
-                <EditText
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/hint_password"
-                    android:inputType="textPassword"
-                    android:padding="10dp"
-                    />
-            </android.support.design.widget.TextInputLayout>
+                 <EditText
+                     android:id="@+id/password"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:hint="@string/hint_password"
+                     android:inputType="textPassword"
+                     android:padding="10dp"
+                     />
+             </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+             <android.support.design.widget.TextInputLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 >
 
-                <EditText
-                    android:id="@+id/confirm_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/hint_confirm_password"
-                    android:inputType="textPassword"
-                    android:padding="10dp"
-                    />
-            </android.support.design.widget.TextInputLayout>
--->
+                 <EditText
+                     android:id="@+id/confirm_password"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:hint="@string/hint_confirm_password"
+                     android:inputType="textPassword"
+                     android:padding="10dp"
+                     />
+             </android.support.design.widget.TextInputLayout>
+ -->
             <Button
                 android:id="@+id/btn_sign_up"
                 style="@style/BtnLarge"
@@ -104,7 +104,6 @@
                 android:gravity="center"
                 android:onClick="loadLoginFragment"
                 android:text="@string/msg_signin_with_link"
-                android:textColor="@color/md_white_1000"
                 android:textStyle="bold"/>
         </LinearLayout>
     </ScrollView>

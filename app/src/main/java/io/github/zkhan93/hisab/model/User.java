@@ -3,6 +3,9 @@ package io.github.zkhan93.hisab.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Zeeshan Khan on 6/25/2016.
  */
@@ -81,5 +84,13 @@ public class User implements Parcelable {
                 ", email='" + email + '\'' +
                 ", id='" + id + '\'' +
                 '}';
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("email", email);
+        map.put("id", id);
+        return map;
     }
 }
