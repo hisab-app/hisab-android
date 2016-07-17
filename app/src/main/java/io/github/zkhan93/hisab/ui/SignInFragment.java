@@ -79,11 +79,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
                             .getProviderId());
-                    String userId = Util.encodedEmail(firebaseUser.getEmail());
+                    String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser.getEmail());
                     firebaseDatabase.getReference("users/" + userId).setValue(new User
                             (firebaseUser.getDisplayName(), firebaseUser.getEmail(), userId))
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -262,11 +261,13 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
         } else {
             SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String userId, name;
+            String userId, name, email;
             FirebaseUser firebaseUser = task.getResult().getUser();
-            userId = Util.encodedEmail(firebaseUser.getEmail());
+            userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser.getEmail());
             name = firebaseUser.getDisplayName();
-            spf.edit().putString("user_id", userId).putString("name", name)
+            email = firebaseUser.getEmail();
+            spf.edit().putString("user_id", userId).putString("name", name).putString("email",
+                    email)
                     .apply();
         }
         hideProgress();

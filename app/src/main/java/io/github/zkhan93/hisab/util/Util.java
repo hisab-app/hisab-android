@@ -23,7 +23,9 @@ public class Util {
     public static String getUserId(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("user_id", null);
     }
-
+    public static String getUserEmail(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString("email", null);
+    }
     public static String getUserName(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("name", null);
     }
@@ -32,7 +34,7 @@ public class Util {
         String name, email, userId;
         name = getUserName(context);
         userId = getUserId(context);
-        email = decodedEmail(userId);
+        email = getUserEmail(context);
         User user = new User(name, email, userId);
         return user;
     }

@@ -130,7 +130,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                         } else {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                             String email = firebaseUser.getEmail();
-                            String userId = Util.encodedEmail(email);
+                            String userId = firebaseUser.getUid();//Util.encodedEmail(email);
                             User user = new User(name, email, userId);
                             firebaseDatabase.getReference("users/" + userId).setValue(user);
                             firebaseAuth.signOut();
