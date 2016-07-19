@@ -4,8 +4,8 @@
     <string name="title_activity_entry">@string/app_name</string>
     <string name="title_activity_groups">Groups</string>
     <string name="title_activity_detail_group">Expenses in %1$s</string>
-    <string name="title_create_grp">Crate a new group</string>
-    <string name="title_create_expense">Expense</string>
+    <string name="title_create_grp">New Group</string>
+    <string name="title_create_expense">Add Expense</string>
     <string name="title_edit_expense">Edit expense</string>
     <string name="title_fragment_share">Share with</string>
     <string name="title_rename_grp">Rename</string>
@@ -23,6 +23,8 @@
     <string name="btn_txt_google_login">Sign In with Google</string>
 
     <string name="msg_empty">Oops!! Looks like nothing in here</string>
+    <string name="msg_no_groups">Create a new Group</string>
+    <string name="msg_no_groups_suggestion">All groups will appear here.</string>
     <string name="msg_in_progress">Hold on! loading..</string>
     <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
     <string name="msg_signin_forget_pswd">Forget password? <b>Reset</b></string>

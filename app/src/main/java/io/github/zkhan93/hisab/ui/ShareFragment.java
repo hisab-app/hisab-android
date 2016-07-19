@@ -85,7 +85,6 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk {
 
     @Override
     public void UserClicked(final ExUser user) {
-        //TODO: add this user to me's fried list
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         if (user.isChecked()) {
             Log.d(TAG, "adding " + user.getName() + " to share list ");
