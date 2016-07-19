@@ -126,6 +126,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         archiveClickClbk);
                 break;
         }
+        if(holder instanceof EmptyVH)
+            ((EmptyVH) holder).setType(EmptyVH.TYPE.EXPENSE);
     }
 
     @Override

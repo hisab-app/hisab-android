@@ -25,6 +25,11 @@
     <string name="msg_empty">Oops!! Looks like nothing in here</string>
     <string name="msg_no_groups">Create a new Group</string>
     <string name="msg_no_groups_suggestion">All groups will appear here.</string>
+    <string name="msg_no_expenses">Add a new Item</string>
+    <string name="msg_no_expenses_suggestion">All items will appear here.</string>
+    <string name="msg_no_users">No users found</string>
+    <string name="msg_no_users_suggestion">All users will be listed here.</string>
+
     <string name="msg_in_progress">Hold on! loading..</string>
     <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
     <string name="msg_signin_forget_pswd">Forget password? <b>Reset</b></string>
@@ -45,4 +50,5 @@
     <string name="err_required">%1$s cannot be empty</string>
     <string name="err_email_taken">This email already exist</string>
 
+    <string name="empty"></string>
 </resources>

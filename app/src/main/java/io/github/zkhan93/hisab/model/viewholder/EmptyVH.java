@@ -28,12 +28,44 @@ public class EmptyVH extends RecyclerView.ViewHolder {
         super(itemView);
         ButterKnife.bind(this, itemView);
         context = itemView.getContext();
+    }
+
+    public void setType(int type) {
+        int drawables, msgId, suggestionId;
+        switch (type) {
+            case TYPE.EXPENSE:
+                drawables = R.drawable.big_item;
+                suggestionId = R.string.msg_no_expenses_suggestion;
+                msgId = R.string.msg_no_expenses;
+                break;
+            case TYPE.GROUP:
+                drawables = R.drawable.big_groups;
+                suggestionId = R.string.msg_no_groups_suggestion;
+                msgId = R.string.msg_no_expenses;
+                break;
+            case TYPE.USERS:
+                drawables = R.drawable.big_user;
+                suggestionId = R.string.msg_no_users_suggestion;
+                msgId = R.string.msg_no_expenses;
+                break;
+            case TYPE.GENERAL:
+            default:
+                drawables = R.drawable.empty_glass;
+                suggestionId = R.string.empty;
+                msgId = R.string.msg_no_expenses;
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            image.setImageDrawable(context.getResources().getDrawable(R.drawable.big_groups));
+            image.setImageDrawable(context.getResources().getDrawable(drawables));
         else
-            image.setImageDrawable(context.getResources().getDrawable(R.drawable.big_groups,
-                    context.getTheme()));
-        msg.setText(context.getString(R.string.msg_no_groups));
-        suggestion.setText(context.getString(R.string.msg_no_groups_suggestion));
+            image.setImageDrawable(context.getDrawable(drawables));
+        msg.setText(context.getString(msgId));
+        suggestion.setText(context.getString(suggestionId));
+    }
+
+    public interface TYPE {
+        int GENERAL = 0;
+        int GROUP = 1;
+        int EXPENSE = 2;
+        int USERS = 3;
     }
 }

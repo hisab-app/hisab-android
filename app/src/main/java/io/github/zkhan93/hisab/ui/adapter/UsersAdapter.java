@@ -124,6 +124,8 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (getItemViewType(position) == VIEW_TYPE.NORMAL) {
             ((UserVH) holder).setUser(users.get(position));
         }
+        if (holder instanceof EmptyVH)
+            ((EmptyVH) holder).setType(EmptyVH.TYPE.USERS);
     }
 
     @Override
