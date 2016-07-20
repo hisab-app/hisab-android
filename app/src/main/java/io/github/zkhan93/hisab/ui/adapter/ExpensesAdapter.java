@@ -10,6 +10,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static final String TAG = ExpensesAdapter.class.getSimpleName();
 
     private List<ExpenseItem> expenses;
-    private User me;
+    private User me, owner;
     private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef;
     private ExpenseItemClbk expenseItemClbk;
     private ArchiveClickClbk archiveClickClbk;
@@ -43,6 +44,12 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String groupId;
 
     {
+        owner = null;
+        me = null;
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        expensesRef = dbRef.child("expenses/" + groupId);
+        sharedRef = dbRef.child("shareWith").child(groupId);
+        archiveRef = dbRef.child("archive").child(groupId);
         membersListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -74,30 +81,40 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         archiveClickClbk = new ArchiveClickClbk() {
             @Override
             public void archiveGrp() {
-
-//                Map<String, Object> map = new HashMap<>();
                 Map<String, Object> mExpenses = new HashMap<>();
                 for (ExpenseItem e : expenses) {
                     mExpenses.put(e.getId(), e.toMap());
                 }
                 archiveRef.push().setValue(mExpenses);
                 expensesRef.setValue(null);
-//                map.put("expenses/" + groupId, null);
-//                dbRef.updateChildren(map);
             }
         };
+        dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot != null)
+                            owner = dataSnapshot.getValue(User.class);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "unable to fetch owner");
+                    }
+                });
     }
 
     public ExpensesAdapter(User me, String groupId,
                            ExpenseItemClbk expenseItemClbk) {
         expenses = new ArrayList<>();
         this.me = me;
-        dbRef = FirebaseDatabase.getInstance().getReference();
-        expensesRef = dbRef.child("expenses/" + groupId);
-        sharedRef = dbRef.child("shareWith").child(groupId);
-        archiveRef = dbRef.child("archive").child(groupId);
         this.expenseItemClbk = expenseItemClbk;
         this.groupId = groupId;
+    }
+
+    private void ownerUpdated() {
+        if (getItemCount() > 0)
+            notifyItemChanged(expenses.size());
     }
 
     @Override
@@ -123,19 +140,19 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), noOfMembers,
-                        archiveClickClbk);
+                        archiveClickClbk,me, owner);
                 break;
         }
-        if(holder instanceof EmptyVH)
+        if (holder instanceof EmptyVH)
             ((EmptyVH) holder).setType(EmptyVH.TYPE.EXPENSE);
     }
 
     @Override
     public int getItemViewType(int position) {
-        int count = expenses.size();
-        if (count == 0)
+        int size = expenses.size();
+        if (size == 0)
             return TYPE.EMPTY;
-        else if (position < count)
+        else if (position < size)
             return TYPE.NORMAL;
         else
             return TYPE.SUMMARY;

@@ -41,12 +41,12 @@ public class EmptyVH extends RecyclerView.ViewHolder {
             case TYPE.GROUP:
                 drawables = R.drawable.big_groups;
                 suggestionId = R.string.msg_no_groups_suggestion;
-                msgId = R.string.msg_no_expenses;
+                msgId = R.string.msg_no_groups;
                 break;
             case TYPE.USERS:
                 drawables = R.drawable.big_user;
                 suggestionId = R.string.msg_no_users_suggestion;
-                msgId = R.string.msg_no_expenses;
+                msgId = R.string.msg_no_users;
                 break;
             case TYPE.GENERAL:
             default:

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ArchiveClickClbk;
 
 /**
@@ -28,9 +29,11 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
     public ExpenseSummaryVH(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+        archive.setVisibility(View.GONE);
     }
 
-    public void setSummaryExpense(float amount, int noOfMembers,final ArchiveClickClbk archiveClickClbk) {
+    public void setSummaryExpense(float amount, int noOfMembers, final ArchiveClickClbk
+            archiveClickClbk, User me, User owner) {
         this.amount.setText(String.valueOf(amount));
         noOfMembers += 1;//including self
         if (noOfMembers > 0)
@@ -40,11 +43,16 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             individualAmount.setText("Invalid value");
             Log.e(TAG, "invalid members count encountered");
         }
-        archive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                archiveClickClbk.archiveGrp();
-            }
-        });
+        if (owner == null || !owner.getId().equals(me.getId())) {
+            archive.setVisibility(View.GONE);
+        } else {
+            archive.setVisibility(View.VISIBLE);
+            archive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    archiveClickClbk.archiveGrp();
+                }
+            });
+        }
     }
 }

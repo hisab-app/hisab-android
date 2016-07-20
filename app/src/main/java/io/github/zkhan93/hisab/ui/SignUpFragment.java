@@ -67,6 +67,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in" + firebaseUser.getUid());
                     startActivity(new Intent(getActivity(), GroupsActivity.class));
+                    getActivity().finish();
                 } else {
                     Log.d(TAG, "user signed_out");
                     Util.clearPreferences(getActivity());

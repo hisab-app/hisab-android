@@ -82,7 +82,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
                             .getProviderId());
-                    String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser.getEmail());
+                    String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
+                    // .getEmail());
                     firebaseDatabase.getReference("users/" + userId).setValue(new User
                             (firebaseUser.getDisplayName(), firebaseUser.getEmail(), userId))
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -253,6 +254,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
 
     }
 
+    /**
+     * TaskComplete listener for facebook and google sign in calls
+     * @param task
+     */
     @Override
     public void onComplete(@NonNull Task<AuthResult> task) {
         if (!task.isSuccessful()) {
