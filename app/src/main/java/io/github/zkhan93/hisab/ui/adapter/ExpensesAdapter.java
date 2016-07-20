@@ -46,10 +46,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     {
         owner = null;
         me = null;
-        dbRef = FirebaseDatabase.getInstance().getReference();
-        expensesRef = dbRef.child("expenses/" + groupId);
-        sharedRef = dbRef.child("shareWith").child(groupId);
-        archiveRef = dbRef.child("archive").child(groupId);
+
         membersListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -110,6 +107,10 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.me = me;
         this.expenseItemClbk = expenseItemClbk;
         this.groupId = groupId;
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        expensesRef = dbRef.child("expenses/" + groupId);
+        sharedRef = dbRef.child("shareWith").child(groupId);
+        archiveRef = dbRef.child("archive").child(groupId);
     }
 
     private void ownerUpdated() {

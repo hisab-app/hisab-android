@@ -1,12 +1,15 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import butterknife.BindDrawable;
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -50,7 +53,7 @@ public class EmptyVH extends RecyclerView.ViewHolder {
                 break;
             case TYPE.GENERAL:
             default:
-                drawables = R.drawable.empty_glass;
+                drawables = R.drawable.big_glass;
                 suggestionId = R.string.empty;
                 msgId = R.string.msg_no_expenses;
         }
