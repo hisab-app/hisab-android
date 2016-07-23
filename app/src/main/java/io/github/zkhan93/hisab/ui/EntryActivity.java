@@ -13,11 +13,13 @@ public class EntryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignUpFragment.TAG);
-        if (fragment == null)
-            fragment = new SignUpFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
-                SignUpFragment.TAG).commit();
+        if (savedInstanceState == null) {
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignUpFragment.TAG);
+            if (fragment == null)
+                fragment = new SignUpFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
+                    SignUpFragment.TAG).commit();
+        }
     }
 
     public void loadLoginFragment(View view) {

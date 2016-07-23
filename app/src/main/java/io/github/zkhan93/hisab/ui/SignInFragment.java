@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -59,6 +59,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     View progressView;
     @BindView(R.id.btn_google_sign_in)
     SignInButton signInButton;
+    @BindView(R.id.error)
+    TextView error;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
@@ -254,15 +256,33 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
 
     }
 
+    private void showError(String msg) {
+        if (error != null) {
+            if (msg == null || msg.trim().length() == 0) {
+                clearError();
+                return;
+            }
+            error.setText(msg);
+            error.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void clearError() {
+        if (error != null) {
+            error.setVisibility(View.GONE);
+            error.setText("");
+        }
+    }
+
     /**
      * TaskComplete listener for facebook and google sign in calls
+     *
      * @param task
      */
     @Override
     public void onComplete(@NonNull Task<AuthResult> task) {
         if (!task.isSuccessful()) {
-            Toast.makeText(getActivity(), "failed to register you", Toast
-                    .LENGTH_SHORT).show();
+            showError(task.getException().getLocalizedMessage());
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
         } else {
             SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -277,4 +297,5 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         }
         hideProgress();
     }
+
 }

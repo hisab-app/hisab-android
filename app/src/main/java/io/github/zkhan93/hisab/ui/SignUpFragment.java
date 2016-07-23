@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -47,6 +48,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     View formView;
     @BindView(R.id.progress_layout)
     View progressView;
+    @BindView(R.id.error)
+    TextView error;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
@@ -124,9 +127,9 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                 (getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        hideProgress();
                         if (!task.isSuccessful()) {
-                            Toast.makeText(getActivity(), "failed to register you", Toast
-                                    .LENGTH_SHORT).show();
+                            setError(task.getException().getLocalizedMessage());
                             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
                         } else {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -192,5 +195,19 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     private void hideProgress() {
         progressView.setVisibility(View.GONE);
         formView.setVisibility(View.VISIBLE);
+    }
+
+    private void setError(String msg) {
+        if (msg == null || msg.trim().length() == 0) {
+            clearError();
+            return;
+        }
+        error.setText(msg);
+        error.setVisibility(View.VISIBLE);
+    }
+
+    private void clearError() {
+        error.setVisibility(View.GONE);
+        error.setText("");
     }
 }
