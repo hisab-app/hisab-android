@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -25,21 +26,37 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
     TextView individualAmount;
     @BindView(R.id.archive)
     Button archive;
+    private Context context;
 
     public ExpenseSummaryVH(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         archive.setVisibility(View.GONE);
+        this.context = itemView.getContext();
     }
 
-    public void setSummaryExpense(float amount, int noOfMembers, final ArchiveClickClbk
+    public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, final
+    ArchiveClickClbk
             archiveClickClbk, User me, User owner) {
         this.amount.setText(String.valueOf(amount));
         noOfMembers += 1;//including self
-        if (noOfMembers > 0)
-            individualAmount.setText(String.format("Per member(%d) %.2f", noOfMembers, amount /
-                    noOfMembers));
-        else {
+        if (noOfMembers == 1) {
+            individualAmount.setText(context.getString(R.string.msg_share_to_split));
+        } else if (noOfMembers > 1) {
+            float genShare = amount / noOfMembers;
+            float myShare = genShare - myExpenses;
+            String msg = null;
+            msg = context.getString(myShare < 0 ? R.string.msg_summary_collect : R.string
+                            .msg_summary_give, noOfMembers, genShare,
+                    myExpenses,
+                    Math.abs(myShare));
+
+            if (myShare == 0) {
+                msg = context.getString(R.string.msg_your_clear);
+            }
+            individualAmount.setText(String.format(msg, noOfMembers, genShare, myExpenses,
+                    myShare));
+        } else {
             individualAmount.setText("Invalid value");
             Log.e(TAG, "invalid members count encountered");
         }

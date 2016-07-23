@@ -86,6 +86,19 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 expensesRef.setValue(null);
             }
         };
+    }
+
+    public ExpensesAdapter(User me, String groupId,
+                           ExpenseItemClbk expenseItemClbk) {
+        expenses = new ArrayList<>();
+        this.me = me;
+        this.expenseItemClbk = expenseItemClbk;
+        this.groupId = groupId;
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        expensesRef = dbRef.child("expenses/" + groupId);
+        sharedRef = dbRef.child("shareWith").child(groupId);
+        archiveRef = dbRef.child("archive").child(groupId);
+
         dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -99,18 +112,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         Log.d(TAG, "unable to fetch owner");
                     }
                 });
-    }
-
-    public ExpensesAdapter(User me, String groupId,
-                           ExpenseItemClbk expenseItemClbk) {
-        expenses = new ArrayList<>();
-        this.me = me;
-        this.expenseItemClbk = expenseItemClbk;
-        this.groupId = groupId;
-        dbRef = FirebaseDatabase.getInstance().getReference();
-        expensesRef = dbRef.child("expenses/" + groupId);
-        sharedRef = dbRef.child("shareWith").child(groupId);
-        archiveRef = dbRef.child("archive").child(groupId);
     }
 
     private void ownerUpdated() {
@@ -140,8 +141,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position), me);
                 break;
             case TYPE.SUMMARY:
-                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), noOfMembers,
-                        archiveClickClbk,me, owner);
+                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(),getMyExpensesSum(), noOfMembers,
+                        archiveClickClbk, me, owner);
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -241,6 +242,15 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         float res = 0;
         for (ExpenseItem ex : expenses) {
             if (ex != null)
+                res += ex.getAmount();
+        }
+        return res;
+    }
+
+    private float getMyExpensesSum() {
+        float res = 0;
+        for (ExpenseItem ex : expenses) {
+            if (ex != null && ex.getOwner().getId().equals(me.getId()))
                 res += ex.getAmount();
         }
         return res;
