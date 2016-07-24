@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import butterknife.BindView;
@@ -20,12 +20,12 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
 
     public static final String TAG = ExpenseSummaryVH.class.getSimpleName();
 
-    @BindView(R.id.amount)
-    TextView amount;
+    @BindView(R.id.description)
+    TextView description;
     @BindView(R.id.per_person)
     TextView individualAmount;
     @BindView(R.id.archive)
-    Button archive;
+    ImageButton archive;
     private Context context;
 
     public ExpenseSummaryVH(View itemView) {
@@ -38,7 +38,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
     public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, final
     ArchiveClickClbk
             archiveClickClbk, User me, User owner) {
-        this.amount.setText(String.valueOf(amount));
+        this.description.setText("Total expenses " + String.valueOf(amount));
         noOfMembers += 1;//including self
         if (noOfMembers == 1) {
             individualAmount.setText(context.getString(R.string.msg_share_to_split));

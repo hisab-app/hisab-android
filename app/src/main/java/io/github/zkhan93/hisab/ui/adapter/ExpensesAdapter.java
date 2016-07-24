@@ -138,10 +138,11 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
-                ((ExpenseItemVH) holder).setExpense(expenses.get(position), me);
+                ((ExpenseItemVH) holder).setExpense(expenses.get(position-1), me);
                 break;
             case TYPE.SUMMARY:
-                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(),getMyExpensesSum(), noOfMembers,
+                ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
+                        (), noOfMembers,
                         archiveClickClbk, me, owner);
                 break;
         }
@@ -154,10 +155,10 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int size = expenses.size();
         if (size == 0)
             return TYPE.EMPTY;
-        else if (position < size)
-            return TYPE.NORMAL;
-        else
+        else if (position == 0)
             return TYPE.SUMMARY;
+        else
+            return TYPE.NORMAL;
     }
 
     @Override
@@ -184,7 +185,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (index != -1) {
             expenses.set(index, expense);
             notifyItemChanged(index);
-            notifyItemChanged(expenses.size());
+            notifyItemChanged(0);
         }
     }
 
@@ -196,7 +197,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (index != -1) {
             expenses.remove(index);
             notifyItemRemoved(index);
-            notifyItemChanged(expenses.size());
+            notifyItemChanged(0);
         }
     }
 
@@ -219,7 +220,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             }
         }
-        return index;
+        return index+1;
     }
 
     public void clear() {

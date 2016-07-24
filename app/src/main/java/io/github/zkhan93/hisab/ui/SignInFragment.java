@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
@@ -61,6 +62,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     SignInButton signInButton;
     @BindView(R.id.error)
     TextView error;
+    @BindView(R.id.reset_password)
+    TextView resetPassword;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
@@ -86,20 +89,38 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                             .getProviderId());
                     String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
                     // .getEmail());
-                    firebaseDatabase.getReference("users/" + userId).setValue(new User
-                            (firebaseUser.getDisplayName(), firebaseUser.getEmail(), userId))
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        startActivity(new Intent(getActivity(), GroupsActivity
-                                                .class));
-                                        getActivity().finish();
-                                    } else {
-                                        Log.d(TAG, "error creating user");
+                    if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName()
+                            .isEmpty()) {
+                        //google sign in
+                        User user = new User
+                                (firebaseUser.getDisplayName(), firebaseUser.getEmail(),
+                                        userId);
+                        firebaseDatabase.getReference("users").child(userId).setValue(user)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            startActivity(new Intent(getActivity(),
+                                                    GroupsActivity
+                                                            .class));
+                                            hideProgress();
+                                            getActivity().finish();
+                                        } else {
+                                            Log.d(TAG, "error creating user: " + task
+                                                    .getException()
+                                                    .getLocalizedMessage());
+                                            showError(task.getException().getLocalizedMessage
+                                                    ());
+                                            hideProgress();
+                                        }
                                     }
-                                }
-                            });
+                                });
+                    } else {
+                        //sign in with password
+                        startActivity(new Intent(getActivity(), GroupsActivity.class));
+                        hideProgress();
+                        getActivity().finish();
+                    }
 
                 } else {
                     Log.d(TAG, "user signed_out");
@@ -118,6 +139,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                  */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+
     }
 
     @Override
@@ -131,6 +153,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setScopes(gso.getScopeArray());
         signInButton.setOnClickListener(this);
+        resetPassword.setOnClickListener(this);
         return rootView;
     }
 
@@ -142,6 +165,9 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 break;
             case R.id.btn_google_sign_in:
                 googleSignInAction();
+                break;
+            case R.id.reset_password:
+                resetPassword();
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -159,6 +185,13 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         super.onStop();
         if (firebaseAuth != null)
             firebaseAuth.removeAuthStateListener(authStateListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        googleApiClient.stopAutoManage(getActivity());
+        googleApiClient.disconnect();
     }
 
     public void loginBtnAction() {
@@ -274,8 +307,47 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         }
     }
 
+    private void resetPassword() {
+        if (edtTxtEmail == null) {
+            Log.d(TAG, "no email feild");
+            return;
+        }
+        String email = edtTxtEmail.getText().toString().trim();
+        if (email.isEmpty()) {
+            edtTxtEmail.setError("Enter you email address to reset your password");
+            edtTxtEmail.requestFocus();
+            return;
+        }
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(getActivity(), new
+                OnCompleteListener<Void>() {
+
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = null;
+                        if (task.isSuccessful()) {
+                            msg = getString(R.string
+                                    .msg_reset_email_check);
+                        } else {
+                            msg = task.getException().getLocalizedMessage();
+                            if (msg == null) {
+                                msg = getString(R.string.msg_gen_error);
+                            }
+                        }
+                        final Snackbar snackbar = Snackbar.make(formView, msg, Snackbar
+                                .LENGTH_INDEFINITE);
+                        snackbar.setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                snackbar.dismiss();
+                            }
+                        });
+                        snackbar.show();
+                    }
+                });
+    }
+
     /**
-     * TaskComplete listener for facebook and google sign in calls
+     * TaskComplete listener for normal and google sign in calls
      *
      * @param task
      */
@@ -284,6 +356,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         if (!task.isSuccessful()) {
             showError(task.getException().getLocalizedMessage());
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
+            hideProgress();
         } else {
             SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
             String userId, name, email;
@@ -291,11 +364,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser.getEmail());
             name = firebaseUser.getDisplayName();
             email = firebaseUser.getEmail();
+            Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
             spf.edit().putString("user_id", userId).putString("name", name).putString("email",
                     email)
                     .apply();
         }
-        hideProgress();
+
     }
 
 }

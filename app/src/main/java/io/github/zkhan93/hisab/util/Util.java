@@ -3,6 +3,9 @@ package io.github.zkhan93.hisab.util;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import io.github.zkhan93.hisab.model.User;
 
 /**
@@ -23,9 +26,11 @@ public class Util {
     public static String getUserId(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("user_id", null);
     }
+
     public static String getUserEmail(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("email", null);
     }
+
     public static String getUserName(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("name", null);
     }
@@ -40,6 +45,26 @@ public class Util {
     }
 
     public static void clearPreferences(Context context) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().clear().apply();
+        if (context != null)
+            PreferenceManager.getDefaultSharedPreferences(context).edit().clear().apply();
+    }
+
+    public static String md5(String source) {
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(source.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < messageDigest.length; i++)
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

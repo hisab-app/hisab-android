@@ -1,6 +1,5 @@
 package io.github.zkhan93.hisab.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +28,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -53,7 +50,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth.AuthStateListener authStateListener;
 
     public SignUpFragment() {
     }
@@ -63,20 +59,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                if (firebaseUser != null) {
-                    Log.d(TAG, "user signed_in" + firebaseUser.getUid());
-                    startActivity(new Intent(getActivity(), GroupsActivity.class));
-                    getActivity().finish();
-                } else {
-                    Log.d(TAG, "user signed_out");
-                    Util.clearPreferences(getActivity());
-                }
-            }
-        };
     }
 
     @Override
@@ -101,19 +83,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        firebaseAuth.addAuthStateListener(authStateListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (firebaseAuth != null)
-            firebaseAuth.removeAuthStateListener(authStateListener);
-    }
-
     public void registerClick() {
         String pswd;
 
@@ -127,10 +96,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                 (getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        hideProgress();
                         if (!task.isSuccessful()) {
                             setError(task.getException().getLocalizedMessage());
                             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
+                            hideProgress();
                         } else {
                             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                             String email = firebaseUser.getEmail();
@@ -144,18 +113,24 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             Log.d(TAG, "sign up successful");
                                             hideProgress();
-                                            Snackbar.make(getView(), "Sign up successful, check " +
-                                                    "your " +
-                                                    "email for password", Snackbar.LENGTH_LONG)
-                                                    .show();
+                                            final Snackbar snackbar = Snackbar.make(getView(),
+                                                    getString(R.string
+                                                            .msg_signup_done_email_check), Snackbar
+                                                            .LENGTH_INDEFINITE);
+                                            snackbar.setAction(getString(R.string.ok), new View
+                                                    .OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    snackbar.dismiss();
+                                                }
+                                            });
+                                            snackbar.show();
                                             ((EntryActivity) getActivity()).loadLoginFragment();
                                         }
                                     });
                         }
                     }
                 });
-
-
     }
 
     /**

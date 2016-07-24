@@ -57,10 +57,7 @@
     <style name="Txt" parent="android:Widget.TextView">
         <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Medium
         </item>
-        <item name="android:paddingTop">@dimen/txt_padding_mid</item>
-        <item name="android:paddingBottom">@dimen/txt_padding_mid</item>
-        <item name="android:paddingRight">@dimen/txt_padding_mid</item>
-        <item name="android:paddingLeft">@dimen/txt_padding_mid</item>
+
     </style>
 
     <style name="Txt.LARGE" parent="Txt">

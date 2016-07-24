@@ -14,11 +14,11 @@ public class EntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
         if (savedInstanceState == null) {
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignUpFragment.TAG);
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignInFragment.TAG);
             if (fragment == null)
-                fragment = new SignUpFragment();
+                fragment = new SignInFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
-                    SignUpFragment.TAG).commit();
+                    SignInFragment.TAG).commit();
         }
     }
 
@@ -26,11 +26,24 @@ public class EntryActivity extends AppCompatActivity {
         loadLoginFragment();
     }
 
+    public void loadSignUpFragment(View view) {
+        loadSignUpFragment();
+    }
+
+
     public void loadLoginFragment() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignInFragment.TAG);
         if (fragment == null)
             fragment = new SignInFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 SignInFragment.TAG).commit();
+    }
+
+    private void loadSignUpFragment() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignUpFragment.TAG);
+        if (fragment == null)
+            fragment = new SignUpFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
+                SignUpFragment.TAG).commit();
     }
 }
