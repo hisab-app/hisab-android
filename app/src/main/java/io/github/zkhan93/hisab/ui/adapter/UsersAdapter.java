@@ -222,6 +222,4 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         int NORMAL = 0;
         int EMPTY = 1;
     }
-
-
 }

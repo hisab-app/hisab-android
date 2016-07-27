@@ -10,6 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -21,7 +24,7 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GroupsFragment extends Fragment implements GroupItemClickClbk {
+public class GroupsFragment extends Fragment implements GroupItemClickClbk, PreferenceChangeListener{
     public static final String TAG = GroupsFragment.class.getSimpleName();
 
     //member views
@@ -77,5 +80,11 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk {
         groupsAdapter.unregisterChildEventListener();
         groupsAdapter.clear();
     }
-
+    @Override
+    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+        String keyChanged=preferenceChangeEvent.getKey();
+        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
+            me=Util.getUser(getActivity());
+        }
+    }
 }

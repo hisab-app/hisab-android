@@ -184,7 +184,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int index = findExpenseIndex(dataSnapshot.getKey());
         if (index != -1) {
             expenses.set(index, expense);
-            notifyItemChanged(index);
+            notifyItemChanged(index+1);
             notifyItemChanged(0);
         }
     }
@@ -196,7 +196,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int index = findExpenseIndex(dataSnapshot.getKey());
         if (index != -1) {
             expenses.remove(index);
-            notifyItemRemoved(index);
+            notifyItemRemoved(index+1);
             notifyItemChanged(0);
         }
     }
@@ -220,7 +220,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             }
         }
-        return index+1;
+        return index;
     }
 
     public void clear() {

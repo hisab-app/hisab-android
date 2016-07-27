@@ -15,6 +15,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,7 +30,7 @@ import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
-        GroupRenameClbk, ExpenseItemClbk {
+        GroupRenameClbk, ExpenseItemClbk,PreferenceChangeListener {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
@@ -157,5 +159,12 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
         fab.show();
         super.onBackPressed();
+    }
+    @Override
+    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+        String keyChanged=preferenceChangeEvent.getKey();
+        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
+            me=Util.getUser(getApplicationContext());
+        }
     }
 }

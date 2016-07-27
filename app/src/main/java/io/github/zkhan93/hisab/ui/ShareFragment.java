@@ -16,6 +16,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -24,11 +27,12 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ShareFragment extends Fragment implements UserItemActionClickClbk {
+public class ShareFragment extends Fragment implements UserItemActionClickClbk,PreferenceChangeListener {
     public static final String TAG = ShareFragment.class.getSimpleName();
 
     @BindView(R.id.users)
@@ -119,5 +123,12 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk {
         super.onSaveInstanceState(outState);
         outState.putString("groupId", groupId);
         outState.putParcelable("me", me);
+    }
+    @Override
+    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+        String keyChanged=preferenceChangeEvent.getKey();
+        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
+            me= Util.getUser(getActivity());
+        }
     }
 }

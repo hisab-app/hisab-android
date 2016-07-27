@@ -19,6 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -30,8 +33,8 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ExpensesFragment extends Fragment implements
-        ValueEventListener {
+public class ExpensesFragment extends Fragment implements ValueEventListener,
+        PreferenceChangeListener {
     public static final String TAG = ExpensesFragment.class.getSimpleName();
     //member views
     @BindView(R.id.expenses)
@@ -141,5 +144,13 @@ public class ExpensesFragment extends Fragment implements
         Log.d(TAG, "name fetching operation cancelled");
     }
 
+    @Override
+    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+        String keyChanged = preferenceChangeEvent.getKey();
+        if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals
+                ("user_id")) {
+            me = Util.getUser(getActivity());
+        }
+    }
 
 }

@@ -13,7 +13,6 @@ public class HisabApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseDatabase.getInstance().setLogLevel(Logger.Level.DEBUG);
         FirebaseDatabase.getInstance().getReference().keepSynced(true);
     }
 }

@@ -21,6 +21,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
@@ -30,16 +33,15 @@ import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class GroupsActivity extends AppCompatActivity implements View.OnClickListener,
-        OnCompleteListener<Void> {
+        OnCompleteListener<Void>,PreferenceChangeListener{
     public static final String TAG = GroupsActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+
     private DatabaseReference dbRef;
-
-
     private FirebaseUser firebaseUser;
     private FirebaseAuth firebaseAuth;
     private User me;
@@ -101,8 +103,8 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
         group.setName(groupName);
         group.setCreatedOn(java.util.Calendar.getInstance().getTimeInMillis());
         group.setModerator(me);
+        Log.d(TAG,group.toString()+"");
         dbRef.child("groups/" + me.getId()).push().setValue(group).addOnCompleteListener(this);
-        Toast.makeText(this, "creating group " + groupName, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -120,6 +122,14 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void showSnackBar(String msg) {
-        Snackbar.make(toolbar, msg, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(toolbar, msg, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+        String keyChanged=preferenceChangeEvent.getKey();
+        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
+            me=Util.getUser(getApplicationContext());
+        }
     }
 }

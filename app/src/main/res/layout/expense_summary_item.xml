@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/md_blue_grey_500"
     android:divider="@color/md_grey_500"
     android:gravity="center_vertical"
     android:orientation="horizontal"
@@ -28,6 +29,7 @@
             style="@style/Txt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/md_white_1000"
             tools:text="Total 48.0"/>
 
         <TextView
@@ -38,6 +40,7 @@
             android:gravity="center_vertical"
             android:maxLines="3"
             android:paddingTop="0dp"
+            android:textColor="@color/md_white_1000"
             tools:text="per person"/>
     </LinearLayout>
 
@@ -48,5 +51,6 @@
         android:layout_height="wrap_content"
         android:background="?selectableItemBackgroundBorderless"
         android:src="@drawable/ic_archive_grey_600_24dp"
+        android:tint="@color/md_white_1000"
         />
 </LinearLayout>

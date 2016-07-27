@@ -31,7 +31,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -89,6 +92,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                             .getProviderId());
                     String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
                     // .getEmail());
+
                     if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName()
                             .isEmpty()) {
                         //google sign in
@@ -358,18 +362,44 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
             hideProgress();
         } else {
-            SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String userId, name, email;
-            FirebaseUser firebaseUser = task.getResult().getUser();
-            userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser.getEmail());
-            name = firebaseUser.getDisplayName();
-            email = firebaseUser.getEmail();
-            Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
-            spf.edit().putString("user_id", userId).putString("name", name).putString("email",
-                    email)
-                    .apply();
-        }
 
+            FirebaseUser firebaseUser = task.getResult().getUser();
+            String name, email, userId;
+            if (firebaseUser.getDisplayName() == null || firebaseUser.getDisplayName().isEmpty()) {
+                //try to get name from firebase
+                name = null;
+                firebaseDatabase.getReference("users").child(firebaseUser.getUid()).child("name")
+                        .addListenerForSingleValueEvent(nameValueListener);
+            } else {
+                name = firebaseUser.getDisplayName();
+            }
+            userId = firebaseUser.getUid();
+            email = firebaseUser.getEmail();
+            saveUserToPreference(name, email, userId);
+        }
     }
 
+    private void saveUserToPreference(String name, String email, String userId) {
+        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
+        spf.edit().putString("user_id", userId).putString("name", name).putString("email",
+                email)
+                .apply();
+    }
+
+    private ValueEventListener nameValueListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String name = dataSnapshot.getValue(String.class);
+            SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            Log.d(TAG, String.format("%s;", name));
+            spf.edit().putString("name", name).apply();
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.e(TAG, "error occurred while reading name from firebase: " + databaseError
+                    .getMessage());
+        }
+    };
 }
