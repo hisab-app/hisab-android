@@ -59,7 +59,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         description.setText(expense.getDescription() + " - " + String.valueOf(expense.getAmount()));
         calendar.setTimeInMillis(expense.getCreatedOn());
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            owner.setText(String.format("added by You, on %s", DATE_FORMAT.format(calendar.getTime
+            owner.setText(String.format("added by You on %s", DATE_FORMAT.format(calendar.getTime
                     ())));
             rename.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
@@ -74,7 +74,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         Log.d(TAG,"https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
                 .getEmail()));
         Glide.with(context).load("https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
-                .getEmail())).placeholder(R.drawable
+                .getEmail())+"?s=200").placeholder(R.drawable
                 .ic_add_grey_50_24dp).centerCrop().crossFade().into(authorImage);
     }
 

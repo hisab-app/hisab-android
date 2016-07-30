@@ -73,10 +73,28 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
-
+    private ValueEventListener nameValueListener;
     public SignInFragment() {
     }
+    {
+        nameValueListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = dataSnapshot.getValue(String.class);
+                Log.d(TAG, String.format("%s;", name));
+                saveUserToPreference(name, null, null);
+                startActivity(new Intent(getActivity(), GroupsActivity.class));
+                hideProgress();
+                getActivity().finish();
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "error occurred while reading name from firebase: " + databaseError
+                        .getMessage());
+            }
+        };
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,9 +108,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
                             .getProviderId());
-                    String userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
-                    // .getEmail());
-
+                    String userId, email;
+                    userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
+                    email = firebaseUser.getEmail();// .getEmail());
+                    saveUserToPreference(null, email, userId);
                     if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName()
                             .isEmpty()) {
                         //google sign in
@@ -121,9 +140,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                                 });
                     } else {
                         //sign in with password
-                        startActivity(new Intent(getActivity(), GroupsActivity.class));
-                        hideProgress();
-                        getActivity().finish();
+
+                        //try to get name from firebase
+
+                        firebaseDatabase.getReference("users").child(firebaseUser.getUid()).child
+                                ("name")
+                                .addListenerForSingleValueEvent(nameValueListener);
                     }
 
                 } else {
@@ -361,45 +383,21 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             showError(task.getException().getLocalizedMessage());
             Log.d(TAG, "error: " + task.getException().getLocalizedMessage());
             hideProgress();
-        } else {
-
-            FirebaseUser firebaseUser = task.getResult().getUser();
-            String name, email, userId;
-            if (firebaseUser.getDisplayName() == null || firebaseUser.getDisplayName().isEmpty()) {
-                //try to get name from firebase
-                name = null;
-                firebaseDatabase.getReference("users").child(firebaseUser.getUid()).child("name")
-                        .addListenerForSingleValueEvent(nameValueListener);
-            } else {
-                name = firebaseUser.getDisplayName();
-            }
-            userId = firebaseUser.getUid();
-            email = firebaseUser.getEmail();
-            saveUserToPreference(name, email, userId);
         }
     }
 
     private void saveUserToPreference(String name, String email, String userId) {
         SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
-        spf.edit().putString("user_id", userId).putString("name", name).putString("email",
-                email)
-                .apply();
+        SharedPreferences.Editor editor = spf.edit();
+        if (userId != null && !userId.isEmpty())
+            editor.putString("user_id", userId);
+        if (name != null && !name.isEmpty())
+            editor.putString("name", name);
+        if (email != null && !email.isEmpty())
+            editor.putString("email", email);
+        editor.apply();
     }
 
-    private ValueEventListener nameValueListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            String name = dataSnapshot.getValue(String.class);
-            SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            Log.d(TAG, String.format("%s;", name));
-            spf.edit().putString("name", name).apply();
-        }
 
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            Log.e(TAG, "error occurred while reading name from firebase: " + databaseError
-                    .getMessage());
-        }
-    };
 }

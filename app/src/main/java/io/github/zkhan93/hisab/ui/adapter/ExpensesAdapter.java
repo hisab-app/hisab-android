@@ -51,7 +51,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 noOfMembers += 1;
-                notifyItemChanged(expenses.size());
+                notifyItemChanged(0);
             }
 
             @Override
@@ -62,7 +62,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 noOfMembers -= 1;
-                notifyItemChanged(expenses.size());
+                notifyItemChanged(0);
             }
 
             @Override
@@ -172,9 +172,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
         expense.setId(dataSnapshot.getKey());
-        expenses.add(expense);
-        notifyItemInserted(expenses.size());
-        notifyItemChanged(expenses.size());
+        expenses.add(0,expense);
+        notifyItemInserted(1);
+        notifyItemChanged(0);
     }
 
     @Override

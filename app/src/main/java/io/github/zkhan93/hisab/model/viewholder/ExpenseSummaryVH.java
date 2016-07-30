@@ -46,10 +46,11 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             float genShare = amount / noOfMembers;
             float myShare = genShare - myExpenses;
             String msg = null;
+            String rs=context.getString(R.string.rs);
             msg = context.getString(myShare < 0 ? R.string.msg_summary_collect : R.string
-                            .msg_summary_give, noOfMembers, genShare,
-                    myExpenses,
-                    Math.abs(myShare));
+                            .msg_summary_give, noOfMembers, genShare,rs,
+                    myExpenses,rs,
+                    Math.abs(myShare),rs);
 
             if (myShare == 0) {
                 msg = context.getString(R.string.msg_your_clear);

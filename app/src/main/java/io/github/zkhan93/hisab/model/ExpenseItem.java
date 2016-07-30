@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ public class ExpenseItem implements Parcelable {
     String description;
     float amount;
     long createdOn;
+
 
     public ExpenseItem() {
     }
@@ -119,7 +121,7 @@ public class ExpenseItem implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeString(groupId);
-        parcel.writeParcelable(owner,i);
+        parcel.writeParcelable(owner, i);
         parcel.writeString(description);
         parcel.writeFloat(amount);
         parcel.writeLong(createdOn);
@@ -136,13 +138,21 @@ public class ExpenseItem implements Parcelable {
             return new ExpenseItem[i];
         }
     };
-    public Map<String,Object> toMap(){
-        Map<String,Object> map=new HashMap<>();
-        map.put("groupId",groupId);
-        map.put("owner",owner.toMap());
-        map.put("description",description);
-        map.put("amount",new Double(amount));
-        map.put("createdOn",createdOn);
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("groupId", groupId);
+        map.put("owner", owner.toMap());
+        map.put("description", description);
+        map.put("amount", new Double(amount));
+        map.put("createdOn", createdOn);
         return map;
     }
+
+    public static Comparator<ExpenseItem> BY_TIME_DESC = new Comparator<ExpenseItem>() {
+        @Override
+        public int compare(ExpenseItem ei1, ExpenseItem ei2) {
+            return (int) (ei1.getCreatedOn() - ei2.getCreatedOn());
+        }
+    };
 }

@@ -2,13 +2,17 @@ package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -30,7 +34,7 @@ import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
-        GroupRenameClbk, ExpenseItemClbk,PreferenceChangeListener {
+        GroupRenameClbk, ExpenseItemClbk, PreferenceChangeListener {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
@@ -82,7 +86,6 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-
     private void showAddExpenseView() {
         DialogFragment dialog = new CreateExpenseItemDialog();
         dialog.show(getFragmentManager(), "dialog");
@@ -117,7 +120,27 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         expenseItem.setOwner(me);
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
 // id branch
-        groupExpensesRef.push().setValue(expenseItem);
+        groupExpensesRef.push().setValue(expenseItem).addOnCompleteListener(this, new
+                OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "";
+                        if (!task.isSuccessful()) {
+                            msg = "Error occurred: " + task.getException().getLocalizedMessage();
+                            final Snackbar snackbar = Snackbar.make(toolbar, msg, Snackbar
+                                    .LENGTH_INDEFINITE);
+                            snackbar.setAction("OK", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    snackbar.dismiss();
+                                }
+                            });
+                            snackbar.show();
+                        }
+
+                    }
+                });
+
     }
 
     public void showShareGroupUi() {
@@ -160,11 +183,13 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         fab.show();
         super.onBackPressed();
     }
+
     @Override
     public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-        String keyChanged=preferenceChangeEvent.getKey();
-        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
-            me=Util.getUser(getApplicationContext());
+        String keyChanged = preferenceChangeEvent.getKey();
+        if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals
+                ("user_id")) {
+            me = Util.getUser(getApplicationContext());
         }
     }
 }

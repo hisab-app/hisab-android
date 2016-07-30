@@ -38,8 +38,13 @@ public class CreateExpenseItemDialog extends DialogFragment {
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ((DetailGroupActivity) getActivity()).createExpense(description.getText()
-                        .toString(), Float.parseFloat(amount.getText().toString()));
+                if (validateValues(description.getText()
+                        .toString(), amount.getText().toString())) {
+                    ((DetailGroupActivity) getActivity()).createExpense(description.getText()
+                            .toString(), Float.parseFloat(amount.getText().toString()));
+                }else{
+
+                }
             }
         }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             @Override
@@ -48,5 +53,27 @@ public class CreateExpenseItemDialog extends DialogFragment {
             }
         });
         return builder.create();
+    }
+
+    private boolean validateValues(String desc, String amt) {
+        boolean result = true;
+        try {
+            if (desc == null || desc.isEmpty()) {
+                description.setError("Description cannot be empty");
+                description.requestFocus();
+                result = false;
+            }
+            Float famt = Float.parseFloat(amt);
+            if (famt <= 0) {
+                amount.setError("Amount must be a non zero positive value");
+                amount.requestFocus();
+                result = false;
+            }
+        } catch (NumberFormatException ex) {
+            amount.setError("Invalid amount value");
+            amount.requestFocus();
+            result = false;
+        }
+        return result;
     }
 }

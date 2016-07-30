@@ -3,6 +3,7 @@ package io.github.zkhan93.hisab.util;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -51,20 +52,20 @@ public class Util {
 
     public static String md5(String source) {
         try {
-            // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(source.getBytes());
-            byte messageDigest[] = digest.digest();
-
-            // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++)
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-            return hexString.toString();
-
+            MessageDigest md =
+                    MessageDigest.getInstance("MD5");
+            return hex (md.digest(source.getBytes("CP1252")));
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
         }
-        return "";
+        return null;
+    }
+    public static String hex(byte[] array) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < array.length; ++i) {
+            sb.append(Integer.toHexString((array[i]
+                    & 0xFF) | 0x100).substring(1,3));
+        }
+        return sb.toString();
     }
 }

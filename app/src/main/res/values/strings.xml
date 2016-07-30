@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Hisab</string>
-
+    <string name="rs" translatable="false">\u20B9</string>
     <string name="title_activity_entry">@string/app_name</string>
     <string name="title_activity_groups">Groups</string>
     <string name="title_activity_detail_group">Expenses in %1$s</string>
@@ -31,8 +31,8 @@
     <string name="msg_no_users_suggestion">All users will be listed here.</string>
     <string name="msg_share_to_split">Share group with others to split the expense</string>
     <string name="msg_your_clear">so you are clear</string>
-    <string name="msg_summary_give">Per member(%1$d) %2$f@string/rs\nYou spend %3$f@string/rs\nGive %4$f@string/rs</string>
-    <string name="msg_summary_collect">Per member(%1$d) %2$f@string/rs\nYou spend %3$f@string/rs\nCollect %4$f@string/rs</string>
+    <string name="msg_summary_give">Per member(%1$d) %2$.2f %3$s\nYou spent %4$.2f %5$s\nPay %6$.2f %7$s</string>
+    <string name="msg_summary_collect">Per member(%1$d) %2$.2f %3$s\nYou spent %4$.2f %5$s\nCollect %6$.2f %7$s</string>
     <string name="msg_in_progress">Hold on! loading..</string>
     <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
     <string name="msg_signup_with_link">Don\'t have account? <b><u>Sign up</u></b></string>
@@ -43,7 +43,7 @@
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="rs" translatable="false">\u20B9</string>
+
 
     <string name="hint_grp_name">New group\'s name</string>
     <string name="hint_grp_rename">Group\'s name</string>
