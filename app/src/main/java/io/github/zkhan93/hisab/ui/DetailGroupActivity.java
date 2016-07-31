@@ -1,11 +1,13 @@
 package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -169,30 +171,73 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    public void delete(String expenseId) {
-        groupExpensesRef.child(expenseId).removeValue();
+    public void delete(final String expenseId) {
+        final AlertDialog confirmDelete = new AlertDialog.Builder(this, 0)
+                .setMessage("Do you want to delete?")
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialogInterface, int i) {
+                        groupExpensesRef.child(expenseId).removeValue().addOnCompleteListener(
+                                new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull
+                                                           Task<Void> task) {
+                                        if (!task.isSuccessful()) {
+                                            final Snackbar snackbar =
+                                                    Snackbar.make(toolbar,
+                                                            "Error occurred: " + task.getException()
+                                                                    .getLocalizedMessage(),
+                                                            Snackbar
+                                                                    .LENGTH_INDEFINITE);
+                                            snackbar.setAction("OK", new
+                                                    View.OnClickListener() {
+                                                        @Override
+                                                        public void
+                                                        onClick(View view) {
+                                                            snackbar.dismiss();
+                                                        }
+                                                    });
+                                            snackbar.show();
+                                        }
+                                    }
+                                }
+
+                        );
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }
+
+                ).create();
+        confirmDelete.show();
     }
 
     @Override
     public void update(ExpenseItem expense) {
-        groupExpensesRef.child(expense.getId()).setValue(expense).addOnCompleteListener(this, new
-                OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            final Snackbar snackbar = Snackbar.make(toolbar, "Error Occurred: " +
-                                    task.getException()
-                                    .getLocalizedMessage(), Snackbar.LENGTH_SHORT);
-                            snackbar.setAction("OK", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    snackbar.dismiss();
+        groupExpensesRef.child(expense.getId()).setValue(expense).addOnCompleteListener(this,
+                new
+                        OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (!task.isSuccessful()) {
+                                    final Snackbar snackbar = Snackbar.make(toolbar, "Error " +
+                                            "Occurred:" +
+                                            " " +
+                                            task.getException()
+                                                    .getLocalizedMessage(), Snackbar.LENGTH_SHORT);
+                                    snackbar.setAction("OK", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            snackbar.dismiss();
+                                        }
+                                    });
+                                    snackbar.show();
                                 }
-                            });
-                            snackbar.show();
-                        }
-                    }
-                });
+                            }
+                        });
     }
 
     @Override
