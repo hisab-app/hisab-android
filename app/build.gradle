@@ -9,8 +9,8 @@ android {
         applicationId "io.github.zkhan93.hisab"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
     }
     buildTypes {
         release {
@@ -35,7 +35,7 @@ dependencies {
 //butter knife
     compile 'com.jakewharton:butterknife:8.1.0'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
-    //glide
+    //picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
     //circle image view
     compile 'de.hdodenhof:circleimageview:2.1.0'
