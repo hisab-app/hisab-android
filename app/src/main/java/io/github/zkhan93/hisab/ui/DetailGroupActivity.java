@@ -175,7 +175,24 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void update(ExpenseItem expense) {
-        groupExpensesRef.child(expense.getId()).setValue(expense);
+        groupExpensesRef.child(expense.getId()).setValue(expense).addOnCompleteListener(this, new
+                OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            final Snackbar snackbar = Snackbar.make(toolbar, "Error Occurred: " +
+                                    task.getException()
+                                    .getLocalizedMessage(), Snackbar.LENGTH_SHORT);
+                            snackbar.setAction("OK", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    snackbar.dismiss();
+                                }
+                            });
+                            snackbar.show();
+                        }
+                    }
+                });
     }
 
     @Override

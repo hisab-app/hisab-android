@@ -33,7 +33,7 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
     @BindView(R.id.amount)
     TextInputEditText amount;
 
-    private ExpenseItemClbk expenseItemClbk;
+    private ExpenseItemClbk expenseItemUpdateClbk;
     private ExpenseItem expense;
 
     @Override
@@ -49,7 +49,7 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         } else {
             expense = savedInstanceState.getParcelable("expense");
         }
-        expenseItemClbk = (DetailGroupActivity) getActivity();
+        expenseItemUpdateClbk = (DetailGroupActivity) getActivity();
         description.setText(expense.getDescription());
         amount.setText(String.valueOf(expense.getAmount()));
         builder.setView(view);
@@ -65,17 +65,14 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
 
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
-        if (expenseItemClbk != null) {
-            String desc, amt;
-            desc = description.getText().toString();
-            amt = amount.getText().toString();
-            if (!desc.isEmpty() && !amt.isEmpty()) {
+        if (expenseItemUpdateClbk != null) {
+            if (validateValues(description.getText().toString(), amount.getText().toString())) {
                 expense.setDescription(description.getText().toString());
-                expense.setAmount(Float.parseFloat(amt));
+                expense.setAmount(Float.parseFloat(amount.getText().toString()));
                 expense.setCreatedOn(Calendar.getInstance().getTimeInMillis());
-                expenseItemClbk.update(expense);
+                expenseItemUpdateClbk.update(expense);
             } else {
-                Toast.makeText(getActivity().getApplicationContext(), "cannot update Expense",
+                Toast.makeText(getActivity().getApplicationContext(), "Cannot update expense invalid values",
                         Toast.LENGTH_SHORT).show();
             }
         } else {
@@ -90,4 +87,25 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         outState.putParcelable("expense", expense);
     }
 
+    public boolean validateValues(String desc, String amt) {
+        boolean result = true;
+        try {
+            if (desc == null || desc.isEmpty()) {
+                description.setError("Description cannot be empty");
+                description.requestFocus();
+                result = false;
+            }
+            Float famt = Float.parseFloat(amt);
+            if (famt <= 0) {
+                amount.setError("Amount must be a non zero positive value");
+                amount.requestFocus();
+                result = false;
+            }
+        } catch (NumberFormatException ex) {
+            amount.setError("Invalid amount value");
+            amount.requestFocus();
+            result = false;
+        }
+        return result;
+    }
 }

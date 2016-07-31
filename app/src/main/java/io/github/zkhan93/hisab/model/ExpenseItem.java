@@ -52,10 +52,12 @@ public class ExpenseItem implements Parcelable {
         createdOn = parcel.readLong();
     }
 
+    @Exclude
     public String getId() {
         return id;
     }
 
+    @Exclude
     public void setId(String id) {
         this.id = id;
     }

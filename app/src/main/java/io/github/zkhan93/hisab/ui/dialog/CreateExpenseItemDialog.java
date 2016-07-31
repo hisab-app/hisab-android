@@ -55,7 +55,7 @@ public class CreateExpenseItemDialog extends DialogFragment {
         return builder.create();
     }
 
-    private boolean validateValues(String desc, String amt) {
+    public boolean validateValues(String desc, String amt) {
         boolean result = true;
         try {
             if (desc == null || desc.isEmpty()) {
