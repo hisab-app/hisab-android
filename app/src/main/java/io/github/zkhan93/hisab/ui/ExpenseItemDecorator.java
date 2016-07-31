@@ -12,9 +12,9 @@ import io.github.zkhan93.hisab.R;
 /**
  * Created by Zeeshan Khan on 7/31/2016.
  */
-public class SimpleItemDivider extends RecyclerView.ItemDecoration {
+public class ExpenseItemDecorator extends RecyclerView.ItemDecoration {
     private Drawable drawable;
-    public static String TAG = SimpleItemDivider.class.getSimpleName();
+    public static String TAG = ExpenseItemDecorator.class.getSimpleName();
 
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
@@ -52,7 +52,7 @@ public class SimpleItemDivider extends RecyclerView.ItemDecoration {
         outRect.bottom = drawable.getIntrinsicHeight();
     }
 
-    public SimpleItemDivider(Drawable drawable) {
+    public ExpenseItemDecorator(Drawable drawable) {
         super();
         this.drawable = drawable;
     }

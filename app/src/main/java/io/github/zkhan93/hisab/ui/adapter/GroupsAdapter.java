@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.zkhan93.hisab.R;
@@ -46,7 +47,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE.EMPTY:
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             default:
-                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false), groupItemClickClbk);
+                return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false),
+                        groupItemClickClbk);
         }
     }
 
@@ -133,15 +135,41 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void registerChildEventListener() {
-        dbRef.addChildEventListener(this);
+        dbRef.orderByChild("name").addChildEventListener(this);
     }
 
     public void unregisterChildEventListener() {
         dbRef.removeEventListener(this);
     }
 
+    public void sort(int type) {
+        switch (type) {
+            case Group.SORT_TYPE.ALPHABETICAL:
+                Collections.sort(groups, Group.ALPHABETICAL);
+                notifyDataSetChanged();
+                break;
+            case Group.SORT_TYPE.REVERSE_ALPHABETICAL:
+                Collections.sort(groups, Group.REVERSE_ALPHABETICAL);
+                notifyDataSetChanged();
+                break;
+            case Group.SORT_TYPE.CHRONOLOGICAL:
+                Collections.sort(groups, Group.CHRONOLOGICAL);
+                notifyDataSetChanged();
+                break;
+            case Group.SORT_TYPE.REVERSE_CHRONOLOGICAL:
+                Collections.sort(groups, Group.REVERSE_CHRONOLOGICAL);
+                notifyDataSetChanged();
+                break;
+            default:
+                Collections.sort(groups, Group.ALPHABETICAL);
+                notifyDataSetChanged();
+                break;
+        }
+    }
+
     interface TYPE {
         int EMPTY = 0;
         int NORMAL = 1;
     }
+
 }

@@ -1,6 +1,8 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,9 +35,11 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     private GroupItemClickClbk groupItemClickClbk;
     private Group group;
     private Calendar calendar;
+    private Context context;
 
     public GroupItemVH(View itemView, GroupItemClickClbk groupItemClickClbk) {
         super(itemView);
+        context = itemView.getContext();
         ButterKnife.bind(this, itemView);
         this.itemView = itemView;
         this.groupItemClickClbk = groupItemClickClbk;
@@ -51,7 +55,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         else
             moderator.setText("Created by " + group.getModerator().getName());
         calendar.setTimeInMillis(group.getCreatedOn());
-        time.setText(DATE_FORMAT.format(calendar.getTime()));
+        time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
+                true));
         this.group = group;
     }
 

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -15,6 +16,7 @@ public class Group implements Parcelable {
     User moderator;
     List<String> membersIds;
     long createdOn;
+
     public Group() {
     }
 
@@ -88,7 +90,7 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel parcel, int flag) {
         parcel.writeString(id);
         parcel.writeString(name);
-        parcel.writeParcelable(moderator,flag);
+        parcel.writeParcelable(moderator, flag);
         parcel.writeList(membersIds);
     }
 
@@ -112,5 +114,37 @@ public class Group implements Parcelable {
                 ", moderator=" + moderator +
                 ", membersIds=" + membersIds +
                 '}';
+    }
+
+    public static Comparator<Group> ALPHABETICAL = new Comparator<Group>() {
+        @Override
+        public int compare(Group g1, Group g2) {
+            return g1.getName().compareTo(g2.getName());
+        }
+    };
+    public static Comparator<Group> REVERSE_ALPHABETICAL = new Comparator<Group>() {
+        @Override
+        public int compare(Group g1, Group g2) {
+            return g2.getName().compareTo(g1.getName());
+        }
+    };
+    public static Comparator<Group> CHRONOLOGICAL = new Comparator<Group>() {
+        @Override
+        public int compare(Group g1, Group g2) {
+            return Double.compare(g1.getCreatedOn(), g2.getCreatedOn());
+        }
+    };
+    public static Comparator<Group> REVERSE_CHRONOLOGICAL = new Comparator<Group>() {
+        @Override
+        public int compare(Group g1, Group g2) {
+            return Double.compare(g2.getCreatedOn(), g1.getCreatedOn());
+        }
+    };
+
+    public interface SORT_TYPE {
+        int CHRONOLOGICAL = 0;
+        int REVERSE_CHRONOLOGICAL = 1;
+        int ALPHABETICAL = 2;
+        int REVERSE_ALPHABETICAL = 3;
     }
 }

@@ -54,10 +54,7 @@
         <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
-    <style name="Txt" parent="android:Widget.TextView">
-        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Medium
-        </item>
-
+    <style name="Txt">
     </style>
 
     <style name="Txt.LARGE" parent="Txt">

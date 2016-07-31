@@ -78,7 +78,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
         expensesAdapter = new ExpensesAdapter(me, groupId, (DetailGroupActivity) getActivity());
         expensesList.setAdapter(expensesAdapter);
-        expensesList.addItemDecoration(new SimpleItemDivider(ContextCompat.getDrawable(getContext(),R.drawable.item_divider)));
+        expensesList.addItemDecoration(new ExpenseItemDecorator(ContextCompat.getDrawable(getContext(),R.drawable.item_divider)));
 
         setHasOptionsMenu(true);
         getActivity().setTitle(groupName);

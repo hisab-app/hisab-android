@@ -8,10 +8,10 @@
     android:background="?selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingBottom="4dp"
+    android:paddingBottom="8dp"
     android:paddingLeft="@dimen/horizontal_space_from_edge"
     android:paddingRight="@dimen/horizontal_space_from_edge"
-    android:paddingTop="4dp">
+    android:paddingTop="8dp">
 
 
     <LinearLayout
@@ -22,10 +22,11 @@
 
         <TextView
             android:id="@+id/name"
-            style="@style/Txt"
+            style="@style/Txt.LARGE"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="16sp"
             tools:text="Group Name"/>
 
 
@@ -35,7 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
-            tools:text="2, Jan 2016"/>
+            android:textSize="12sp"
+            tools:text="at 10:41"/>
     </LinearLayout>
 
     <TextView
@@ -43,6 +45,7 @@
         style="@style/Txt.SMALL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="14sp"
         tools:text="Zeeshan is Moderator"/>
 
 </LinearLayout>

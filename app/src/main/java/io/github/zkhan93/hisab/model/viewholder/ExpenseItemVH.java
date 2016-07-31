@@ -2,6 +2,7 @@ package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -59,22 +60,21 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         description.setText(expense.getDescription() + " - " + String.valueOf(expense.getAmount()));
         calendar.setTimeInMillis(expense.getCreatedOn());
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            owner.setText(String.format("added by You on %s", DATE_FORMAT.format(calendar.getTime
-                    ())));
+            owner.setText(String.format("added by You %s", DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(), true)));
             rename.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
             rename.setOnClickListener(this);
             delete.setOnClickListener(this);
         } else {
-            owner.setText(String.format("added by %s on %s", expense.getOwner().getName(),
-                    DATE_FORMAT.format(calendar.getTime())));
+            owner.setText(String.format("added by %s %s", expense.getOwner().getName(),
+                    DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(), true)));
             rename.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
-        Log.d(TAG,"https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
+        Log.d(TAG, "https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
                 .getEmail()));
         Picasso.with(context).load("https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
-                .getEmail())+"?s=200").placeholder(R.drawable
+                .getEmail()) + "?s=200").placeholder(R.drawable
                 .big_user).fit().centerCrop().into(authorImage);
     }
 

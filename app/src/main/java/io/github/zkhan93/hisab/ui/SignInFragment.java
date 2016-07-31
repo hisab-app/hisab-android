@@ -109,10 +109,11 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
                             .getProviderId());
-                    String userId, email;
+                    String userId, email,name;
                     userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
                     email = firebaseUser.getEmail();// .getEmail());
-                    saveUserToPreference(null, email, userId);
+                    name=firebaseUser.getDisplayName();
+                    saveUserToPreference(name, email, userId);
                     if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName()
                             .isEmpty()) {
                         //google sign in

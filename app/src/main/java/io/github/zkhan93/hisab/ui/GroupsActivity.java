@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,7 +32,7 @@ import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class GroupsActivity extends AppCompatActivity implements View.OnClickListener,
-        OnCompleteListener<Void>,PreferenceChangeListener{
+        OnCompleteListener<Void>, PreferenceChangeListener {
     public static final String TAG = GroupsActivity.class.getSimpleName();
 
     @BindView(R.id.fab)
@@ -75,8 +74,6 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
                 startActivity(new Intent(this, EntryActivity.class));
                 finish();
                 return true;
-            case R.id.action_sort:
-                return true;
             default:
                 return false;
         }
@@ -103,15 +100,13 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
         group.setName(groupName);
         group.setCreatedOn(java.util.Calendar.getInstance().getTimeInMillis());
         group.setModerator(me);
-        Log.d(TAG,group.toString()+"");
+        Log.d(TAG, group.toString() + "");
         dbRef.child("groups/" + me.getId()).push().setValue(group).addOnCompleteListener(this);
     }
 
     @Override
     public void onComplete(@NonNull Task<Void> task) {
-        if (task.isSuccessful()) {
-            showSnackBar("Group created");
-        } else {
+        if (!task.isSuccessful()) {
             String error = "";
             if (task.getException() != null)
                 error = task.getException().getLocalizedMessage();
@@ -127,9 +122,10 @@ public class GroupsActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-        String keyChanged=preferenceChangeEvent.getKey();
-        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
-            me=Util.getUser(getApplicationContext());
+        String keyChanged = preferenceChangeEvent.getKey();
+        if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals
+                ("user_id")) {
+            me = Util.getUser(getApplicationContext());
         }
     }
 }
