@@ -2,6 +2,7 @@ package io.github.zkhan93.hisab.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -386,17 +387,24 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         }
     }
 
-    private void saveUserToPreference(String name, String email, String userId) {
-        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
-        SharedPreferences.Editor editor = spf.edit();
-        if (userId != null && !userId.isEmpty())
-            editor.putString("user_id", userId);
-        if (name != null && !name.isEmpty())
-            editor.putString("name", name);
-        if (email != null && !email.isEmpty())
-            editor.putString("email", email);
-        editor.apply();
+    private void saveUserToPreference(final String name, final String email, final String userId) {
+        AsyncTask<Void,Void,Void> prefUpdater=new AsyncTask<Void,Void,Void>(){
+            @Override
+            protected Void doInBackground(Void... voids) {
+                SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
+                SharedPreferences.Editor editor = spf.edit();
+                if (userId != null && !userId.isEmpty())
+                    editor.putString("user_id", userId);
+                if (name != null && !name.isEmpty())
+                    editor.putString("name", name);
+                if (email != null && !email.isEmpty())
+                    editor.putString("email", email);
+                editor.apply();
+                return null;
+            }
+        };
+        prefUpdater.execute();
     }
 
 

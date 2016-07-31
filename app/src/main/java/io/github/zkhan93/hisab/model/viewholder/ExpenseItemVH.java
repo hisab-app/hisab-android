@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -73,9 +73,9 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         }
         Log.d(TAG,"https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
                 .getEmail()));
-        Glide.with(context).load("https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
+        Picasso.with(context).load("https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
                 .getEmail())+"?s=200").placeholder(R.drawable
-                .ic_add_grey_50_24dp).centerCrop().crossFade().into(authorImage);
+                .big_user).fit().centerCrop().into(authorImage);
     }
 
     @Override
