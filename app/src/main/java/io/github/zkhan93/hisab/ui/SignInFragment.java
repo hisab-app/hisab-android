@@ -75,8 +75,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
     private ValueEventListener nameValueListener;
+
     public SignInFragment() {
     }
+
     {
         nameValueListener = new ValueEventListener() {
             @Override
@@ -96,6 +98,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             }
         };
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,10 +112,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 if (firebaseUser != null) {
                     Log.d(TAG, "user signed_in with " + firebaseAuth.getCurrentUser()
                             .getProviderId());
-                    String userId, email,name;
+                    String userId, email, name;
                     userId = firebaseUser.getUid();//Util.encodedEmail(firebaseUser
                     email = firebaseUser.getEmail();// .getEmail());
-                    name=firebaseUser.getDisplayName();
+                    name = firebaseUser.getDisplayName();
                     saveUserToPreference(name, email, userId);
                     if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName()
                             .isEmpty()) {
@@ -124,11 +127,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
+                                        if (task.isSuccessful() && isVisible()) {
                                             startActivity(new Intent(getActivity(),
                                                     GroupsActivity
                                                             .class));
-                                            hideProgress();
                                             getActivity().finish();
                                         } else {
                                             Log.d(TAG, "error creating user: " + task
@@ -153,6 +155,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 } else {
                     Log.d(TAG, "user signed_out");
                     Util.clearPreferences(getActivity());
+                    hideProgress();
                 }
             }
         };
@@ -182,6 +185,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         signInButton.setScopes(gso.getScopeArray());
         signInButton.setOnClickListener(this);
         resetPassword.setOnClickListener(this);
+        showProgress();
         return rootView;
     }
 
@@ -282,6 +286,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     }
 
     private void googleSignInAction() {
+        showProgress();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -306,6 +311,11 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 Log.d(TAG, "account is null");
             }
         } else {
+            String error = result.getStatus().getStatusMessage();
+            if (error == null)
+                error = "Google signin failed! Try again";
+            showError(error);
+            hideProgress();
             Log.d(TAG, "google sign in result failed");
         }
     }
@@ -389,10 +399,11 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     }
 
     private void saveUserToPreference(final String name, final String email, final String userId) {
-        AsyncTask<Void,Void,Void> prefUpdater=new AsyncTask<Void,Void,Void>(){
+        AsyncTask<Void, Void, Void> prefUpdater = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getActivity
+                        ());
                 Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
                 SharedPreferences.Editor editor = spf.edit();
                 if (userId != null && !userId.isEmpty())
