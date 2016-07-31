@@ -17,10 +17,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -48,6 +54,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     private FirebaseUser firebaseUser;
     private String groupId, groupName;
     private User me;
+    private ArrayList<String> sharedUserIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,32 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         dbRef = FirebaseDatabase.getInstance().getReference();
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
+        sharedUserIds = new ArrayList<>();
+        dbRef.child("shareWith").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot dbs : dataSnapshot.getChildren()) {
+                    sharedUserIds.add(dbs.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "error fetching shared with user ids");
+            }
+        });
+        dbRef.child("groups").child(me.getId()).child(groupId).child("moderator").child("id")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        sharedUserIds.add(dataSnapshot.getValue(String.class));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, "error fetching shared with user ids");
+                    }
+                });
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
@@ -113,7 +146,21 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
             Log.e(TAG, "groupId is not valid cannot rename group");
             return;
         }
+        Map<String, Object> updateLocation = new HashMap<>();
+        for (String userId : sharedUserIds) {
+            updateLocation.put("groups/" + userId + "/" + groupId + "/name", newName);
+        }
+        dbRef.updateChildren(updateLocation, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference
+                    databaseReference) {
+                if (databaseError != null)
+                    Log.d(TAG, "Error occurred" + databaseError.getMessage());
+            }
+        });
         dbGrpNameRef.setValue(newName);
+
+
     }
 
     public void createExpense(String description, float amount) {
