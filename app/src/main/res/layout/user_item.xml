@@ -1,57 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/cardview_margin_default"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:background="?selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:padding="@dimen/cardview_padding_default"
-    app:cardCornerRadius="@dimen/cardview_default_radius"
-    app:cardElevation="@dimen/cardview_default_elevation"
-    >
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingLeft="@dimen/horizontal_space_from_edge"
+    android:paddingRight="@dimen/horizontal_space_from_edge"
+    android:paddingTop="8dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:maxHeight="56dp"
+        android:maxWidth="56dp"
+        android:src="@drawable/ic_account_circle_grey_600_48dp"
+        />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/name"
-                style="@style/Txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="0dp"
-                android:text="name"
-                />
-
-
-            <TextView
-                android:id="@+id/email"
-                style="@style/Txt.SMALL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="0dp"
-                android:text="emaikl"
-                />
-        </LinearLayout>
-
-        <CheckBox
-            android:id="@+id/state"
+        <TextView
+            android:id="@+id/name"
+            style="@style/Txt.LARGE"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:checked="false"
-            android:paddingEnd="10dp"
+            android:layout_marginBottom="4dp"
+            android:textSize="16sp"
+            tool:text="First Last"
+            />
+
+
+        <TextView
+            android:id="@+id/email"
+            style="@style/Txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:textSize="14sp"
+            tool:text="someone@somewhere.com"
             />
     </LinearLayout>
-</android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:checked="false"
+        />
+</LinearLayout>
+

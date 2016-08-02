@@ -54,19 +54,23 @@ public class Util {
         try {
             MessageDigest md =
                     MessageDigest.getInstance("MD5");
-            return hex (md.digest(source.getBytes("CP1252")));
+            return hex(md.digest(source.getBytes("CP1252")));
         } catch (NoSuchAlgorithmException e) {
         } catch (UnsupportedEncodingException e) {
         }
         return null;
     }
+
     public static String hex(byte[] array) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < array.length; ++i) {
             sb.append(Integer.toHexString((array[i]
-                    & 0xFF) | 0x100).substring(1,3));
+                    & 0xFF) | 0x100).substring(1, 3));
         }
         return sb.toString();
     }
 
+    public static String getGavatarUrl(String email, int size) {
+        return "https://www.gravatar.com/avatar/" + Util.md5(email) + "?s=" + size;
+    }
 }

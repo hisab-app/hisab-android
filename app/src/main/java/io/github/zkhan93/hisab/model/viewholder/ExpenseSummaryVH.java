@@ -11,7 +11,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.ArchiveClickClbk;
+import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -36,8 +36,8 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
     }
 
     public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, final
-    ArchiveClickClbk
-            archiveClickClbk, User me, User owner) {
+    SummaryActionItemClbk
+            summaryActionItemClbk, User me, User owner) {
         this.description.setText("Total expenses " + String.valueOf(amount));
         noOfMembers += 1;//including self
         if (noOfMembers == 1) {
@@ -48,8 +48,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             String msg = null;
             String rs=context.getString(R.string.rs);
             msg = context.getString(myShare < 0 ? R.string.msg_summary_collect : R.string
-                            .msg_summary_give, noOfMembers, genShare,rs,
-                    myExpenses,rs,
+                            .msg_summary_give,
                     Math.abs(myShare),rs);
 
             if (myShare == 0) {
@@ -68,7 +67,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    archiveClickClbk.archiveGrp();
+                    summaryActionItemClbk.archiveGrp();
                 }
             });
         }

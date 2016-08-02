@@ -30,9 +30,9 @@
     <string name="msg_no_users">No users found</string>
     <string name="msg_no_users_suggestion">All users will be listed here.</string>
     <string name="msg_share_to_split">Share group with others to split the expense</string>
-    <string name="msg_your_clear">so you are clear</string>
-    <string name="msg_summary_give">Per member(%1$d) %2$.2f %3$s\nYou spent %4$.2f %5$s\nPay %6$.2f %7$s</string>
-    <string name="msg_summary_collect">Per member(%1$d) %2$.2f %3$s\nYou spent %4$.2f %5$s\nCollect %6$.2f %7$s</string>
+    <string name="msg_your_clear">You are clear</string>
+    <string name="msg_summary_give">Pay %1$.2f %2$s</string>
+    <string name="msg_summary_collect">Collect %1$.2f %2$s</string>
     <string name="msg_in_progress">Hold on! loading..</string>
     <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
     <string name="msg_signup_with_link">Don\'t have account? <b><u>Sign up</u></b></string>

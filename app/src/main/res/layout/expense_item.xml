@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -23,8 +22,7 @@
         android:maxHeight="56dp"
         android:maxWidth="56dp"
         android:src="@drawable/ic_account_circle_grey_600_48dp"
-        app:civ_border_color="#99000000"
-        app:civ_border_width="1dp"/>
+        />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -37,6 +35,7 @@
         <TextView
             android:id="@+id/description"
             style="@style/Txt"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="Roboto"
@@ -68,6 +67,5 @@
         android:layout_height="wrap_content"
         android:background="?selectableItemBackgroundBorderless"
         android:src="@drawable/ic_delete_grey_600_18dp"
-
         />
 </LinearLayout>

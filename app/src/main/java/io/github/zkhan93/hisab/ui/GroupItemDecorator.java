@@ -15,7 +15,7 @@ public class GroupItemDecorator extends RecyclerView.ItemDecoration {
     public static String TAG = GroupItemDecorator.class.getSimpleName();
 
     @Override
-    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
         super.onDraw(c, parent, state);
 
         int left, right, top, bottom;

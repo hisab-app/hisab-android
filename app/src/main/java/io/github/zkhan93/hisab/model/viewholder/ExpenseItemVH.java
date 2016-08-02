@@ -60,22 +60,22 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         description.setText(expense.getDescription() + " - " + String.valueOf(expense.getAmount()));
         calendar.setTimeInMillis(expense.getCreatedOn());
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            owner.setText(String.format("added by You %s", DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(), true)));
+            owner.setText(String.format("You %s", DateUtils.getRelativeTimeSpanString
+                    (context, expense.getCreatedOn(), true)));
             rename.setVisibility(View.VISIBLE);
             delete.setVisibility(View.VISIBLE);
             rename.setOnClickListener(this);
             delete.setOnClickListener(this);
         } else {
-            owner.setText(String.format("added by %s %s", expense.getOwner().getName(),
+            owner.setText(String.format("%s %s", expense.getOwner().getName(),
                     DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(), true)));
             rename.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
         }
         Log.d(TAG, "https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
                 .getEmail()));
-        Picasso.with(context).load("https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
-                .getEmail()) + "?s=200").placeholder(R.drawable
-                .big_user).fit().centerCrop().into(authorImage);
+        Picasso.with(context).load(Util.getGavatarUrl(expense.getOwner().getEmail(), 200))
+                .placeholder(R.drawable.big_user).fit().centerCrop().into(authorImage);
     }
 
     @Override

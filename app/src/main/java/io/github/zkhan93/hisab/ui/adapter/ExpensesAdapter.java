@@ -1,5 +1,7 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
+import android.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,8 +22,8 @@ import java.util.Map;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.ArchiveClickClbk;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
+import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
@@ -38,7 +40,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private User me, owner;
     private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef;
     private ExpenseItemClbk expenseItemClbk;
-    private ArchiveClickClbk archiveClickClbk;
+    private SummaryActionItemClbk summaryActionItemClbk;
     private int noOfMembers;
     private ChildEventListener membersListener;
     private String groupId;
@@ -75,7 +77,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             }
         };
-        archiveClickClbk = new ArchiveClickClbk() {
+        summaryActionItemClbk = new SummaryActionItemClbk() {
             @Override
             public void archiveGrp() {
                 Map<String, Object> mExpenses = new HashMap<>();
@@ -84,6 +86,11 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 archiveRef.push().setValue(mExpenses);
                 expensesRef.setValue(null);
+            }
+
+            @Override
+            public void moreInfo() {
+//                AlertDialog dialog= new AlertDialog.Builder().bui
             }
         };
     }
@@ -138,12 +145,12 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
-                ((ExpenseItemVH) holder).setExpense(expenses.get(position-1), me);
+                ((ExpenseItemVH) holder).setExpense(expenses.get(position - 1), me);
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
-                        (), noOfMembers,
-                        archiveClickClbk, me, owner);
+                                (), noOfMembers,
+                        summaryActionItemClbk, me, owner);
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -172,7 +179,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
         expense.setId(dataSnapshot.getKey());
-        expenses.add(0,expense);
+        expenses.add(0, expense);
         notifyItemInserted(1);
         notifyItemChanged(0);
     }
@@ -184,7 +191,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int index = findExpenseIndex(dataSnapshot.getKey());
         if (index != -1) {
             expenses.set(index, expense);
-            notifyItemChanged(index+1);
+            notifyItemChanged(index + 1);
             notifyItemChanged(0);
         }
     }
@@ -196,7 +203,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int index = findExpenseIndex(dataSnapshot.getKey());
         if (index != -1) {
             expenses.remove(index);
-            notifyItemRemoved(index+1);
+            notifyItemRemoved(index + 1);
             notifyItemChanged(0);
         }
     }
