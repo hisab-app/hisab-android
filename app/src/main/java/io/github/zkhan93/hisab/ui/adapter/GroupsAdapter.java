@@ -20,6 +20,7 @@ import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
+import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
 
 /**
@@ -57,6 +58,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (getItemViewType(position) == TYPE.NORMAL) {
             GroupItemVH gHolder = (GroupItemVH) holder;
             gHolder.setGroup(groups.get(position), me);
+            if(position==getItemCount()-1){
+                gHolder.hideDivider();
+            }
         }
         if (holder instanceof EmptyVH)
             ((EmptyVH) holder).setType(EmptyVH.TYPE.GROUP);

@@ -59,8 +59,7 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk,
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter(this, me);
         groupList.setAdapter(groupsAdapter);
-        groupList.addItemDecoration(new GroupItemDecorator(ContextCompat.getDrawable(getActivity
-                (), R.drawable.item_divider)));
+
         setHasOptionsMenu(true);
         return rootView;
     }

@@ -4,68 +4,82 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
     android:minHeight="?attr/listPreferredItemHeight"
-    android:orientation="horizontal"
-    android:paddingBottom="8dp"
+    android:orientation="vertical"
+    android:paddingBottom="4dp"
     android:paddingEnd="@dimen/horizontal_space_from_edge"
     android:paddingLeft="@dimen/horizontal_space_from_edge"
     android:paddingRight="@dimen/horizontal_space_from_edge"
     android:paddingStart="@dimen/horizontal_space_from_edge"
-    android:paddingTop="8dp"
+    android:paddingTop="4dp"
     >
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:maxHeight="56dp"
-        android:maxWidth="56dp"
-        android:src="@drawable/ic_account_circle_grey_600_48dp"
-        />
-
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingRight="@dimen/horizontal_space_from_edge"
-        android:paddingStart="@dimen/horizontal_space_from_edge">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/description"
-            style="@style/Txt"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/image"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:maxHeight="56dp"
+            android:maxWidth="56dp"
+            android:src="@drawable/ic_account_circle_grey_600_48dp"
+            />
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingRight="@dimen/horizontal_space_from_edge"
+            android:paddingStart="@dimen/horizontal_space_from_edge">
+
+            <TextView
+                android:id="@+id/description"
+                style="@style/Txt"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="Roboto"
+                android:textSize="16sp"
+                tools:text="Milk - 48.0"/>
+
+            <TextView
+                android:id="@+id/owner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                tools:text="added by Shiv"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/edit"
+            style="@style/Base.Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="Roboto"
-            android:textSize="16sp"
-            tools:text="Milk - 48.0"/>
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_create_grey_600_18dp"
+            />
 
-        <TextView
-            android:id="@+id/owner"
+        <ImageButton
+            android:id="@+id/delete"
+            style="@style/Base.Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            tools:text="added by Shiv"/>
-
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete_grey_600_18dp"
+            />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/edit"
-        style="@style/Base.Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_create_grey_600_18dp"
-        />
-
-    <ImageButton
-        android:id="@+id/delete"
-        style="@style/Base.Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_delete_grey_600_18dp"
-        />
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_height="1dp"
+        android:layout_marginLeft="72dp"
+        android:background="@color/md_grey_500"/>
 </LinearLayout>

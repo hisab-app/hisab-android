@@ -146,6 +146,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position - 1), me);
+                if(position==getItemCount()-1){
+                    ((ExpenseItemVH) holder).hideDivider();
+                }
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum

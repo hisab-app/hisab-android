@@ -40,6 +40,8 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     ImageButton delete;
     @BindView(R.id.image)
     CircleImageView authorImage;
+    @BindView(R.id.divider)
+    View divider;
 
     private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
@@ -53,6 +55,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         this.expenseItemClbk = expenseItemClbk;
         calendar = Calendar.getInstance();
         this.context = itemView.getContext();
+        divider.setVisibility(View.VISIBLE);
     }
 
     public void setExpense(ExpenseItem expense, User me) {
@@ -95,5 +98,9 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 
     private void update() {
         expenseItemClbk.showEditUi(expense);
+    }
+
+    public void hideDivider() {
+        divider.setVisibility(View.GONE);
     }
 }

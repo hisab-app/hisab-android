@@ -86,9 +86,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                 String name = dataSnapshot.getValue(String.class);
                 Log.d(TAG, String.format("%s;", name));
                 saveUserToPreference(name, null, null);
-                startActivity(new Intent(getActivity(), GroupsActivity.class));
-                hideProgress();
-                getActivity().finish();
+                showGroupActivityAndQuit();
             }
 
             @Override
@@ -127,11 +125,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful() && isVisible()) {
-                                            startActivity(new Intent(getActivity(),
-                                                    GroupsActivity
-                                                            .class));
-                                            getActivity().finish();
+                                        if (task.isSuccessful()) {
+                                            showGroupActivityAndQuit();
                                         } else {
                                             Log.d(TAG, "error creating user: " + task
                                                     .getException()
@@ -227,6 +222,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     }
 
     public void loginBtnAction() {
+        clearError();
         String email, pswd;
         if (!checkForValidValues())
             return;
@@ -286,6 +282,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     }
 
     private void googleSignInAction() {
+        clearError();
         showProgress();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -343,9 +340,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
             error.setVisibility(View.GONE);
             error.setText("");
         }
+        edtTxtEmail.setError(null);
+        edtTxtPswd.setError(null);
     }
 
     private void resetPassword() {
+        clearError();
         if (edtTxtEmail == null) {
             Log.d(TAG, "no email feild");
             return;
@@ -419,5 +419,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         prefUpdater.execute();
     }
 
-
+    private void showGroupActivityAndQuit() {
+        if (isVisible()) {
+            startActivity(new Intent(getActivity(),
+                    GroupsActivity
+                            .class));
+            getActivity().finish();
+        }
+    }
 }
