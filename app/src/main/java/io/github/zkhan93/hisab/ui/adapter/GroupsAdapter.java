@@ -2,7 +2,10 @@ package io.github.zkhan93.hisab.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.google.firebase.database.ChildEventListener;
@@ -18,27 +21,46 @@ import java.util.List;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
+import io.github.zkhan93.hisab.model.callback.GrpSelectModeClbk;
+import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
-import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener {
+        ChildEventListener, GrpSelectModeClbk, OnClickGroupItemClbk, OnLongClickGroupItemClbk,
+        ActionMode.Callback {
     public static final String TAG = GroupsAdapter.class.getSimpleName();
-    List<Group> groups;
-    GroupItemClickClbk groupItemClickClbk;
+    private List<ExGroup> groups;
+    OnClickGroupItemClbk onClickGroupItemClbk;
     private User me;
     private DatabaseReference dbRef;
+    private ContextActionBarClbk contextActionBarClbk;
+    boolean isMultiMode;
+    private int selectedGroupsCount = 0;
 
-    public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me) {
+    {
+        isMultiMode = false;
+    }
+
+    private void startMultiSelectMode() {
+        //TODO:initialize traking array and start cab
+        contextActionBarClbk.showCAB();
+        isMultiMode = true;
+    }
+
+    public GroupsAdapter(OnClickGroupItemClbk onClickGroupItemClbk, User me, ContextActionBarClbk
+            contextActionBarClbk) {
         groups = new ArrayList<>();
-        this.groupItemClickClbk = groupItemClickClbk;
+        this.onClickGroupItemClbk = onClickGroupItemClbk;
         this.me = me;
         dbRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId());
+        this.contextActionBarClbk = contextActionBarClbk;
     }
 
     @Override
@@ -49,7 +71,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             default:
                 return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false),
-                        groupItemClickClbk);
+                        this, this);
         }
     }
 
@@ -58,7 +80,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (getItemViewType(position) == TYPE.NORMAL) {
             GroupItemVH gHolder = (GroupItemVH) holder;
             gHolder.setGroup(groups.get(position), me);
-            if(position==getItemCount()-1){
+            if (position == getItemCount() - 1) {
                 gHolder.hideDivider();
             }
         }
@@ -96,7 +118,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
-        groups.add(group);
+        groups.add(new ExGroup(group));
         notifyItemInserted(groups.size());
     }
 
@@ -106,7 +128,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         group.setId(dataSnapshot.getKey());
         int index = findGroupIndex(dataSnapshot.getKey());
         if (index != -1) {
-            groups.set(index, group);
+            groups.set(index, new ExGroup(group));
             notifyItemChanged(index);
         }
     }
@@ -169,6 +191,82 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 notifyDataSetChanged();
                 break;
         }
+    }
+
+    @Override
+    public void on() {
+
+    }
+
+    @Override
+    public void off() {
+
+    }
+
+    @Override
+    public void onClick(String groupId, String groupName) {
+        if (isMultiMode) {
+            int index = findGroupIndex(groupId);
+            ExGroup group = groups.get(index);
+            if (group.getModerator().getId().equals(me.getId())) {
+                if (group.isSelected()) {
+                    selectedGroupsCount -= 1;
+                } else {
+                    selectedGroupsCount += 1;
+                }
+                group.setSelected(!group.isSelected());
+                notifyItemChanged(index);
+                contextActionBarClbk.setCount(selectedGroupsCount);
+            }
+        } else
+            onClickGroupItemClbk.onClick(groupId, groupName);
+    }
+
+    @Override
+    public void onLongClick(String groupId) {
+        if (!isMultiMode) {
+            startMultiSelectMode();
+            //TODO:remove long click listener from each group item
+            onClick(groupId, null);
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        actionMode.getMenuInflater().inflate(R.menu.menu_groups_context, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_delete:
+                Log.d(TAG, "delete");
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        actionMode = null;
+        isMultiMode = false;
+        int i = 0;
+        //clear all selection
+        for (ExGroup group : groups) {
+            if (group.isSelected()) {
+                group.setSelected(false);
+                notifyItemChanged(i);
+            }
+            i++;
+        }
+        //TODO:add on long click listeners to items
     }
 
     interface TYPE {

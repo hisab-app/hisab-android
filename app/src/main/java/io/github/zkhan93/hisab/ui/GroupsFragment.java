@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,15 +23,16 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
+import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
 import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GroupsFragment extends Fragment implements GroupItemClickClbk,
-        PreferenceChangeListener {
+public class GroupsFragment extends Fragment implements OnClickGroupItemClbk,
+        PreferenceChangeListener, ContextActionBarClbk {
     public static final String TAG = GroupsFragment.class.getSimpleName();
 
     //member views
@@ -40,6 +41,7 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk,
     //other members
     private GroupsAdapter groupsAdapter;
     private User me;
+    private ActionMode actionMode;
 
     public GroupsFragment() {
     }
@@ -57,7 +59,7 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk,
         ButterKnife.bind(this, rootView);
 
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        groupsAdapter = new GroupsAdapter(this, me);
+        groupsAdapter = new GroupsAdapter(this, me, this);
         groupList.setAdapter(groupsAdapter);
 
         setHasOptionsMenu(true);
@@ -65,7 +67,7 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk,
     }
 
     @Override
-    public void GroupClicked(String groupId, String groupName) {
+    public void onClick(String groupId, String groupName) {
         Intent intent = new Intent(getActivity(), DetailGroupActivity.class);
         intent.putExtra("groupId", groupId);
         intent.putExtra("groupName", groupName);
@@ -138,5 +140,17 @@ public class GroupsFragment extends Fragment implements GroupItemClickClbk,
                 ("user_id")) {
             me = Util.getUser(getActivity());
         }
+    }
+
+
+    @Override
+    public void showCAB() {
+        if (actionMode == null)
+            actionMode = getActivity().startActionMode(groupsAdapter);
+    }
+
+    @Override
+    public void setCount(int count) {
+        actionMode.setTitle(count + " Selected");
     }
 }

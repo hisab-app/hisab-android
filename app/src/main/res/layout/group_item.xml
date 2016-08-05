@@ -8,10 +8,9 @@
     android:background="?selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingBottom="4dp"
     android:paddingLeft="@dimen/horizontal_space_from_edge"
     android:paddingRight="@dimen/horizontal_space_from_edge"
-    android:paddingTop="4dp">
+    android:paddingTop="8dp">
 
 
     <LinearLayout

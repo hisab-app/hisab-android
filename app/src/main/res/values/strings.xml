@@ -15,6 +15,7 @@
     <string name="action_sort">Sort</string>
     <string name="action_rename">Rename</string>
     <string name="action_share">Share</string>
+    <string name="action_delete">Share</string>
 
     <string name="btn_txt_login">Login</string>
     <string name="btn_txt_edit">Edit</string>
@@ -40,6 +41,8 @@
     <string name="msg_reset_email_check">Check your mail for instructions to reset password.</string>
     <string name="msg_signup_done_email_check">Sign up successful, check your email to reset password.</string>
     <string name="msg_gen_error">Error occurred! try after a while.</string>
+    <string name="msg_grp_created_by_you">Created by you</string>
+
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>

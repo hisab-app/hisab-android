@@ -5,6 +5,6 @@ import io.github.zkhan93.hisab.model.Group;
 /**
  * Created by zeeshan on 26/6/16.
  */
-public interface GroupItemClickClbk  {
-    void GroupClicked(String groupId,String groupName);
+public interface OnClickGroupItemClbk {
+    void onClick(String groupId, String groupName);
 }

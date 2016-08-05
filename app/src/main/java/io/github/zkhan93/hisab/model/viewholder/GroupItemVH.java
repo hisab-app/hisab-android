@@ -1,12 +1,12 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -14,15 +14,17 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.ui.ExGroup;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClickListener, View
+        .OnLongClickListener {
 
     public static final String TAG = GroupItemVH.class.getSimpleName();
-    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM yyyy");
 
     @BindView(R.id.name)
     TextView name;
@@ -34,41 +36,59 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     View divider;
 
     private View itemView;
-    private GroupItemClickClbk groupItemClickClbk;
+    private OnClickGroupItemClbk onClickGroupItemClbk;
     private Group group;
     private Calendar calendar;
     private Context context;
+    private OnLongClickGroupItemClbk onLongClickGroupItemClbk;
 
-    public GroupItemVH(View itemView, GroupItemClickClbk groupItemClickClbk) {
+    public GroupItemVH(View itemView, OnClickGroupItemClbk onClickGroupItemClbk,
+                       OnLongClickGroupItemClbk onLongClickGroupItemClbk) {
         super(itemView);
         context = itemView.getContext();
         ButterKnife.bind(this, itemView);
         this.itemView = itemView;
-        this.groupItemClickClbk = groupItemClickClbk;
+        this.onClickGroupItemClbk = onClickGroupItemClbk;
         calendar = Calendar.getInstance();
         divider.setVisibility(View.VISIBLE);
+        this.onLongClickGroupItemClbk = onLongClickGroupItemClbk;
     }
 
-    public void setGroup(Group group, User me) {
+    public void setGroup(ExGroup group, User me) {
         name.setText(group.getName());
         itemView.setOnClickListener(this);
 
-        if (me.getEmail().equals(group.getModerator().getEmail()))
-            moderator.setText("Created by You");
-        else
+        if (me.getEmail().equals(group.getModerator().getEmail())) {
+            moderator.setText(context.getString(R.string.msg_grp_created_by_you));
+            itemView.setLongClickable(true);
+            itemView.setOnLongClickListener(this);
+        } else
             moderator.setText("Created by " + group.getModerator().getName());
         calendar.setTimeInMillis(group.getCreatedOn());
         time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
                 true));
         this.group = group;
+        if (group.isSelected()) {
+            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_amber_200));
+        } else {
+            itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color
+                    .transparent));
+        }
     }
 
     @Override
     public void onClick(View view) {
-        groupItemClickClbk.GroupClicked(group.getId(), group.getName());
+        onClickGroupItemClbk.onClick(group.getId(), group.getName());
     }
+
 
     public void hideDivider() {
         divider.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        onLongClickGroupItemClbk.onLongClick(group.getId());
+        return true;
     }
 }
