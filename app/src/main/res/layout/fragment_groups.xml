@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?selectableItemBackground"
-    android:clickable="true"
     tools:choiceMode="multipleChoiceModal"
     tools:context=".ui.GroupsFragment"
     tools:listitem="@layout/group_item"

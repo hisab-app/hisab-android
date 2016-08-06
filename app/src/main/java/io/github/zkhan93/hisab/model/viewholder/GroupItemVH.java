@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -67,9 +68,11 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
                 true));
         this.group = group;
         if (group.isSelected()) {
-            itemView.setSelected(true);
+            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
+                    .selected_list_item_background));
         } else {
-            itemView.setSelected(false);
+            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
+                    .list_item_background));
         }
         divider.setVisibility(View.VISIBLE);
     }

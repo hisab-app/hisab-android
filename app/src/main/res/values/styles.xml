@@ -11,7 +11,7 @@
     </style>
 
     <style name="LStyled.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="background">@color/colorPrimary</item>
+        <item name="background">@color/md_blue_grey_500</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
