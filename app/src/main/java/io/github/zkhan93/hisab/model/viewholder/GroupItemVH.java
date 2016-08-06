@@ -1,7 +1,6 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -50,7 +49,6 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         this.itemView = itemView;
         this.onClickGroupItemClbk = onClickGroupItemClbk;
         calendar = Calendar.getInstance();
-        divider.setVisibility(View.VISIBLE);
         this.onLongClickGroupItemClbk = onLongClickGroupItemClbk;
     }
 
@@ -63,17 +61,17 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
             itemView.setLongClickable(true);
             itemView.setOnLongClickListener(this);
         } else
-            moderator.setText("Created by " + group.getModerator().getName());
+            moderator.setText(group.getModerator().getName());
         calendar.setTimeInMillis(group.getCreatedOn());
         time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
                 true));
         this.group = group;
         if (group.isSelected()) {
-            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_amber_200));
+            itemView.setSelected(true);
         } else {
-            itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color
-                    .transparent));
+            itemView.setSelected(false);
         }
+        divider.setVisibility(View.VISIBLE);
     }
 
     @Override

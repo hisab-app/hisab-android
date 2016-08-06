@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ActionMode;
@@ -8,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -16,7 +19,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
@@ -39,7 +44,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<ExGroup> groups;
     OnClickGroupItemClbk onClickGroupItemClbk;
     private User me;
-    private DatabaseReference dbRef;
+    private DatabaseReference grpDbRef, dbRef;
     private ContextActionBarClbk contextActionBarClbk;
     boolean isMultiMode;
     private int selectedGroupsCount = 0;
@@ -59,7 +64,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         groups = new ArrayList<>();
         this.onClickGroupItemClbk = onClickGroupItemClbk;
         this.me = me;
-        dbRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId());
+        dbRef = FirebaseDatabase.getInstance().getReference("");
+        grpDbRef = dbRef.child("groups/" + me.getId());
         this.contextActionBarClbk = contextActionBarClbk;
     }
 
@@ -118,8 +124,11 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
+        int size = groups.size();
         groups.add(new ExGroup(group));
-        notifyItemInserted(groups.size());
+        notifyItemInserted(size + 1);
+        if (size > 0)
+            notifyItemChanged(size - 1);//update divider
     }
 
     @Override
@@ -139,9 +148,13 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
         int index = findGroupIndex(dataSnapshot.getKey());
+        int size = groups.size();
         if (index != -1) {
             groups.remove(index);
             notifyItemRemoved(index);
+            if (index == size - 1 && index > 0) {
+                notifyItemChanged(index - 1);
+            }
         }
     }
 
@@ -161,11 +174,11 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void registerChildEventListener() {
-        dbRef.orderByChild("name").addChildEventListener(this);
+        grpDbRef.orderByChild("name").addChildEventListener(this);
     }
 
     public void unregisterChildEventListener() {
-        dbRef.removeEventListener(this);
+        grpDbRef.removeEventListener(this);
     }
 
     public void sort(int type) {
@@ -247,6 +260,27 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (menuItem.getItemId()) {
             case R.id.action_delete:
                 Log.d(TAG, "delete");
+                //TODO: delete groups from moderator's and other shared person's list,also remove
+                // expenses of this group
+                Map<String, Object> refs = new HashMap<>();
+                for (ExGroup group : groups) {
+                    if (group.isSelected()) {
+                        refs.put("groups/" + me.getId() + "/" + group.getId(),
+                                null);//moderator
+                        refs.put("shareWith/" + group.getId() + "/" + me.getId(), null);
+                        dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "group deleted from user");
+                                } else {
+                                    Log.d(TAG, "error" + task.getException().getLocalizedMessage());
+                                }
+                            }
+                        });
+                    }
+                }
+                actionMode.finish();
                 return true;
             default:
                 return false;
@@ -255,8 +289,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {
-        actionMode = null;
+//        actionMode = null;
+//        actionMode.finish();
         isMultiMode = false;
+        selectedGroupsCount = 0;
         int i = 0;
         //clear all selection
         for (ExGroup group : groups) {

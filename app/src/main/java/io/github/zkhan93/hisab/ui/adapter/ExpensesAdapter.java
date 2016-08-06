@@ -1,7 +1,5 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
-import android.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -146,7 +144,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position - 1), me);
-                if(position==getItemCount()-1){
+                if (position == getItemCount() - 1) {
                     ((ExpenseItemVH) holder).hideDivider();
                 }
                 break;
@@ -204,10 +202,13 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
         expense.setId(dataSnapshot.getKey());
         int index = findExpenseIndex(dataSnapshot.getKey());
+        int size = expenses.size();
         if (index != -1) {
             expenses.remove(index);
             notifyItemRemoved(index + 1);
             notifyItemChanged(0);
+            if (index == size - 1 && index > 0)
+                notifyItemChanged(index);
         }
     }
 

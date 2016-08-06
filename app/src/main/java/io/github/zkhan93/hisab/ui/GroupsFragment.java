@@ -145,8 +145,7 @@ public class GroupsFragment extends Fragment implements OnClickGroupItemClbk,
 
     @Override
     public void showCAB() {
-        if (actionMode == null)
-            actionMode = getActivity().startActionMode(groupsAdapter);
+        actionMode = getActivity().startActionMode(groupsAdapter);
     }
 
     @Override
