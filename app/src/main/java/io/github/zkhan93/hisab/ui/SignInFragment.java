@@ -406,6 +406,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                         ());
                 Log.d(TAG, String.format("%s;%s;%s", name, email, userId));
                 SharedPreferences.Editor editor = spf.edit();
+                editor.putBoolean("logged_in", true);
                 if (userId != null && !userId.isEmpty())
                     editor.putString("user_id", userId);
                 if (name != null && !name.isEmpty())

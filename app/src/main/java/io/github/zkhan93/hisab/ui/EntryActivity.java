@@ -1,17 +1,22 @@
 package io.github.zkhan93.hisab.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.util.Util;
 
 public class EntryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Util.isLoggedIn(getApplicationContext())) {
+            showGroupActivityAndQuit();
+        }
         setContentView(R.layout.activity_entry);
         if (savedInstanceState == null) {
             Fragment fragment = getSupportFragmentManager().findFragmentByTag(SignInFragment.TAG);
@@ -45,5 +50,13 @@ public class EntryActivity extends AppCompatActivity {
             fragment = new SignUpFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 SignUpFragment.TAG).commit();
+    }
+
+    private void showGroupActivityAndQuit() {
+        startActivity(new Intent(this,
+                GroupsActivity
+                        .class));
+        finish();
+
     }
 }

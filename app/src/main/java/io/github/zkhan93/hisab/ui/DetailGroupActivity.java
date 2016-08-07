@@ -68,31 +68,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
         sharedUserIds = new ArrayList<>();
-        dbRef.child("shareWith").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot dbs : dataSnapshot.getChildren()) {
-                    sharedUserIds.add(dbs.getKey());
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "error fetching shared with user ids");
-            }
-        });
-        dbRef.child("groups").child(me.getId()).child(groupId).child("moderator").child("id")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        sharedUserIds.add(dataSnapshot.getValue(String.class));
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, "error fetching shared with user ids");
-                    }
-                });
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
@@ -146,21 +122,54 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
             Log.e(TAG, "groupId is not valid cannot rename group");
             return;
         }
-        Map<String, Object> updateLocation = new HashMap<>();
-        for (String userId : sharedUserIds) {
-            updateLocation.put("groups/" + userId + "/" + groupId + "/name", newName);
-        }
-        dbRef.updateChildren(updateLocation, new DatabaseReference.CompletionListener() {
+        attemptRename(newName);
+    }
+
+    private void attemptRename(final String newName) {
+        dbRef.child("shareWith").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference
-                    databaseReference) {
-                if (databaseError != null)
-                    Log.d(TAG, "Error occurred" + databaseError.getMessage());
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot dbs : dataSnapshot.getChildren()) {
+                    sharedUserIds.add(dbs.getKey());
+                }
+                //get moderators groups name's link
+                dbRef.child("groups").child(me.getId()).child(groupId).child("moderator").child
+                        ("id")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                sharedUserIds.add(dataSnapshot.getValue(String.class));
+                                //update all group entries
+                                Map<String, Object> updateLocation = new HashMap<>();
+                                for (String userId : sharedUserIds) {
+                                    updateLocation.put("/groups/" + userId + "/" + groupId +
+                                            "/name", newName);
+                                }
+                                dbRef.updateChildren(updateLocation, new DatabaseReference
+                                        .CompletionListener() {
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError,
+                                                           DatabaseReference
+                                            databaseReference) {
+                                        if (databaseError != null)
+                                            Log.d(TAG, "Error occurred" + databaseError
+                                                    .getMessage());
+                                    }
+                                });
+                                dbGrpNameRef.setValue(newName);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.e(TAG, "error fetching shared with user ids");
+                            }
+                        });
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "error fetching shared with user ids");
             }
         });
-        dbGrpNameRef.setValue(newName);
-
-
     }
 
     public void createExpense(String description, float amount) {

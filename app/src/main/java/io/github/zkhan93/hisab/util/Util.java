@@ -73,4 +73,11 @@ public class Util {
     public static String getGavatarUrl(String email, int size) {
         return "https://www.gravatar.com/avatar/" + Util.md5(email) + "?s=" + size;
     }
+
+    public static boolean isLoggedIn(Context context) {
+        if (context != null)
+            return PreferenceManager.getDefaultSharedPreferences(context).contains("logged_in");
+        else
+            return false;
+    }
 }

@@ -9,8 +9,8 @@ android {
         applicationId "io.github.zkhan93.hisab"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 7
+        versionName "1.0.6"
     }
     buildTypes {
         release {
@@ -28,10 +28,10 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
 //firebase
-    compile 'com.google.firebase:firebase-core:9.2.1'
-    compile 'com.google.firebase:firebase-database:9.2.1'
-    compile 'com.google.firebase:firebase-auth:9.2.1'
-    compile 'com.google.android.gms:play-services-auth:9.2.1'
+    compile 'com.google.firebase:firebase-core:9.4.0'
+    compile 'com.google.firebase:firebase-database:9.4.0'
+    compile 'com.google.firebase:firebase-auth:9.4.0'
+    compile 'com.google.android.gms:play-services-auth:9.4.0'
 //butter knife
     compile 'com.jakewharton:butterknife:8.1.0'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
@@ -39,5 +39,8 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     //circle image view
     compile 'de.hdodenhof:circleimageview:2.1.0'
+    //rfab
+    compile 'com.getbase:floatingactionbutton:1.10.1'
 }
 apply plugin: 'com.google.gms.google-services'
+
