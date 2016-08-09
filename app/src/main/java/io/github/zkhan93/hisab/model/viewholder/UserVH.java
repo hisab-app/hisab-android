@@ -34,6 +34,7 @@ public class UserVH extends RecyclerView.ViewHolder implements CompoundButton
     private View itemView;
     private ExUser exUser;
     private UserItemActionClickClbk actionCallback;
+    private boolean minify;
 
     public UserVH(View itemView, UserItemActionClickClbk userItemActionClickClbk) {
         super(itemView);

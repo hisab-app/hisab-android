@@ -32,11 +32,12 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private List<ExUser> users;
     private User moderator;
-    private DatabaseReference dbRef, shareRef, groupAuthorRef;
+    private DatabaseReference dbRef, shareRef;
     private UserItemActionClickClbk actionCallback;
     private User me;
     private ChildEventListener shareChildListeners;
     private ValueEventListener moderatorListener;
+
 
     {
         shareChildListeners = new ChildEventListener() {

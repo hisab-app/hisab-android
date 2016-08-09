@@ -19,9 +19,9 @@ import io.github.zkhan93.hisab.ui.DetailGroupActivity;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class CreateExpenseItemDialog extends DialogFragment implements TextWatcher{
+public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
 
-    public static final String TAG = CreateExpenseItemDialog.class.getSimpleName();
+    public static final String TAG = ExpenseItemDialog.class.getSimpleName();
 
     @BindView(R.id.description)
     TextInputEditText description;

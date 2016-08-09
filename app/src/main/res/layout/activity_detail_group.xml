@@ -24,12 +24,31 @@
 
     <include layout="@layout/content_detail_group"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fabMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_grey_50_24dp"/>
+        android:padding="@dimen/fab_margin"
+        app:menu_backgroundColor="@color/white_transparent_60"
+        android:src="@drawable/ic_add_grey_50_24dp"
+        app:fab_size="normal">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabCreateShareEntry"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_shared_item"
+            app:fab_label="Shared Entry"
+            android:layout_height="wrap_content"
+            app:fab_size="mini"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabCreateGiveTakeEntry"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_shared_item"
+            android:layout_height="wrap_content"
+            app:fab_label="Give/Take Entry"
+            app:fab_size="mini"/>
+    </com.github.clans.fab.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

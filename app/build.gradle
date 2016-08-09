@@ -40,7 +40,7 @@ dependencies {
     //circle image view
     compile 'de.hdodenhof:circleimageview:2.1.0'
     //rfab
-    compile 'com.getbase:floatingactionbutton:1.10.1'
+    compile 'com.github.clans:fab:1.6.4'
 }
 apply plugin: 'com.google.gms.google-services'
 

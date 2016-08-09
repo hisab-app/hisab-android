@@ -4,7 +4,6 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,16 +38,21 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
-import io.github.zkhan93.hisab.ui.dialog.CreateExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
+import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
+import io.github.zkhan93.hisab.ui.dialog.GiveTakeItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
         GroupRenameClbk, ExpenseItemClbk, PreferenceChangeListener {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
+    @BindView(R.id.fabMenu)
+    FloatingActionMenu fabMenu;
+    @BindView(R.id.fabCreateShareEntry)
+    FloatingActionButton fabShareEntry;
+    @BindView(R.id.fabCreateGiveTakeEntry)
+    FloatingActionButton fabGiveTakeEntryEntry;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -71,7 +77,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
-        fab.setOnClickListener(this);
+        fabMenu.setClosedOnTouchOutside(true);
+        fabShareEntry.setOnClickListener(this);
+        fabGiveTakeEntryEntry.setOnClickListener(this);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (savedInstanceState == null) {
@@ -89,8 +97,11 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.fab:
+            case R.id.fabCreateShareEntry:
                 showAddExpenseView();
+                break;
+            case R.id.fabCreateGiveTakeEntry:
+                showAddGiveTakeEntryView();
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -98,8 +109,17 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void showAddExpenseView() {
-        DialogFragment dialog = new CreateExpenseItemDialog();
-        dialog.show(getFragmentManager(), "dialog");
+        DialogFragment dialog = new ExpenseItemDialog();
+        dialog.show(getFragmentManager(), ExpenseItemDialog.TAG);
+    }
+
+    private void showAddGiveTakeEntryView() {
+        DialogFragment dialog = new GiveTakeItemDialog();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("me", me);
+        bundle.putString("groupId", groupId);
+        dialog.setArguments(bundle);
+        dialog.show(getFragmentManager(), GiveTakeItemDialog.TAG);
     }
 
     @Override
@@ -150,7 +170,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                                     @Override
                                     public void onComplete(DatabaseError databaseError,
                                                            DatabaseReference
-                                            databaseReference) {
+                                                                   databaseReference) {
                                         if (databaseError != null)
                                             Log.d(TAG, "Error occurred" + databaseError
                                                     .getMessage());
@@ -165,6 +185,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                             }
                         });
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, "error fetching shared with user ids");
@@ -213,7 +234,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                 ShareFragment.TAG).addToBackStack(ExpensesFragment.TAG).commit();
-        fab.hide();
+        fabMenu.hideMenu(true);
         setTitle("Share with");
     }
 
@@ -298,7 +319,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onBackPressed() {
-        fab.show();
+        fabMenu.showMenu(true);
         super.onBackPressed();
     }
 
