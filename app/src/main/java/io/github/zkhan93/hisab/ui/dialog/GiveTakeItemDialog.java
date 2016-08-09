@@ -22,7 +22,7 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.DetailGroupActivity;
-import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
+import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
 
 /**
  * Created by Zeeshan Khan on 8/9/2016.
@@ -42,7 +42,7 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
 
     private User me;
     private String groupId;
-    private UsersAdapter usersAdapter;
+    private MembersAdapter membersAdapter;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -66,8 +66,8 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        usersAdapter = new UsersAdapter(this, me, groupId);
-        members.setAdapter(usersAdapter);
+        membersAdapter = new MembersAdapter(this, me, groupId);
+        members.setAdapter(membersAdapter);
         builder.setView(view);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
                 .OnClickListener() {
@@ -102,13 +102,13 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
 
     @Override
     public void onStart() {
-        usersAdapter.registerEventListener();
+        membersAdapter.registerEventListener();
         super.onStart();
     }
 
     @Override
     public void onPause() {
-        usersAdapter.unregisterEventListener();
+        membersAdapter.unregisterEventListener();
         super.onPause();
     }
 
