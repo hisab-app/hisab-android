@@ -57,6 +57,7 @@
         />
     <ImageButton
         android:id="@+id/info"
+        android:visibility="gone"
         style="@style/Base.Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

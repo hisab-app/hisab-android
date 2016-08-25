@@ -35,19 +35,19 @@
         app:fab_size="normal">
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabCreateShareEntry"
+            android:id="@+id/fabCreateShared"
             android:layout_width="wrap_content"
             android:src="@drawable/ic_shared_item"
-            app:fab_label="Shared Entry"
+            app:fab_label="@string/fab_shared"
             android:layout_height="wrap_content"
             app:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabCreateGiveTakeEntry"
+            android:id="@+id/fabCreatePaidReceived"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_shared_item"
+            android:src="@drawable/ic_hand_money"
             android:layout_height="wrap_content"
-            app:fab_label="Give/Take Entry"
+            app:fab_label="@string/fab_paid_received"
             app:fab_size="mini"/>
     </com.github.clans.fab.FloatingActionMenu>
 

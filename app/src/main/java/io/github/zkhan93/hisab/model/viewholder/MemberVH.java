@@ -5,7 +5,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -21,22 +20,19 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * Created by Zeeshan Khan on 7/3/2016.
  */
-public class UserVH extends RecyclerView.ViewHolder implements CompoundButton
-        .OnCheckedChangeListener {
+public class MemberVH extends RecyclerView.ViewHolder implements View.OnClickListener {
     @BindView(R.id.image)
     CircleImageView image;
     @BindView(R.id.name)
     TextView name;
     @BindView(R.id.email)
     TextView email;
-    @BindView(R.id.state)
-    SwitchCompat state;
 
     private View itemView;
     private ExUser exUser;
     private UserItemActionClickClbk actionCallback;
 
-    public UserVH(View itemView, UserItemActionClickClbk userItemActionClickClbk) {
+    public MemberVH(View itemView, UserItemActionClickClbk userItemActionClickClbk) {
         super(itemView);
         this.itemView = itemView;
         ButterKnife.bind(this, itemView);
@@ -48,17 +44,18 @@ public class UserVH extends RecyclerView.ViewHolder implements CompoundButton
         email.setText(user.getEmail());
         Picasso.with(image.getContext()).load(Util.getGavatarUrl(user.getEmail(), 200))
                 .placeholder(R.drawable.big_user).fit().centerCrop().into(image);
-        //itemView.setOnClickListener(this);
-        if (state != null) {
-            state.setChecked(user.isChecked());
-            state.setOnCheckedChangeListener(this);
-        }
+        itemView.setOnClickListener(this);
         this.exUser = user;
+        if (exUser.isChecked())
+            itemView.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable
+                    .selected_list_item_background));
+        else
+            itemView.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable
+                    .list_item_background));
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        exUser.setChecked(b);
+    public void onClick(View view) {
         actionCallback.UserClicked(exUser);
     }
 }

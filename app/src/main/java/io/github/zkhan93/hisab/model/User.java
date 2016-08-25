@@ -2,9 +2,12 @@ package io.github.zkhan93.hisab.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import io.github.zkhan93.hisab.model.ui.ExUser;
 
 /**
  * Created by Zeeshan Khan on 6/25/2016.
@@ -27,6 +30,10 @@ public class User implements Parcelable {
         id = parcel.readString();
         name = parcel.readString();
         email = parcel.readString();
+    }
+
+    public User(@NonNull ExUser user) {
+        this(user.getName(), user.getName(), user.getId());
     }
 
     public String getName() {
@@ -93,4 +100,5 @@ public class User implements Parcelable {
         map.put("id", id);
         return map;
     }
+
 }

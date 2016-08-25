@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Hisab</string>
+
     <string name="rs" translatable="false">\u20B9</string>
+    <string name="paid">Paid</string>
+    <string name="received" translatable="false">Received</string>
+
     <string name="title_activity_entry">@string/app_name</string>
     <string name="title_activity_groups">Groups</string>
     <string name="title_activity_detail_group">Expenses in %1$s</string>
@@ -62,7 +66,12 @@
     <string name="label_done">Done</string>
 
     <string name="err_required">%1$s cannot be empty</string>
+    <string name="err_invalid_amount">Invalid amount</string>
+    <string name="err_zero_amount">Must be non zero</string>
     <string name="err_email_taken">This email already exist</string>
+
+    <string name="fab_shared">Shared</string>
+    <string name="fab_paid_received">Paid or Received</string>
 
     <string name="empty" translatable="false"></string>
 </resources>

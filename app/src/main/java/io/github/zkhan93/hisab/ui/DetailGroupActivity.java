@@ -39,8 +39,9 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
+import io.github.zkhan93.hisab.ui.dialog.EditPaidReceivedItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
-import io.github.zkhan93.hisab.ui.dialog.GiveTakeItemDialog;
+import io.github.zkhan93.hisab.ui.dialog.PaidReceivedItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
@@ -49,9 +50,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     @BindView(R.id.fabMenu)
     FloatingActionMenu fabMenu;
-    @BindView(R.id.fabCreateShareEntry)
+    @BindView(R.id.fabCreateShared)
     FloatingActionButton fabShareEntry;
-    @BindView(R.id.fabCreateGiveTakeEntry)
+    @BindView(R.id.fabCreatePaidReceived)
     FloatingActionButton fabGiveTakeEntryEntry;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -97,11 +98,13 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.fabCreateShareEntry:
+            case R.id.fabCreateShared:
                 showAddExpenseView();
+                fabMenu.close(false);
                 break;
-            case R.id.fabCreateGiveTakeEntry:
+            case R.id.fabCreatePaidReceived:
                 showAddGiveTakeEntryView();
+                fabMenu.close(false);
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -114,12 +117,12 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void showAddGiveTakeEntryView() {
-        DialogFragment dialog = new GiveTakeItemDialog();
+        DialogFragment dialog = new PaidReceivedItemDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable("me", me);
         bundle.putString("groupId", groupId);
         dialog.setArguments(bundle);
-        dialog.show(getFragmentManager(), GiveTakeItemDialog.TAG);
+        dialog.show(getFragmentManager(), PaidReceivedItemDialog.TAG);
     }
 
     @Override
@@ -193,8 +196,20 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    public void createExpense(String description, float amount) {
-        ExpenseItem expenseItem = new ExpenseItem(description, amount);
+    /**
+     * Called from {@link ExpenseItemDialog} and {@link PaidReceivedItemDialog}'s positive
+     * button's [@link OnClickListener]
+     *
+     * @param description
+     * @param amount
+     */
+    public void createExpense(String description, float amount, int itemType, User with, int
+            shareType) {
+        ExpenseItem expenseItem;
+        if (itemType == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
+            expenseItem = new ExpenseItem(description, amount, with, shareType);
+        else
+            expenseItem = new ExpenseItem(description, amount);
         expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
         expenseItem.setOwner(me);
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
@@ -219,7 +234,6 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
                     }
                 });
-
     }
 
     public void showShareGroupUi() {
@@ -240,11 +254,26 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void showEditUi(ExpenseItem expense) {
-        EditExpenseItemDialog dialog = new EditExpenseItemDialog();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("expense", expense);
-        dialog.setArguments(bundle);
-        dialog.show(getFragmentManager(), EditExpenseItemDialog.TAG);
+        switch (expense.getItemType()) {
+            case ExpenseItem.ITEM_TYPE.SHARED:
+                EditExpenseItemDialog dialog = new EditExpenseItemDialog();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("expense", expense);
+                dialog.setArguments(bundle);
+                dialog.show(getFragmentManager(), EditExpenseItemDialog.TAG);
+                break;
+            case ExpenseItem.ITEM_TYPE.PAID_RECEIVED:
+                EditPaidReceivedItemDialog pdialog = new EditPaidReceivedItemDialog();
+                Bundle pbundle = new Bundle();
+                pbundle.putParcelable("expense", expense);
+                pbundle.putString("groupId", groupId);
+                pbundle.putParcelable("me", me);
+                pdialog.setArguments(pbundle);
+                pdialog.show(getFragmentManager(), EditPaidReceivedItemDialog.TAG);
+                break;
+            default:
+                Log.d(TAG, "trying to edit a invalid expense item");
+        }
     }
 
     @Override
@@ -294,27 +323,32 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void update(ExpenseItem expense) {
-        groupExpensesRef.child(expense.getId()).setValue(expense).addOnCompleteListener(this,
-                new
-                        OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (!task.isSuccessful()) {
-                                    final Snackbar snackbar = Snackbar.make(toolbar, "Error " +
+
+        groupExpensesRef.child(expense.getId())
+                .setValue(expense)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            final Snackbar snackbar = Snackbar.make(toolbar,
+                                    "Error " +
                                             "Occurred:" +
                                             " " +
                                             task.getException()
-                                                    .getLocalizedMessage(), Snackbar.LENGTH_SHORT);
-                                    snackbar.setAction("OK", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            snackbar.dismiss();
-                                        }
-                                    });
-                                    snackbar.show();
+                                                    .getLocalizedMessage(),
+                                    Snackbar.LENGTH_SHORT);
+
+                            snackbar.setAction("OK", new View
+                                    .OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    snackbar.dismiss();
                                 }
-                            }
-                        });
+                            });
+                            snackbar.show();
+                        }
+                    }
+                });
     }
 
     @Override

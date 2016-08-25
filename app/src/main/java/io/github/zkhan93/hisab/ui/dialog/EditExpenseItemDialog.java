@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +26,7 @@ import io.github.zkhan93.hisab.ui.DetailGroupActivity;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class EditExpenseItemDialog extends DialogFragment implements DialogInterface
-        .OnClickListener {
+        .OnClickListener, TextWatcher, View.OnFocusChangeListener {
 
     public static final String TAG = EditExpenseItemDialog.class.getSimpleName();
 
@@ -35,6 +37,7 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
 
     private ExpenseItemClbk expenseItemUpdateClbk;
     private ExpenseItem expense;
+    private int currentEditTextId;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -72,7 +75,8 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
                 expense.setCreatedOn(Calendar.getInstance().getTimeInMillis());
                 expenseItemUpdateClbk.update(expense);
             } else {
-                Toast.makeText(getActivity().getApplicationContext(), "Cannot update expense invalid values",
+                Toast.makeText(getActivity().getApplicationContext(), "Cannot update expense " +
+                                "invalid values",
                         Toast.LENGTH_SHORT).show();
             }
         } else {
@@ -107,5 +111,69 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
             result = false;
         }
         return result;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        amount.addTextChangedListener(this);
+        description.addTextChangedListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        amount.removeTextChangedListener(this);
+        description.removeTextChangedListener(this);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        CharSequence charSequence = editable.toString();
+        int len = editable.toString().length();
+        switch (currentEditTextId) {
+            case R.id.description:
+                if (charSequence.toString().isEmpty())
+                    description.setError(getString(R.string.err_required, "Description"));
+                else if (charSequence.toString().length() > 100) {
+                    editable.delete(100, len);
+                    description.setError("Keep the description short and crisp.");
+                }
+                description.setError(null);
+                break;
+            case R.id.amount:
+                if (charSequence.toString().isEmpty()) {
+                    amount.setError(getString(R.string.err_required, "Amount"));
+                    return;
+                }
+                try {
+                    float amt = Float.parseFloat(charSequence.toString());
+                    if (amt == 0) {
+                        amount.setError(getString(R.string.err_zero_amount));
+                        return;
+                    }
+                    amount.setError(null);
+//                    enableIfValidInput();
+                } catch (NumberFormatException ex) {
+                    amount.setError(getString(R.string.err_invalid_amount));
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onFocusChange(View view, boolean b) {
+        if (b)
+            currentEditTextId = view.getId();
     }
 }

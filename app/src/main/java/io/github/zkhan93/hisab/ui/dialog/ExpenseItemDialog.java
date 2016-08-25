@@ -14,6 +14,7 @@ import android.view.View;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.ui.DetailGroupActivity;
 
 /**
@@ -45,7 +46,8 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
                 if (validateValues(description.getText()
                         .toString(), amount.getText().toString())) {
                     ((DetailGroupActivity) getActivity()).createExpense(description.getText()
-                            .toString(), Float.parseFloat(amount.getText().toString()));
+                            .toString(), Float.parseFloat(amount.getText().toString()),
+                            ExpenseItem.ITEM_TYPE.SHARED,null,0);
                 }else{
 
                 }

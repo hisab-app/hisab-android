@@ -9,10 +9,10 @@
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:orientation="horizontal"
-    android:paddingBottom="4dp"
+    android:paddingBottom="8dp"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
-    android:paddingTop="4dp">
+    android:paddingTop="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/image"
@@ -53,13 +53,5 @@
             tool:text="someone@somewhere.com"
             />
     </LinearLayout>
-
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:checked="false"
-        />
 </LinearLayout>
 

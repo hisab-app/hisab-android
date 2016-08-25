@@ -150,8 +150,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
-                                (), noOfMembers,
-                        summaryActionItemClbk, me, owner);
+                        () + getPaidReceived(), noOfMembers, summaryActionItemClbk, me, owner);
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -253,7 +252,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private float getTotalAmount() {
         float res = 0;
         for (ExpenseItem ex : expenses) {
-            if (ex != null)
+            if (ex != null && ex.getItemType() == ExpenseItem.ITEM_TYPE.SHARED)
                 res += ex.getAmount();
         }
         return res;
@@ -262,8 +261,24 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private float getMyExpensesSum() {
         float res = 0;
         for (ExpenseItem ex : expenses) {
-            if (ex != null && ex.getOwner().getId().equals(me.getId()))
+            if (ex != null && ex.getOwner().getId().equals(me.getId()) && ex.getItemType() ==
+                    ExpenseItem.ITEM_TYPE.SHARED)
                 res += ex.getAmount();
+        }
+        return res;
+    }
+
+    private float getPaidReceived() {
+        float res = 0;
+        for (ExpenseItem ex : expenses) {
+            if (ex != null && ex.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED) {
+                if (ex.getOwner().getId().equals(me.getId()))
+                    res += ex.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? ex.getAmount() : -ex
+                            .getAmount();
+                else if (ex.getWith().getId().equals(me.getId()))
+                    res += ex.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? -ex.getAmount() : ex
+                            .getAmount();
+            }
         }
         return res;
     }

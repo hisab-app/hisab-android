@@ -20,13 +20,13 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
-import io.github.zkhan93.hisab.model.viewholder.UserVH;
+import io.github.zkhan93.hisab.model.viewholder.MemberVH;
 
 /**
  * Created by Zeeshan Khan on 8/9/2016.
  */
 public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener {
+        ChildEventListener, UserItemActionClickClbk {
 
     public static String TAG = MembersAdapter.class.getSimpleName();
 
@@ -35,31 +35,34 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private DatabaseReference dbRef, shareRef;
     private ValueEventListener moderatorListener;
     private User me;
-
+    private ExUser checkedUser;
     {
         moderatorListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
+                //don't user key as Id, key is "moderator"
+                if (user.getId().equals(me.getId()))
+                    return;
                 members.add(new ExUser(user));
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d(TAG, "cancelled");
-
             }
         };
     }
 
     public MembersAdapter(UserItemActionClickClbk actionCallback, User me, String groupId) {
+        this.me = me;
         members = new ArrayList<>();
         this.actionCallback = actionCallback;
         dbRef = FirebaseDatabase.getInstance().getReference();
         shareRef = dbRef.child("shareWith").child(groupId);
         dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
                 .addListenerForSingleValueEvent(moderatorListener);
-        this.me = me;
+
     }
 
     @Override
@@ -68,8 +71,8 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case VIEW_TYPE.NORMAL:
-                holder = new UserVH(inflater.inflate(R.layout.member_item,
-                        parent, false), actionCallback);
+                holder = new MemberVH(inflater.inflate(R.layout.member_item,
+                        parent, false), this);
                 break;
             case VIEW_TYPE.EMPTY:
             default:
@@ -83,7 +86,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case VIEW_TYPE.NORMAL:
-                ((UserVH) holder).setUser(members.get(position));
+                ((MemberVH) holder).setUser(members.get(position));
                 break;
             case VIEW_TYPE.EMPTY:
                 ((EmptyVH) holder).setType(EmptyVH.TYPE.USERS);
@@ -105,12 +108,19 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        if (dataSnapshot.getKey().equals(me.getId()))
+            return;
         User user = dataSnapshot.getValue(User.class);
-        members.add(new ExUser(user));
+        user.setId(dataSnapshot.getKey());
+        if (!user.getId().equals(me.getId()))
+            members.add(new ExUser(user));
+        UserClicked(checkedUser);
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        if (dataSnapshot.getKey().equals(me.getId()))
+            return;
         User user = dataSnapshot.getValue(User.class);
         user.setId(dataSnapshot.getKey());
         int index = findUserIndex(user.getId());
@@ -123,6 +133,8 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getKey().equals(me.getId()))
+            return;
         User user = dataSnapshot.getValue(User.class);
         user.setId(dataSnapshot.getKey());
         int index = findUserIndex(user.getId());
@@ -165,6 +177,31 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
         return index;
+    }
+
+    public void setCheckedUser(ExUser checkedUser) {
+        this.checkedUser = checkedUser;
+    }
+
+    @Override
+    public void UserClicked(ExUser user) {
+        if(user==null)
+            return;
+        ExUser eu;
+        for (int i = 0; i < members.size(); i++) {
+            eu = members.get(i);
+            if (eu.isChecked()) {
+                eu.setChecked(false);
+                notifyItemChanged(i);
+                break;
+            }
+        }
+        int index = findUserIndex(user.getId());
+        if(index!=-1) {
+            members.get(index).setChecked(true);
+            notifyItemChanged(index);
+            actionCallback.UserClicked(user);
+        }
     }
 
     public interface VIEW_TYPE {

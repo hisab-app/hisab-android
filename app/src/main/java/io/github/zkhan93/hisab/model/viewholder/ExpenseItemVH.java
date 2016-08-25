@@ -60,7 +60,12 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 
     public void setExpense(ExpenseItem expense, User me) {
         this.expense = expense;
-        description.setText(expense.getDescription() + " - " + String.valueOf(expense.getAmount()));
+        String desc=expense.getDescription() + " - " + String.valueOf(expense.getAmount());
+
+        if(expense.getItemType()== ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
+            desc+=(expense.getShareType()== ExpenseItem.SHARE_TYPE.PAID?" to ":" from ")+expense.getWith().getName();
+
+        description.setText(desc);
         calendar.setTimeInMillis(expense.getCreatedOn());
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
             owner.setText(String.format("You %s", DateUtils.getRelativeTimeSpanString

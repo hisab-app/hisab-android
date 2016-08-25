@@ -18,6 +18,7 @@ import android.widget.RadioGroup;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
@@ -27,12 +28,11 @@ import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
 /**
  * Created by Zeeshan Khan on 8/9/2016.
  */
-public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
-        UserItemActionClickClbk {
-    public static final String TAG = GiveTakeItemDialog.class.getSimpleName();
+public class PaidReceivedItemDialog extends DialogFragment implements UserItemActionClickClbk,
+        TextWatcher {
+    public static final String TAG = PaidReceivedItemDialog.class.getSimpleName();
 
-    @BindView(R.id.description)
-    TextInputEditText description;
+
     @BindView(R.id.amount)
     TextInputEditText amount;
     @BindView(R.id.optionGiveTake)
@@ -43,6 +43,7 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
     private User me;
     private String groupId;
     private MembersAdapter membersAdapter;
+    private User checkedUser;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -50,16 +51,16 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.title_create_expense);
         View view = LayoutInflater.from(getActivity()).inflate(R.layout
-                        .dialog_create_give_take_item,
+                        .dialog_create_paid_received_item,
                 null);
         ButterKnife.bind(this, view);
-
-        description.addTextChangedListener(this);
 
         if (savedInstanceState == null) {
             Bundle bundle = getArguments();
             groupId = bundle.getString("groupId");
             me = bundle.getParcelable("me");
+            checkedUser=bundle.getParcelable("checkedUser");
+
         } else {
             groupId = savedInstanceState.getString("groupId");
             me = savedInstanceState.getParcelable("me");
@@ -68,17 +69,22 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         membersAdapter = new MembersAdapter(this, me, groupId);
         members.setAdapter(membersAdapter);
+        if(savedInstanceState!=null)
+            membersAdapter.UserClicked(new ExUser(checkedUser));
         builder.setView(view);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (validateValues(description.getText()
-                        .toString(), amount.getText().toString()) && optionGiveTake
+                if (validateValues(amount.getText().toString()) && optionGiveTake
                         .getCheckedRadioButtonId() != -1) {
-
-                    ((DetailGroupActivity) getActivity()).createExpense(description.getText()
-                            .toString(), Float.parseFloat(amount.getText().toString()));
+                    int shareType = optionGiveTake.getCheckedRadioButtonId() == R.id.paid ?
+                            ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED;
+                    String desc = shareType == ExpenseItem.SHARE_TYPE.PAID ? getString(R.string
+                            .paid) : getString(R.string.received);
+                    ((DetailGroupActivity) getActivity()).createExpense(desc
+                                    .toString(), Float.parseFloat(amount.getText().toString()),
+                            ExpenseItem.ITEM_TYPE.PAID_RECEIVED, checkedUser, shareType);
                 } else {
                     Log.d(TAG, "validation failed");
                 }
@@ -98,6 +104,7 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
         super.onSaveInstanceState(outState);
         outState.putParcelable("me", me);
         outState.putString("groupId", groupId);
+        outState.putParcelable("checkedUser", checkedUser);
     }
 
     @Override
@@ -107,19 +114,22 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
     }
 
     @Override
+    public void onResume() {
+        amount.addTextChangedListener(this);
+        super.onResume();
+        enableIfValidInput();
+    }
+
+    @Override
     public void onPause() {
         membersAdapter.unregisterEventListener();
+        amount.removeTextChangedListener(this);
         super.onPause();
     }
 
-    public boolean validateValues(String desc, String amt) {
+    public boolean validateValues(String amt) {
         boolean result = true;
         try {
-            if (desc == null || desc.isEmpty()) {
-                description.setError("Description cannot be empty");
-                description.requestFocus();
-                result = false;
-            }
             Float famt = Float.parseFloat(amt);
             if (famt <= 0) {
                 amount.setError("Amount must be a non zero positive value");
@@ -135,26 +145,45 @@ public class GiveTakeItemDialog extends DialogFragment implements TextWatcher,
     }
 
     @Override
+    public void UserClicked(ExUser user) {
+        this.checkedUser = new User(user);
+        enableIfValidInput();
+    }
+
+    private void enableIfValidInput() {
+        if (checkedUser == null || amount.getText().toString().isEmpty())
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        else
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+    }
+
+    @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
     }
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable editable) {
-        int len = editable.toString().length();
-        if (len > 100) {
-            editable.delete(100, len);
-            description.setError("Keep the description short and crisp.");
+        try {
+            String str = amount.getText().toString();
+            if (str.isEmpty()) {
+                amount.setError(getString(R.string.err_required,"Amount"));
+                return;
+            }
+            float amt = Float.parseFloat(str);
+            if (amt == 0) {
+                amount.setError(getString(R.string.err_zero_amount));
+                return;
+            }
+            amount.setError(null);
+            enableIfValidInput();
+        } catch (NumberFormatException ex) {
+            amount.setError(getString(R.string.err_invalid_amount));
         }
     }
 
     @Override
-    public void UserClicked(ExUser user) {
+    public void afterTextChanged(Editable editable) {
 
     }
 }
