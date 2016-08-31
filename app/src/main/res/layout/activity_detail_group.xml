@@ -30,23 +30,32 @@
         android:layout_height="match_parent"
         android:layout_gravity="bottom|end"
         android:padding="@dimen/fab_margin"
-        app:menu_backgroundColor="@color/white_transparent_60"
         android:src="@drawable/ic_add_grey_50_24dp"
-        app:fab_size="normal">
+        app:menu_colorNormal="@color/colorAccent"
+        app:menu_colorPressed="@color/colorAccentDark"
+        app:menu_colorRipple="@color/colorAccentDark"
+        app:menu_fab_size="normal"
+        app:menu_backgroundColor="@color/white_transparent_60">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fabCreateShared"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_shared_item"
-            app:fab_label="@string/fab_shared"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_shared_item"
+            app:fab_colorNormal="@color/colorAccent"
+            app:fab_colorPressed="@color/colorAccentDark"
+            app:fab_colorRipple="@color/colorAccentDark"
+            app:fab_label="@string/fab_shared"
             app:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fabCreatePaidReceived"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_hand_money"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_hand_money"
+            app:fab_colorNormal="@color/colorAccent"
+            app:fab_colorPressed="@color/colorAccentDark"
+            app:fab_colorRipple="@color/colorAccentDark"
             app:fab_label="@string/fab_paid_received"
             app:fab_size="mini"/>
     </com.github.clans.fab.FloatingActionMenu>

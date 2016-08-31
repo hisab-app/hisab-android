@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:src="@drawable/title_black"/>
+                android:src="@drawable/title"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

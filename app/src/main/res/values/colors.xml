@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/md_deep_orange_500</color>
+    <color name="colorPrimary">#F16667</color>
+    <!--@color/md_deep_orange_500-->
     <color name="colorTextOnPrimary">@color/md_white_1000</color>
 
-    <color name="colorPrimaryDark">@color/md_deep_orange_700</color>
+    <color name="colorPrimaryDark">#C65557</color>
     <color name="colorTextOnPrimaryDark">@color/md_white_1000</color>
 
-    <color name="colorAccent">@color/md_deep_orange_A400</color>
-    <color name="colorTextOnAccent">@color/md_white_1000</color>
+    <color name="colorAccent">@color/md_teal_A700</color>
+    <color name="colorAccentDark">#00AD93</color>
+    <color name="colorTextOnAccent">@color/md_black_1000</color>
 
     <color name="colorWarning">@color/md_deep_orange_500</color>
     <color name="colorWarningDark">@color/md_deep_orange_800</color>
@@ -16,8 +18,10 @@
     <color name="colorDanger">@color/md_red_500</color>
     <color name="colorDangerDark">@color/md_red_800</color>
     <color name="colorTextOnDanger">@color/md_white_1000</color>
+
     <color name="transparent">#00000000</color>
     <color name="transparent_false">#02000000</color>
+
     <color name="white_transparent_90">#E5FFFFFF</color>
     <color name="white_transparent_80">#CCFFFFFF</color>
     <color name="white_transparent_70">#B2FFFFFF</color>
