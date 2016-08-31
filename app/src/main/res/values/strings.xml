@@ -73,5 +73,11 @@
     <string name="fab_shared">Shared</string>
     <string name="fab_paid_received">Paid or Received</string>
 
+
+    <string name="dialog_key_expense_id">just for id</string>
+    <string name="dialog_key_dialog_id">just for id</string>
+    <string name="dialog_key_group_id">just for id</string>
+    <string name="dialog_key_expense_map">just for id</string>
+
     <string name="empty" translatable="false"></string>
 </resources>

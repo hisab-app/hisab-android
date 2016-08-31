@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -38,6 +40,7 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
+import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditPaidReceivedItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
@@ -45,7 +48,8 @@ import io.github.zkhan93.hisab.ui.dialog.PaidReceivedItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
-        GroupRenameClbk, ExpenseItemClbk, PreferenceChangeListener {
+        GroupRenameClbk, ExpenseItemClbk, PreferenceChangeListener, SummaryActionItemClbk,
+        DialogInterface.OnClickListener {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
     @BindView(R.id.fabMenu)
@@ -56,12 +60,16 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     FloatingActionButton fabGiveTakeEntryEntry;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.root_coordinate_layout)
+    CoordinatorLayout rootCoordinatorLayout;
 
-    private DatabaseReference groupExpensesRef, dbGrpNameRef, dbRef;
+    private AlertDialog alertDialog;
+    private DatabaseReference groupExpensesRef, dbGrpNameRef, dbRef, archiveRef, expensesRef;
     private FirebaseUser firebaseUser;
     private String groupId, groupName;
     private User me;
     private ArrayList<String> sharedUserIds;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +81,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         groupName = getIntent().getStringExtra("groupName");
         dbRef = FirebaseDatabase.getInstance().getReference();
         groupExpensesRef = dbRef.child("expenses").child(groupId);
+        archiveRef = dbRef.child("archive").child(groupId);
         dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
         sharedUserIds = new ArrayList<>();
 
@@ -93,6 +102,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                     ExpensesFragment.TAG).commit();
         }
+        alertDialog = new AlertDialog.Builder(this, 0).setPositiveButton("OK", this)
+                .setNegativeButton("Cancel", this).create();
+        snackbar = Snackbar.make(rootCoordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
     }
 
     @Override
@@ -276,49 +288,26 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+
     @Override
     public void delete(final String expenseId) {
-        final AlertDialog confirmDelete = new AlertDialog.Builder(this, 0)
-                .setMessage("Do you want to delete?")
-                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+        alertDialog.setMessage("Do you want to delete?");
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Delete", this);
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", this);
+        alertDialog.setOnShowListener(
+                new DialogInterface.OnShowListener() {
                     @Override
-                    public void onClick(final DialogInterface dialogInterface, int i) {
-                        groupExpensesRef.child(expenseId).removeValue().addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull
-                                                           Task<Void> task) {
-                                        if (!task.isSuccessful()) {
-                                            final Snackbar snackbar =
-                                                    Snackbar.make(toolbar,
-                                                            "Error occurred: " + task.getException()
-                                                                    .getLocalizedMessage(),
-                                                            Snackbar
-                                                                    .LENGTH_INDEFINITE);
-                                            snackbar.setAction("OK", new
-                                                    View.OnClickListener() {
-                                                        @Override
-                                                        public void
-                                                        onClick(View view) {
-                                                            snackbar.dismiss();
-                                                        }
-                                                    });
-                                            snackbar.show();
-                                        }
-                                    }
-                                }
-
-                        );
+                    public void onShow(DialogInterface dialogInterface) {
+                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string
+                                .dialog_key_expense_id,
+                                expenseId);
+                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string
+                                .dialog_key_dialog_id,
+                                DIALOG_IDS.EXPENSE_DELETE);
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }
-
-                ).create();
-        confirmDelete.show();
+                }
+        );
+        alertDialog.show();
     }
 
     @Override
@@ -365,4 +354,107 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
             me = Util.getUser(getApplicationContext());
         }
     }
+
+    @Override
+    public void archiveGrp(final String groupId, final Map<String, Object> expenses) {
+        alertDialog.setMessage("Do you want to archive?");
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", this);
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", this);
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_group_id,
+                        groupId);
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_expense_map,
+                        expenses);
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_dialog_id,
+                        DIALOG_IDS.GROUP_ARCHIVE);
+            }
+        });
+        alertDialog.show();
+    }
+
+    @Override
+    public void moreInfo() {
+
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        Button button = ((AlertDialog) dialog).getButton(which);
+        int tagValue = (int) (button.getTag(R.string.dialog_key_dialog_id));//TODO:error here  Attempt to invoke virtual method 'int java.lang.Integer.intValue()' on a null object reference
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            switch (tagValue) {
+                case DIALOG_IDS.EXPENSE_DELETE:
+                    String expenseId = (String) button.getTag(R.string.dialog_key_expense_id);
+                    groupExpensesRef.child(expenseId).removeValue().addOnCompleteListener(
+                            new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull
+                                                       Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        showSnackBar("Error occurred: " + task.getException()
+                                                .getLocalizedMessage(), Snackbar
+                                                .LENGTH_INDEFINITE, "OK");
+                                    }
+                                }
+                            }
+
+                    );
+                    break;
+                case DIALOG_IDS.GROUP_ARCHIVE:
+                    String groupId = (String) button.getTag(R.string.dialog_key_dialog_id);
+                    Map<String, Object> expensesMap = (Map<String, Object>) button.getTag
+                            (R.string.dialog_key_expense_map);
+                    expensesRef = dbRef.child("expenses").child(groupId);
+                    archiveRef.push().setValue(expensesMap).addOnCompleteListener(this, new
+                            OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful())
+                                        expensesRef.setValue(null);
+                                    else {
+                                        showSnackBar("Couldn't archive! Try again later",
+                                                Snackbar.LENGTH_INDEFINITE, "OK");
+                                    }
+                                }
+                            });
+
+                    break;
+            }
+        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+            dialog.dismiss();
+        } else {
+            Log.d(TAG, "invalid button");
+        }
+    }
+
+    private void showSnackBar(String msg, int duration, String action) {
+        if (snackbar != null) {
+            if (msg != null)
+                snackbar.setText(msg);
+            snackbar.setDuration(duration);
+            if (action != null)
+                snackbar.setAction(action, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        snackbar.dismiss();
+                    }
+                });
+            snackbar.show();
+        }
+    }
+
+    interface DIALOG_IDS {
+        int EXPENSE_DELETE = 1;
+        int GROUP_ARCHIVE = 2;
+    }
+
+/*
+    interface DIALOG_KEYS {
+        int EXPENSE_ID = 1;
+        int DIALOG_ID = 2;
+        int GROUP_ID = 3;
+        int EXPENSE_MAP = 4;
+    }*/
 }

@@ -16,7 +16,7 @@ import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
+public class ExpenseSummaryVH extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     public static final String TAG = ExpenseSummaryVH.class.getSimpleName();
 
@@ -27,17 +27,18 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
     @BindView(R.id.archive)
     ImageButton archive;
     private Context context;
+    private SummaryActionItemClbk summaryActionItemClbk;
 
-    public ExpenseSummaryVH(View itemView) {
+    public ExpenseSummaryVH(View itemView, SummaryActionItemClbk summaryActionItemClbk) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         archive.setVisibility(View.GONE);
         this.context = itemView.getContext();
+        this.summaryActionItemClbk = summaryActionItemClbk;
     }
 
-    public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, final
-    SummaryActionItemClbk
-            summaryActionItemClbk, User me, User owner) {
+    public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, User me, User
+            owner) {
         this.description.setText("Total expenses " + String.valueOf(amount));
         noOfMembers += 1;//including self
         if (noOfMembers == 1) {
@@ -46,10 +47,10 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             float genShare = amount / noOfMembers;
             float myShare = genShare - myExpenses;
             String msg = null;
-            String rs=context.getString(R.string.rs);
+            String rs = context.getString(R.string.rs);
             msg = context.getString(myShare < 0 ? R.string.msg_summary_collect : R.string
                             .msg_summary_give,
-                    Math.abs(myShare),rs);
+                    Math.abs(myShare), rs);
 
             if (myShare == 0) {
                 msg = context.getString(R.string.msg_your_clear);
@@ -64,12 +65,19 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder {
             archive.setVisibility(View.GONE);
         } else {
             archive.setVisibility(View.VISIBLE);
-            archive.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    summaryActionItemClbk.archiveGrp();
-                }
-            });
+            archive.setOnClickListener(this);
+//            new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    summaryActionItemClbk.archiveGrp();
+//                }
+//            });
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        //the values will be handeled by intermediate Expense Adapter
+        summaryActionItemClbk.archiveGrp(null,null);
     }
 }

@@ -26,6 +26,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
+import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
 import io.github.zkhan93.hisab.ui.dialog.RenameGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
@@ -75,7 +77,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         ButterKnife.bind(this, rootView);
         expensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        expensesAdapter = new ExpensesAdapter(me, groupId, (DetailGroupActivity) getActivity());
+        expensesAdapter = new ExpensesAdapter(me, groupId, (ExpenseItemClbk) getActivity(),(SummaryActionItemClbk) getActivity());
         expensesList.setAdapter(expensesAdapter);
         setHasOptionsMenu(true);
         getActivity().setTitle(groupName);

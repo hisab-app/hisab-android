@@ -2,6 +2,7 @@ package io.github.zkhan93.hisab.util;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -80,4 +81,5 @@ public class Util {
         else
             return false;
     }
+
 }

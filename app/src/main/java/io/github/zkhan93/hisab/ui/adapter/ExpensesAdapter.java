@@ -30,7 +30,7 @@ import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener {
+        ChildEventListener, SummaryActionItemClbk {
 
     public static final String TAG = ExpensesAdapter.class.getSimpleName();
 
@@ -75,6 +75,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             }
         };
+       /*
         summaryActionItemClbk = new SummaryActionItemClbk() {
             @Override
             public void archiveGrp() {
@@ -88,21 +89,24 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             @Override
             public void moreInfo() {
-//                AlertDialog dialog= new AlertDialog.Builder().bui
+                AlertDialog dialog= new AlertDialog.Builder().build();
             }
         };
+        */
     }
 
     public ExpensesAdapter(User me, String groupId,
-                           ExpenseItemClbk expenseItemClbk) {
+                           ExpenseItemClbk expenseItemClbk, SummaryActionItemClbk
+                                   summaryActionItemClbk) {
         expenses = new ArrayList<>();
         this.me = me;
         this.expenseItemClbk = expenseItemClbk;
         this.groupId = groupId;
+        this.summaryActionItemClbk = summaryActionItemClbk;
         dbRef = FirebaseDatabase.getInstance().getReference();
-        expensesRef = dbRef.child("expenses/" + groupId);
+        expensesRef = dbRef.child("expenses").child(groupId);
         sharedRef = dbRef.child("shareWith").child(groupId);
-        archiveRef = dbRef.child("archive").child(groupId);
+//      archiveRef = dbRef.child("archive").child(groupId);
 
         dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -132,7 +136,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             case TYPE.SUMMARY:
                 return new ExpenseSummaryVH(inflater.inflate(R.layout.expense_summary_item,
-                        parent, false));
+                        parent, false), summaryActionItemClbk);
             default:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item, parent, false),
                         expenseItemClbk);
@@ -150,7 +154,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
-                        () + getPaidReceived(), noOfMembers, summaryActionItemClbk, me, owner);
+                        () + getPaidReceived(), noOfMembers, me, owner);
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -281,6 +285,21 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }
         return res;
+    }
+
+    @Override
+    public void archiveGrp(String groupId, Map<String, Object> expensesMap) {
+        groupId = this.groupId;
+        Map<String, Object> mExpenses = new HashMap<>();
+        for (ExpenseItem e : expenses) {
+            mExpenses.put(e.getId(), e.toMap());
+        }
+        summaryActionItemClbk.archiveGrp(groupId, mExpenses);
+    }
+
+    @Override
+    public void moreInfo() {
+        summaryActionItemClbk.moreInfo();
     }
 
     interface TYPE {
