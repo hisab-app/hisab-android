@@ -29,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -41,6 +42,7 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
+import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditPaidReceivedItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
@@ -70,6 +72,22 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     private User me;
     private ArrayList<String> sharedUserIds;
     private Snackbar snackbar;
+    private Snackbar.Callback snacCallback;
+
+    {
+        snacCallback = new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                snackbarDismissed();
+            }
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +122,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
         alertDialog = new AlertDialog.Builder(this, 0).setPositiveButton("OK", this)
                 .setNegativeButton("Cancel", this).create();
-        snackbar = Snackbar.make(rootCoordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
+        snackbarDismissed(); //this will create a new snackbar and register callback with it
     }
 
     @Override
@@ -288,26 +306,19 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private String ExpenseId;
 
     @Override
-    public void delete(final String expenseId) {
-        alertDialog.setMessage("Do you want to delete?");
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Delete", this);
-        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", this);
-        alertDialog.setOnShowListener(
-                new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialogInterface) {
-                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string
-                                .dialog_key_expense_id,
-                                expenseId);
-                        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string
-                                .dialog_key_dialog_id,
-                                DIALOG_IDS.EXPENSE_DELETE);
-                    }
-                }
-        );
-        alertDialog.show();
+    public void deleteExpense(final String expenseId) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("type", ConfirmDialog.TYPE.EXPENSE_DELETE);
+        bundle.putString("msg", "Do you really want to delete?");//TODO: String resource
+        bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
+        bundle.putString("negativeBtnTxt", "No");//TODO: String resource
+        this.expenseId = expenseId;
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setArguments(bundle);
+        confirmDialog.show(getFragmentManager(), ConfirmDialog.TAG);
     }
 
     @Override
@@ -355,23 +366,21 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private List<ExpenseItem> expenses;
+    private String expenseId;
+
     @Override
-    public void archiveGrp(final String groupId, final Map<String, Object> expenses) {
-        alertDialog.setMessage("Do you want to archive?");
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", this);
-        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", this);
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_group_id,
-                        groupId);
-                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_expense_map,
-                        expenses);
-                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTag(R.string.dialog_key_dialog_id,
-                        DIALOG_IDS.GROUP_ARCHIVE);
-            }
-        });
-        alertDialog.show();
+    public void archiveGrp(final String groupId, final List<ExpenseItem> expenses) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("type", ConfirmDialog.TYPE.GROUP_ARCHIVE);
+        bundle.putString("msg", "Do you really want to archive?");//TODO: String resource
+        bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
+        bundle.putString("negativeBtnTxt", "No");//TODO: String resource
+        this.expenses = expenses;
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setArguments(bundle);
+        confirmDialog.show(getFragmentManager(), ConfirmDialog.TAG);
+
     }
 
     @Override
@@ -380,13 +389,16 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        Button button = ((AlertDialog) dialog).getButton(which);
-        int tagValue = (int) (button.getTag(R.string.dialog_key_dialog_id));//TODO:error here  Attempt to invoke virtual method 'int java.lang.Integer.intValue()' on a null object reference
+    public void onClick(DialogInterface dialogInterface, int which) {
+        AlertDialog dialog = ((AlertDialog) dialogInterface);
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            switch (tagValue) {
-                case DIALOG_IDS.EXPENSE_DELETE:
-                    String expenseId = (String) button.getTag(R.string.dialog_key_expense_id);
+            Button positiveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            int type = ConfirmDialog.TYPE.INVALID;
+            Object typeObj = positiveBtn.getTag();
+            if (typeObj != null)
+                type = (int) typeObj;
+            switch (type) {
+                case ConfirmDialog.TYPE.EXPENSE_DELETE:
                     groupExpensesRef.child(expenseId).removeValue().addOnCompleteListener(
                             new OnCompleteListener<Void>() {
                                 @Override
@@ -402,10 +414,11 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
                     );
                     break;
-                case DIALOG_IDS.GROUP_ARCHIVE:
-                    String groupId = (String) button.getTag(R.string.dialog_key_dialog_id);
-                    Map<String, Object> expensesMap = (Map<String, Object>) button.getTag
-                            (R.string.dialog_key_expense_map);
+                case ConfirmDialog.TYPE.GROUP_ARCHIVE:
+                    Map<String, Object> expensesMap = new HashMap<>();
+                    for (ExpenseItem e : expenses) {
+                        expensesMap.put(e.getId(), e.toMap());
+                    }
                     expensesRef = dbRef.child("expenses").child(groupId);
                     archiveRef.push().setValue(expensesMap).addOnCompleteListener(this, new
                             OnCompleteListener<Void>() {
@@ -421,40 +434,36 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                             });
 
                     break;
+                default:
+                    Log.d(TAG, "invalid tag value in positive button");
             }
         } else if (which == DialogInterface.BUTTON_NEGATIVE) {
             dialog.dismiss();
         } else {
-            Log.d(TAG, "invalid button");
+            Log.d(TAG, "action on this button is not defined yet");
         }
     }
 
     private void showSnackBar(String msg, int duration, String action) {
-        if (snackbar != null) {
-            if (msg != null)
-                snackbar.setText(msg);
-            snackbar.setDuration(duration);
-            if (action != null)
-                snackbar.setAction(action, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        snackbar.dismiss();
-                    }
-                });
-            snackbar.show();
+        if (snackbar == null) {
+            snackbarDismissed();
         }
+        if (msg != null)
+            snackbar.setText(msg);
+        snackbar.setDuration(duration);
+        if (action != null)
+            snackbar.setAction(action, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                 just let the snackbar hide itself don't call dismiss
+                }
+            });
+        snackbar.show();
     }
 
-    interface DIALOG_IDS {
-        int EXPENSE_DELETE = 1;
-        int GROUP_ARCHIVE = 2;
+    private void snackbarDismissed() {
+        snackbar = Snackbar.make(rootCoordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
+        snackbar.setCallback(snacCallback);
     }
 
-/*
-    interface DIALOG_KEYS {
-        int EXPENSE_ID = 1;
-        int DIALOG_ID = 2;
-        int GROUP_ID = 3;
-        int EXPENSE_MAP = 4;
-    }*/
 }

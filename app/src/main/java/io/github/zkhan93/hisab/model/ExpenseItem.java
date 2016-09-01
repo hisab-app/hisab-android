@@ -200,7 +200,7 @@ public class ExpenseItem implements Parcelable {
         map.put("itemType", itemType);
         map.put("owner", owner.toMap());
         map.put("description", description);
-        map.put("amount", amount);
+        map.put("amount",(double)amount);
         map.put("createdOn", createdOn);
         if (itemType == ITEM_TYPE.PAID_RECEIVED) {
             map.put("with", with);

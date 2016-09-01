@@ -32,6 +32,7 @@
         android:layout_gravity="bottom|end"
         android:padding="@dimen/fab_margin"
         android:src="@drawable/ic_add_grey_50_24dp"
+        app:layout_behavior="io.github.zkhan93.hisab.ui.FloatingActionMenuBehavior"
         app:menu_backgroundColor="@color/white_transparent_60"
         app:menu_colorNormal="@color/colorAccent"
         app:menu_colorPressed="@color/colorAccentDark"

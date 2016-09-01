@@ -13,9 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
@@ -136,7 +134,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
             case TYPE.SUMMARY:
                 return new ExpenseSummaryVH(inflater.inflate(R.layout.expense_summary_item,
-                        parent, false), summaryActionItemClbk);
+                        parent, false), this);
             default:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item, parent, false),
                         expenseItemClbk);
@@ -288,13 +286,13 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public void archiveGrp(String groupId, Map<String, Object> expensesMap) {
-        groupId = this.groupId;
-        Map<String, Object> mExpenses = new HashMap<>();
-        for (ExpenseItem e : expenses) {
-            mExpenses.put(e.getId(), e.toMap());
-        }
-        summaryActionItemClbk.archiveGrp(groupId, mExpenses);
+    public void archiveGrp(String groupId, List<ExpenseItem> expensesMap) {
+//        Map<String, Object> mExpenses = new HashMap<>();
+//        for (ExpenseItem e : expenses) {
+//            mExpenses.put(e.getId(), e.toMap());
+//        }
+        Log.d(TAG,"sending groupId: "+this.groupId);
+        summaryActionItemClbk.archiveGrp(this.groupId, expenses);
     }
 
     @Override

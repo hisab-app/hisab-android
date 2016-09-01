@@ -94,7 +94,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 update();
                 break;
             case R.id.delete:
-                expenseItemClbk.delete(expense.getId());
+                expenseItemClbk.deleteExpense(expense.getId());
                 break;
             default:
                 Log.d(TAG, "click not implemented");
