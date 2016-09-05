@@ -1,11 +1,13 @@
 package io.github.zkhan93.hisab.ui;
 
-import android.content.Intent;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,20 +26,23 @@ import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
-import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
+import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GroupsFragment extends Fragment implements OnClickGroupItemClbk,
-        PreferenceChangeListener, ContextActionBarClbk {
+public class GroupsFragment extends Fragment implements
+        PreferenceChangeListener, ContextActionBarClbk,View.OnClickListener {
     public static final String TAG = GroupsFragment.class.getSimpleName();
 
     //member views
     @BindView(R.id.groups)
     RecyclerView groupList;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
     //other members
     private GroupsAdapter groupsAdapter;
     private User me;
@@ -59,19 +64,11 @@ public class GroupsFragment extends Fragment implements OnClickGroupItemClbk,
         ButterKnife.bind(this, rootView);
 
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        groupsAdapter = new GroupsAdapter(this, me, this);
+        groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
         groupList.setAdapter(groupsAdapter);
-
+        fab.setOnClickListener(this);
         setHasOptionsMenu(true);
         return rootView;
-    }
-
-    @Override
-    public void onClick(String groupId, String groupName) {
-        Intent intent = new Intent(getActivity(), DetailGroupActivity.class);
-        intent.putExtra("groupId", groupId);
-        intent.putExtra("groupName", groupName);
-        startActivity(intent);
     }
 
     @Override
@@ -151,5 +148,20 @@ public class GroupsFragment extends Fragment implements OnClickGroupItemClbk,
     @Override
     public void setCount(int count) {
         actionMode.setTitle(count + " Selected");
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.fab:
+                showAddGroupDialog();
+                break;
+            default:
+                Log.d(TAG, "click not implemented");
+        }
+    }
+    public void showAddGroupDialog() {
+        DialogFragment dialog = new CreateGroupDialog();
+        dialog.show(getActivity().getFragmentManager(), "dialog");
     }
 }

@@ -21,6 +21,8 @@ import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.ui.DetailGroupActivity;
+import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -52,7 +54,7 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         } else {
             expense = savedInstanceState.getParcelable("expense");
         }
-        expenseItemUpdateClbk = (DetailGroupActivity) getActivity();
+        expenseItemUpdateClbk = (ExpenseItemClbk) getActivity().getFragmentManager().findFragmentByTag(ExpensesFragment.TAG);
         description.setText(expense.getDescription());
         amount.setText(String.valueOf(expense.getAmount()));
         builder.setView(view);

@@ -68,7 +68,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder implements View.On
             archive.setOnClickListener(this);
 //            new View.OnClickListener() {
 //                @Override
-//                public void onClick(View view) {
+//                public void onGroupClicked(View view) {
 //                    summaryActionItemClbk.archiveGrp();
 //                }
 //            });

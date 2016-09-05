@@ -15,7 +15,7 @@ public class EntryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Util.isLoggedIn(getApplicationContext())) {
-            showGroupActivityAndQuit();
+            showMainActivityAndQuit();
         }
         setContentView(R.layout.activity_entry);
         if (savedInstanceState == null) {
@@ -52,11 +52,8 @@ public class EntryActivity extends AppCompatActivity {
                 SignUpFragment.TAG).commit();
     }
 
-    private void showGroupActivityAndQuit() {
-        startActivity(new Intent(this,
-                GroupsActivity
-                        .class));
+    private void showMainActivityAndQuit() {
+        startActivity(new Intent(this, MainActivity.class));
         finish();
-
     }
 }

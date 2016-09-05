@@ -15,7 +15,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.ui.DetailGroupActivity;
+import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -45,7 +48,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (validateValues(description.getText()
                         .toString(), amount.getText().toString())) {
-                    ((DetailGroupActivity) getActivity()).createExpense(description.getText()
+                    ((MainActivity) getActivity()).createExpense(description.getText()
                             .toString(), Float.parseFloat(amount.getText().toString()),
                             ExpenseItem.ITEM_TYPE.SHARED,null,0);
                 }else{

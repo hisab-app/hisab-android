@@ -423,7 +423,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private void showGroupActivityAndQuit() {
         if (isVisible()) {
             startActivity(new Intent(getActivity(),
-                    GroupsActivity
+                    MainActivity
                             .class));
             getActivity().finish();
         }

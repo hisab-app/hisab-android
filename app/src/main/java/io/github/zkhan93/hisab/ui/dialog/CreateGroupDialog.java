@@ -8,12 +8,11 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
-import io.github.zkhan93.hisab.ui.GroupsActivity;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -37,7 +36,7 @@ public class CreateGroupDialog extends DialogFragment {
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ((GroupsActivity) getActivity()).createGroup(groupName.getText().toString());
+                ((MainActivity) getActivity()).createGroup(groupName.getText().toString());
             }
         }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             @Override

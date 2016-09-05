@@ -14,7 +14,7 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
 
@@ -36,19 +36,19 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     View divider;
 
     private View itemView;
-    private OnClickGroupItemClbk onClickGroupItemClbk;
+    private GroupItemClickClbk groupItemClickClbk;
     private Group group;
     private Calendar calendar;
     private Context context;
     private OnLongClickGroupItemClbk onLongClickGroupItemClbk;
 
-    public GroupItemVH(View itemView, OnClickGroupItemClbk onClickGroupItemClbk,
+    public GroupItemVH(View itemView, GroupItemClickClbk groupItemClickClbk,
                        OnLongClickGroupItemClbk onLongClickGroupItemClbk) {
         super(itemView);
         context = itemView.getContext();
         ButterKnife.bind(this, itemView);
         this.itemView = itemView;
-        this.onClickGroupItemClbk = onClickGroupItemClbk;
+        this.groupItemClickClbk = groupItemClickClbk;
         calendar = Calendar.getInstance();
         this.onLongClickGroupItemClbk = onLongClickGroupItemClbk;
     }
@@ -79,7 +79,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        onClickGroupItemClbk.onClick(group.getId(), group.getName());
+        groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
     }
 
 

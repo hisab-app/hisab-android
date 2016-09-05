@@ -49,32 +49,33 @@ import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.PaidReceivedItemDialog;
 import io.github.zkhan93.hisab.util.Util;
 
-public class DetailGroupActivity extends AppCompatActivity implements View.OnClickListener,
-        GroupRenameClbk, ExpenseItemClbk, PreferenceChangeListener, SummaryActionItemClbk,
-        DialogInterface.OnClickListener {
+public class DetailGroupActivity extends AppCompatActivity {
     public static final String TAG = DetailGroupActivity.class.getSimpleName();
 
-    @BindView(R.id.fabMenu)
+/*    @BindView(R.id.fabMenu)
     FloatingActionMenu fabMenu;
     @BindView(R.id.fabCreateShared)
     FloatingActionButton fabShareEntry;
     @BindView(R.id.fabCreatePaidReceived)
-    FloatingActionButton fabGiveTakeEntryEntry;
+    FloatingActionButton fabGiveTakeEntryEntry;*/
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.root_coordinate_layout)
-    CoordinatorLayout rootCoordinatorLayout;
 
-    private AlertDialog alertDialog;
-    private DatabaseReference groupExpensesRef, dbGrpNameRef, dbRef, archiveRef, expensesRef;
-    private FirebaseUser firebaseUser;
+
+//    private DatabaseReference groupExpensesRef, dbGrpNameRef, dbRef, archiveRef, expensesRef;
+//    private FirebaseUser firebaseUser;
     private String groupId, groupName;
     private User me;
-    private ArrayList<String> sharedUserIds;
-    private Snackbar snackbar;
-    private Snackbar.Callback snacCallback;
+//    private ArrayList<String> sharedUserIds;
+//    private Snackbar snackbar;
+//    private Snackbar.Callback snacCallback;
 
-    {
+//    private String ExpenseId;
+    //    private List<ExpenseItem> expenses;
+//    private String expenseId;
+
+   /* {
         snacCallback = new Snackbar.Callback() {
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
@@ -87,7 +88,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                 super.onShown(snackbar);
             }
         };
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,21 +96,21 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         me = Util.getUser(getApplicationContext());
         setContentView(R.layout.activity_detail_group);
         ButterKnife.bind(this);
-        groupId = getIntent().getStringExtra("groupId");
-        groupName = getIntent().getStringExtra("groupName");
-        dbRef = FirebaseDatabase.getInstance().getReference();
-        groupExpensesRef = dbRef.child("expenses").child(groupId);
-        archiveRef = dbRef.child("archive").child(groupId);
-        dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
-        sharedUserIds = new ArrayList<>();
+//        groupId = getIntent().getStringExtra("groupId");
+//        groupName = getIntent().getStringExtra("groupName");
+//        dbRef = FirebaseDatabase.getInstance().getReference();
+//        groupExpensesRef = dbRef.child("expenses").child(groupId);
+//        archiveRef = dbRef.child("archive").child(groupId);
+//        dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
+//        sharedUserIds = new ArrayList<>();
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         setSupportActionBar(toolbar);
-        fabMenu.setClosedOnTouchOutside(true);
+     /*   fabMenu.setClosedOnTouchOutside(true);
         fabShareEntry.setOnClickListener(this);
-        fabGiveTakeEntryEntry.setOnClickListener(this);
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        fabGiveTakeEntryEntry.setOnClickListener(this);*/
+//        if (getSupportActionBar() != null)
+//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (savedInstanceState == null) {
             Fragment fragment = getSupportFragmentManager().findFragmentByTag
                     (ExpensesFragment.TAG);
@@ -120,40 +121,38 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                     ExpensesFragment.TAG).commit();
         }
-        alertDialog = new AlertDialog.Builder(this, 0).setPositiveButton("OK", this)
-                .setNegativeButton("Cancel", this).create();
-        snackbarDismissed(); //this will create a new snackbar and register callback with it
+//        snackbarDismissed(); //this will create a new snackbar and register callback with it
     }
 
-    @Override
-    public void onClick(View view) {
+  /*  @Override
+    public void onGroupClicked(View view) {
         switch (view.getId()) {
-            case R.id.fabCreateShared:
+            *//*case R.id.fabCreateShared:
                 showAddExpenseView();
                 fabMenu.close(false);
                 break;
             case R.id.fabCreatePaidReceived:
                 showAddGiveTakeEntryView();
                 fabMenu.close(false);
-                break;
+                break;*//*
             default:
                 Log.d(TAG, "click not implemented");
         }
-    }
+    }*/
 
-    private void showAddExpenseView() {
+   /* private void showAddExpenseView() {
         DialogFragment dialog = new ExpenseItemDialog();
         dialog.show(getFragmentManager(), ExpenseItemDialog.TAG);
     }
-
-    private void showAddGiveTakeEntryView() {
+*/
+   /* private void showAddGiveTakeEntryView() {
         DialogFragment dialog = new PaidReceivedItemDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable("me", me);
         bundle.putString("groupId", groupId);
         dialog.setArguments(bundle);
         dialog.show(getFragmentManager(), PaidReceivedItemDialog.TAG);
-    }
+    }*/
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -161,7 +160,7 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    @Override
+   /* @Override
     public void renameTo(String newName) {
         if (newName == null || newName.isEmpty()) {
             Log.e(TAG, "invalid new name, cannot rename groups");
@@ -224,172 +223,31 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
                 Log.e(TAG, "error fetching shared with user ids");
             }
         });
-    }
+    }*/
 
-    /**
-     * Called from {@link ExpenseItemDialog} and {@link PaidReceivedItemDialog}'s positive
-     * button's [@link OnClickListener]
-     *
-     * @param description
-     * @param amount
-     */
-    public void createExpense(String description, float amount, int itemType, User with, int
-            shareType) {
-        ExpenseItem expenseItem;
-        if (itemType == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
-            expenseItem = new ExpenseItem(description, amount, with, shareType);
-        else
-            expenseItem = new ExpenseItem(description, amount);
-        expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
-        expenseItem.setOwner(me);
-//        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
-// id branch
-        groupExpensesRef.push().setValue(expenseItem).addOnCompleteListener(this, new
-                OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "";
-                        if (!task.isSuccessful()) {
-                            msg = "Error occurred: " + task.getException().getLocalizedMessage();
-                            final Snackbar snackbar = Snackbar.make(toolbar, msg, Snackbar
-                                    .LENGTH_INDEFINITE);
-                            snackbar.setAction("OK", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    snackbar.dismiss();
-                                }
-                            });
-                            snackbar.show();
-                        }
 
-                    }
-                });
-    }
 
-    public void showShareGroupUi() {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShareFragment
-                .TAG);
-        if (fragment == null) {
-            fragment = new ShareFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("groupId", groupId);
-            bundle.putParcelable("me", me);
-            fragment.setArguments(bundle);
-        }
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
-                ShareFragment.TAG).addToBackStack(ExpensesFragment.TAG).commit();
-        fabMenu.hideMenu(true);
-        setTitle("Share with");
-    }
 
-    @Override
-    public void showEditUi(ExpenseItem expense) {
-        switch (expense.getItemType()) {
-            case ExpenseItem.ITEM_TYPE.SHARED:
-                EditExpenseItemDialog dialog = new EditExpenseItemDialog();
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("expense", expense);
-                dialog.setArguments(bundle);
-                dialog.show(getFragmentManager(), EditExpenseItemDialog.TAG);
-                break;
-            case ExpenseItem.ITEM_TYPE.PAID_RECEIVED:
-                EditPaidReceivedItemDialog pdialog = new EditPaidReceivedItemDialog();
-                Bundle pbundle = new Bundle();
-                pbundle.putParcelable("expense", expense);
-                pbundle.putString("groupId", groupId);
-                pbundle.putParcelable("me", me);
-                pdialog.setArguments(pbundle);
-                pdialog.show(getFragmentManager(), EditPaidReceivedItemDialog.TAG);
-                break;
-            default:
-                Log.d(TAG, "trying to edit a invalid expense item");
-        }
-    }
 
-    private String ExpenseId;
 
-    @Override
-    public void deleteExpense(final String expenseId) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("type", ConfirmDialog.TYPE.EXPENSE_DELETE);
-        bundle.putString("msg", "Do you really want to delete?");//TODO: String resource
-        bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
-        bundle.putString("negativeBtnTxt", "No");//TODO: String resource
-        this.expenseId = expenseId;
-        ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.setArguments(bundle);
-        confirmDialog.show(getFragmentManager(), ConfirmDialog.TAG);
-    }
 
-    @Override
-    public void update(ExpenseItem expense) {
 
-        groupExpensesRef.child(expense.getId())
-                .setValue(expense)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            final Snackbar snackbar = Snackbar.make(toolbar,
-                                    "Error " +
-                                            "Occurred:" +
-                                            " " +
-                                            task.getException()
-                                                    .getLocalizedMessage(),
-                                    Snackbar.LENGTH_SHORT);
 
-                            snackbar.setAction("OK", new View
-                                    .OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    snackbar.dismiss();
-                                }
-                            });
-                            snackbar.show();
-                        }
-                    }
-                });
-    }
-
+/*
     @Override
     public void onBackPressed() {
         fabMenu.showMenu(true);
         super.onBackPressed();
-    }
+    }*/
 
-    @Override
-    public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-        String keyChanged = preferenceChangeEvent.getKey();
-        if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals
-                ("user_id")) {
-            me = Util.getUser(getApplicationContext());
-        }
-    }
 
-    private List<ExpenseItem> expenses;
-    private String expenseId;
 
-    @Override
-    public void archiveGrp(final String groupId, final List<ExpenseItem> expenses) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("type", ConfirmDialog.TYPE.GROUP_ARCHIVE);
-        bundle.putString("msg", "Do you really want to archive?");//TODO: String resource
-        bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
-        bundle.putString("negativeBtnTxt", "No");//TODO: String resource
-        this.expenses = expenses;
-        ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.setArguments(bundle);
-        confirmDialog.show(getFragmentManager(), ConfirmDialog.TAG);
 
-    }
 
-    @Override
-    public void moreInfo() {
 
-    }
 
-    @Override
-    public void onClick(DialogInterface dialogInterface, int which) {
+    /*@Override
+    public void onGroupClicked(DialogInterface dialogInterface, int which) {
         AlertDialog dialog = ((AlertDialog) dialogInterface);
         if (which == DialogInterface.BUTTON_POSITIVE) {
             Button positiveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
@@ -442,9 +300,9 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         } else {
             Log.d(TAG, "action on this button is not defined yet");
         }
-    }
+    }*/
 
-    private void showSnackBar(String msg, int duration, String action) {
+   /* private void showSnackBar(String msg, int duration, String action) {
         if (snackbar == null) {
             snackbarDismissed();
         }
@@ -454,16 +312,16 @@ public class DetailGroupActivity extends AppCompatActivity implements View.OnCli
         if (action != null)
             snackbar.setAction(action, new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onGroupClicked(View view) {
 //                 just let the snackbar hide itself don't call dismiss
                 }
             });
         snackbar.show();
-    }
+    }*/
 
-    private void snackbarDismissed() {
+   /* private void snackbarDismissed() {
         snackbar = Snackbar.make(rootCoordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
         snackbar.setCallback(snacCallback);
-    }
+    }*/
 
 }

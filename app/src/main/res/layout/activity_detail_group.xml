@@ -25,7 +25,7 @@
 
     <include layout="@layout/content_detail_group"/>
 
-    <com.github.clans.fab.FloatingActionMenu
+  <!--  <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fabMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -60,6 +60,6 @@
             app:fab_colorRipple="@color/colorAccentDark"
             app:fab_label="@string/fab_paid_received"
             app:fab_size="mini"/>
-    </com.github.clans.fab.FloatingActionMenu>
+    </com.github.clans.fab.FloatingActionMenu>-->
 
 </android.support.design.widget.CoordinatorLayout>

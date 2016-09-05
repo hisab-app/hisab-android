@@ -28,7 +28,7 @@ import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
 import io.github.zkhan93.hisab.model.callback.GrpSelectModeClbk;
-import io.github.zkhan93.hisab.model.callback.OnClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
@@ -38,11 +38,11 @@ import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener, GrpSelectModeClbk, OnClickGroupItemClbk, OnLongClickGroupItemClbk,
+        ChildEventListener, GrpSelectModeClbk, GroupItemClickClbk, OnLongClickGroupItemClbk,
         ActionMode.Callback {
     public static final String TAG = GroupsAdapter.class.getSimpleName();
     private List<ExGroup> groups;
-    OnClickGroupItemClbk onClickGroupItemClbk;
+    GroupItemClickClbk groupItemClickClbk;
     private User me;
     private DatabaseReference grpDbRef, dbRef;
     private ContextActionBarClbk contextActionBarClbk;
@@ -59,10 +59,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         isMultiMode = true;
     }
 
-    public GroupsAdapter(OnClickGroupItemClbk onClickGroupItemClbk, User me, ContextActionBarClbk
+    public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me, ContextActionBarClbk
             contextActionBarClbk) {
         groups = new ArrayList<>();
-        this.onClickGroupItemClbk = onClickGroupItemClbk;
+        this.groupItemClickClbk = groupItemClickClbk;
         this.me = me;
         dbRef = FirebaseDatabase.getInstance().getReference("");
         grpDbRef = dbRef.child("groups/" + me.getId());
@@ -217,7 +217,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onClick(String groupId, String groupName) {
+    public void onGroupClicked(String groupId, String groupName) {
         if (isMultiMode) {
             int index = findGroupIndex(groupId);
             ExGroup group = groups.get(index);
@@ -232,7 +232,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 contextActionBarClbk.setCount(selectedGroupsCount);
             }
         } else
-            onClickGroupItemClbk.onClick(groupId, groupName);
+            groupItemClickClbk.onGroupClicked(groupId, groupName);
     }
 
     @Override
@@ -240,7 +240,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (!isMultiMode) {
             startMultiSelectMode();
             //TODO:remove long click listener from each group item
-            onClick(groupId, null);
+            onGroupClicked(groupId, null);
         }
     }
 

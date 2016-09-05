@@ -6,7 +6,7 @@
     android:id="@+id/users"
     tools:listitem="@layout/user_item"
     tools:context=".ui.ShareFragment"
-    tools:showIn="@layout/activity_groups">
+    tools:showIn="@layout/activity_main">
 
 
 </android.support.v7.widget.RecyclerView>
