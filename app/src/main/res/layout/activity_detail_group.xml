@@ -23,7 +23,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_detail_group"/>
+    <include layout="@layout/content_expenses"/>
 
   <!--  <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fabMenu"

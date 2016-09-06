@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Snackbar snackbar;
     private Snackbar.Callback snackCallback;
-
+    private boolean isTwoPaneMode;
     private DatabaseReference dbRef;
     private DatabaseReference groupExpensesRef, archiveRef, expensesRef;
     private FirebaseUser firebaseUser;
@@ -120,6 +120,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Util.clearPreferences(getApplicationContext());
                 startActivity(new Intent(this, EntryActivity.class));
                 finish();
+                return true;
+            case android.R.id.home:
+                if (!isTwoPaneMode) {
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag
+                            (GroupsFragment.TAG);
+                    if (fragment == null)
+                        fragment = new GroupsFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id
+                            .fragmentContainer, fragment, GroupsFragment.TAG).commit();
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                } else {
+                    //Home button won't be there for clicking if this is a two pane mode
+                }
                 return true;
             default:
                 return false;
@@ -230,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
                                 }
                             }
-
                     );
                     break;
                 case ConfirmDialog.TYPE.GROUP_ARCHIVE:
@@ -306,6 +318,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
                 ExpensesFragment.TAG).commit();
+        if (!isTwoPaneMode)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**

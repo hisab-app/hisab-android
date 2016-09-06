@@ -23,6 +23,7 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.DetailGroupActivity;
+import io.github.zkhan93.hisab.ui.MainActivity;
 import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
 
 /**
@@ -82,7 +83,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
                             ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED;
                     String desc = shareType == ExpenseItem.SHARE_TYPE.PAID ? getString(R.string
                             .paid) : getString(R.string.received);
-                    ((DetailGroupActivity) getActivity()).createExpense(desc
+                    ((MainActivity) getActivity()).createExpense(desc
                                     .toString(), Float.parseFloat(amount.getText().toString()),
                             ExpenseItem.ITEM_TYPE.PAID_RECEIVED, checkedUser, shareType);
                 } else {

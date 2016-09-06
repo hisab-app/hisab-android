@@ -27,9 +27,8 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/margin_groups"
-        android:layout_marginRight="@dimen/margin_groups">
-        
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
     </FrameLayout>
 
     <!--  <android.support.design.widget.FloatingActionButton

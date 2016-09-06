@@ -20,6 +20,7 @@
     <string name="action_rename">Rename</string>
     <string name="action_share">Share</string>
     <string name="action_delete">Delete</string>
+    <string name="action_add_group">New Group</string>
 
     <string name="btn_txt_login">Login</string>
     <string name="btn_txt_edit">Edit</string>

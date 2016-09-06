@@ -41,8 +41,7 @@ public class GroupsFragment extends Fragment implements
     //member views
     @BindView(R.id.groups)
     RecyclerView groupList;
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
+
     //other members
     private GroupsAdapter groupsAdapter;
     private User me;
@@ -66,7 +65,6 @@ public class GroupsFragment extends Fragment implements
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
         groupList.setAdapter(groupsAdapter);
-        fab.setOnClickListener(this);
         setHasOptionsMenu(true);
         return rootView;
     }
@@ -103,6 +101,9 @@ public class GroupsFragment extends Fragment implements
                 toggleSortType();
                 groupsAdapter.sort(sortType);
                 Toast.makeText(getContext(), getCurrentSortTypeString(), Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_add_group:
+                showAddGroupDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -153,9 +154,6 @@ public class GroupsFragment extends Fragment implements
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.fab:
-                showAddGroupDialog();
-                break;
             default:
                 Log.d(TAG, "click not implemented");
         }

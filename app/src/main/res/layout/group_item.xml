@@ -9,8 +9,6 @@
     android:clickable="true"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/horizontal_space_from_edge"
-    android:paddingRight="@dimen/horizontal_space_from_edge"
     android:paddingTop="8dp">
 
     <LinearLayout
