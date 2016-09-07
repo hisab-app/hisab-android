@@ -1,7 +1,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -14,7 +14,7 @@
         android:paddingBottom="@dimen/toolbar_height"
         tools:context=".ui.ExpensesFragment"
         tools:listitem="@layout/expense_item"
-        tools:showIn="@layout/activity_detail_group">
+        >
     </android.support.v7.widget.RecyclerView>
 
     <com.github.clans.fab.FloatingActionMenu

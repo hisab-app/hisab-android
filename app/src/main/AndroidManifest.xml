@@ -28,15 +28,6 @@
             android:name=".ui.MainActivity"
             android:label="@string/title_activity_groups"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".ui.DetailGroupActivity"
-            android:label="@string/title_activity_detail_group"
-            android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity"/>
-        </activity>
     </application>
 
 </manifest>

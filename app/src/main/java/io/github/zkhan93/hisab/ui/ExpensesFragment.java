@@ -72,7 +72,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     private String groupId, groupName;
     private ExpensesAdapter expensesAdapter;
     private User me;
-    private DatabaseReference groupNameRef, dbGrpNameRef, groupExpensesRef;
+    private DatabaseReference groupNameRef, groupExpensesRef;
     private DatabaseReference dbRef;
 
     private String toDeleteExpenseId;
@@ -96,13 +96,15 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
             groupName = savedInstanceState.getString("groupName");
         }
         me = Util.getUser(getContext());
-        groupNameRef = FirebaseDatabase.getInstance().getReference("groups/" + me.getId() + "/" +
-                groupId).child("name");
         dbRef = FirebaseDatabase.getInstance().getReference();
-        dbGrpNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
-        groupExpensesRef = dbRef.child("expenses").child(groupId);
+        changeGroup(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
+    }
+
+    public void changeGroup(String groupId){
+        groupNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
+        groupExpensesRef = dbRef.child("expenses").child(groupId);
     }
 
     @Override
@@ -277,7 +279,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                                                     .getMessage());
                                     }
                                 });
-                                dbGrpNameRef.setValue(newName);
+                                groupNameRef.setValue(newName);
                             }
 
                             @Override

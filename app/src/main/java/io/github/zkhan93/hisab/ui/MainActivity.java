@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             fragment = new GroupsFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
                 GroupsFragment.TAG).commit();
+        isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
     }
 
     @Override
@@ -142,18 +143,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-          /*  case R.id.fab:
-                showAddGroupDialog();
-                break;*/
             default:
                 Log.d(TAG, "click not implemented");
         }
     }
-
-    /*public void showAddGroupDialog() {
-        DialogFragment dialog = new CreateGroupDialog();
-        dialog.show(getFragmentManager(), "dialog");
-    }*/
 
     /**
      * {@link CreateGroupDialog} calls this method
@@ -310,14 +303,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         archiveRef = dbRef.child("archive").child(groupId);
 
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(ExpensesFragment.TAG);
-        if (fragment == null)
+        if (fragment == null) {
             fragment = new ExpensesFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("groupId", groupId);
-        bundle.putString("groupName", groupName);
-        fragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
-                ExpensesFragment.TAG).commit();
+            Bundle bundle = new Bundle();
+            bundle.putString("groupId", groupId);
+            bundle.putString("groupName", groupName);
+            fragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().replace(isTwoPaneMode ? R.id
+                            .secFragmentContainer : R.id.fragmentContainer, fragment,
+                    ExpensesFragment.TAG).commit();
+        } else {
+            ((ExpensesFragment) fragment).changeGroup(groupId);
+        }
+
         if (!isTwoPaneMode)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

@@ -22,7 +22,6 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
-import io.github.zkhan93.hisab.ui.DetailGroupActivity;
 import io.github.zkhan93.hisab.ui.MainActivity;
 import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
 

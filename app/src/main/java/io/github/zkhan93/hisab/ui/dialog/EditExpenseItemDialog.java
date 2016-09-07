@@ -20,9 +20,7 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
-import io.github.zkhan93.hisab.ui.DetailGroupActivity;
 import io.github.zkhan93.hisab.ui.ExpensesFragment;
-import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
