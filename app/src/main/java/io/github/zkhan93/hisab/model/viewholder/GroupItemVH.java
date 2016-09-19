@@ -32,8 +32,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     TextView moderator;
     @BindView(R.id.time)
     TextView time;
-    @BindView(R.id.divider)
-    View divider;
+//    @BindView(R.id.divider)
+//    View divider;
 
     private View itemView;
     private GroupItemClickClbk groupItemClickClbk;
@@ -71,10 +71,10 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
             itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
                     .selected_list_item_background));
         } else {
-            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
-                    .list_item_background));
+//            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
+//                    .list_item_background));
         }
-        divider.setVisibility(View.VISIBLE);
+//        divider.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
 
 
     public void hideDivider() {
-        divider.setVisibility(View.GONE);
+//        divider.setVisibility(View.GONE);
     }
 
     @Override

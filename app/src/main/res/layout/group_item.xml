@@ -1,53 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_item_background"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
     android:clickable="true"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
-    android:paddingTop="8dp">
+    app:cardElevation="1dp"
+    app:cardCornerRadius="2dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:orientation="horizontal">
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <TextView
-            android:id="@+id/name"
-            style="@style/Txt.LARGE"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16sp"
-            tools:text="Group Name"/>
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/name"
+                style="@style/Txt.LARGE"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                tools:text="Group Name"/>
+
+            <TextView
+                android:id="@+id/time"
+                style="@style/Txt.SMALL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:textSize="12sp"
+                tools:text="at 10:41"/>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/time"
+            android:id="@+id/moderator"
             style="@style/Txt.SMALL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
-            android:textSize="12sp"
-            tools:text="at 10:41"/>
+            android:textSize="14sp"
+            tools:text="Zeeshan is Moderator"/>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/moderator"
-        style="@style/Txt.SMALL"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:textSize="14sp"
-        tools:text="Zeeshan is Moderator"/>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/md_grey_500"/>
-</LinearLayout>
+</android.support.v7.widget.CardView>

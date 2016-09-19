@@ -29,6 +29,7 @@
     <string name="btn_txt_google_login">Sign in with Google</string>
 
     <string name="msg_empty">Oops!! Looks like nothing in here</string>
+    <string name="msg_select_group">Select a group to see expenses.</string>
     <string name="msg_no_groups">Create a new Group</string>
     <string name="msg_no_groups_suggestion">All groups will appear here.</string>
     <string name="msg_no_expenses">Add a new item</string>

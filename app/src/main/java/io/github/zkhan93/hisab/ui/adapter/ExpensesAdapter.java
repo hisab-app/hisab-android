@@ -34,12 +34,13 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<ExpenseItem> expenses;
     private User me, owner;
-    private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef;
+    private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef, ownerRef;
     private ExpenseItemClbk expenseItemClbk;
     private SummaryActionItemClbk summaryActionItemClbk;
     private int noOfMembers;
     private ChildEventListener membersListener;
     private String groupId;
+    private ValueEventListener ownerValueListener;
 
     {
         owner = null;
@@ -73,6 +74,18 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             }
         };
+        ownerValueListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null)
+                    owner = dataSnapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "unable to fetch owner");
+            }
+        };
        /*
         summaryActionItemClbk = new SummaryActionItemClbk() {
             @Override
@@ -99,26 +112,27 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         expenses = new ArrayList<>();
         this.me = me;
         this.expenseItemClbk = expenseItemClbk;
-        this.groupId = groupId;
         this.summaryActionItemClbk = summaryActionItemClbk;
         dbRef = FirebaseDatabase.getInstance().getReference();
+        ownerRef = dbRef.child("groups").child(me.getId()).child(groupId).child("moderator");
+        this.groupId = groupId;
         expensesRef = dbRef.child("expenses").child(groupId);
         sharedRef = dbRef.child("shareWith").child(groupId);
 //      archiveRef = dbRef.child("archive").child(groupId);
+        ownerRef.addListenerForSingleValueEvent(ownerValueListener);
+    }
 
-        dbRef.child("groups").child(me.getId()).child(groupId).child("moderator")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot != null)
-                            owner = dataSnapshot.getValue(User.class);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d(TAG, "unable to fetch owner");
-                    }
-                });
+    public void changeGroup(String groupId) {
+        unregisterEventListener();
+        expenses.clear();
+        this.groupId = groupId;
+        expensesRef = dbRef.child("expenses").child(groupId);
+        sharedRef = dbRef.child("shareWith").child(groupId);
+//      archiveRef = dbRef.child("archive").child(groupId);
+        ownerRef.removeEventListener(ownerValueListener);
+        ownerRef = dbRef.child("groups").child(me.getId()).child(groupId).child("moderator");
+        ownerRef.addListenerForSingleValueEvent(ownerValueListener);
+        registerEventListener();
     }
 
     private void ownerUpdated() {
@@ -291,7 +305,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //        for (ExpenseItem e : expenses) {
 //            mExpenses.put(e.getId(), e.toMap());
 //        }
-        Log.d(TAG,"sending groupId: "+this.groupId);
+        Log.d(TAG, "sending groupId: " + this.groupId);
         summaryActionItemClbk.archiveGrp(this.groupId, expenses);
     }
 

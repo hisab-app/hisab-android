@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -10,16 +11,17 @@
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/big_glass"
+        tools:src="@drawable/big_glass"
         android:tint="@color/md_grey_500"/>
 
     <TextView
         android:id="@+id/msg"
-        style="@style/Txt"
+        android:padding="@dimen/txt_padding_mid"
+        style="@style/Txt.LARGE"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/msg_empty"/>
+        tools:text="@string/msg_empty"/>
 
     <TextView
         android:id="@+id/suggestion"
@@ -28,5 +30,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:paddingTop="0dp"
+        tools:text="do this"
         />
 </LinearLayout>

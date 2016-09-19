@@ -2,11 +2,12 @@ package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -35,7 +36,8 @@ import io.github.zkhan93.hisab.util.Util;
  * A placeholder fragment containing a simple view.
  */
 public class GroupsFragment extends Fragment implements
-        PreferenceChangeListener, ContextActionBarClbk,View.OnClickListener {
+        PreferenceChangeListener, ContextActionBarClbk, View.OnClickListener, Toolbar
+        .OnMenuItemClickListener {
     public static final String TAG = GroupsFragment.class.getSimpleName();
 
     //member views
@@ -46,6 +48,7 @@ public class GroupsFragment extends Fragment implements
     private GroupsAdapter groupsAdapter;
     private User me;
     private ActionMode actionMode;
+    private Toolbar toolbar;
 
     public GroupsFragment() {
     }
@@ -65,7 +68,17 @@ public class GroupsFragment extends Fragment implements
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
         groupList.setAdapter(groupsAdapter);
-        setHasOptionsMenu(true);
+        if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean
+                ("isTwoPaneMode", false))
+            setHasOptionsMenu(true);
+        else {
+            toolbar = ButterKnife.findById(getActivity(), R.id.toolbar_groups);
+            if (toolbar != null) {
+                toolbar.setTitle(getString(R.string.title_activity_groups));
+                toolbar.inflateMenu(R.menu.menu_groups_frag);
+                toolbar.setOnMenuItemClickListener(this);
+            }
+        }
         return rootView;
     }
 
@@ -158,8 +171,14 @@ public class GroupsFragment extends Fragment implements
                 Log.d(TAG, "click not implemented");
         }
     }
+
     public void showAddGroupDialog() {
         DialogFragment dialog = new CreateGroupDialog();
         dialog.show(getActivity().getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return onOptionsItemSelected(item);
     }
 }

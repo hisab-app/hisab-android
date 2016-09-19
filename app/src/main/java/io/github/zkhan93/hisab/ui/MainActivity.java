@@ -3,10 +3,13 @@ package io.github.zkhan93.hisab.ui;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,13 +56,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    @Nullable
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @Nullable
+    @BindView(R.id.toolbar_groups)
+    Toolbar toolbar_groups;
+    @Nullable
+    @BindView(R.id.toolbar_expenses)
+    Toolbar toolbar_expenses;
     @BindView(R.id.root_coordinate_layout)
     CoordinatorLayout rootCoordinatorLayout;
     @BindView(R.id.fragmentContainer)
     FrameLayout fragmentContainer;
-
+    @Nullable
+    @BindView(R.id.select_group_msg)
+    View selectGroupMsg;
+    @Nullable
+    @BindView(R.id.expenses_container)
+    View expensesContainer;
 
     private Snackbar snackbar;
     private Snackbar.Callback snackCallback;
@@ -104,6 +121,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
                 GroupsFragment.TAG).commit();
         isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean
+                ("isTwoPaneMode", isTwoPaneMode).apply();
+        if (isTwoPaneMode && selectGroupMsg != null) {
+            ImageView image = ButterKnife.findById(selectGroupMsg, R.id.image);
+            TextView msg = ButterKnife.findById(selectGroupMsg, R.id.msg);
+            if (image != null)
+                image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
+                        .drawable.big_item));
+            if (msg != null) msg.setText(getString(R.string.msg_select_group));
+        }
     }
 
     @Override
@@ -313,11 +340,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
         } else {
+            Log.d(TAG, "changig group Id" + groupId);
             ((ExpensesFragment) fragment).changeGroup(groupId);
         }
 
-        if (!isTwoPaneMode)
+        if (!isTwoPaneMode) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } else {
+            selectGroupMsg.setVisibility(View.GONE);
+            expensesContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

@@ -2,12 +2,14 @@ package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,7 +57,8 @@ import io.github.zkhan93.hisab.util.Util;
  * A placeholder fragment containing a simple view.
  */
 public class ExpensesFragment extends Fragment implements ValueEventListener,
-        PreferenceChangeListener, View.OnClickListener, GroupRenameClbk, ExpenseItemClbk {
+        PreferenceChangeListener, View.OnClickListener, GroupRenameClbk, ExpenseItemClbk, Toolbar
+                .OnMenuItemClickListener {
     public static final String TAG = ExpensesFragment.class.getSimpleName();
     //member views
     @BindView(R.id.expenses)
@@ -67,7 +70,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     @BindView(R.id.fabCreatePaidReceived)
     FloatingActionButton fabGiveTakeEntryEntry;
 
-
+    private Toolbar toolbar;
     //other members
     private String groupId, groupName;
     private ExpensesAdapter expensesAdapter;
@@ -77,6 +80,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
     private String toDeleteExpenseId;
     private ShowMessageClbk showMessageClbk;
+    private boolean isTwoPaneMode;
 
     public ExpensesFragment() {
     }
@@ -97,14 +101,24 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         }
         me = Util.getUser(getContext());
         dbRef = FirebaseDatabase.getInstance().getReference();
-        changeGroup(groupId);
+//        changeGroup(groupId);
+        groupNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
+        groupExpensesRef = dbRef.child("expenses").child(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
     }
 
-    public void changeGroup(String groupId){
+    public void changeGroup(String groupId) {
+        groupNameRef.removeEventListener(this);
         groupNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
         groupExpensesRef = dbRef.child("expenses").child(groupId);
+        if (expensesAdapter == null)
+            expensesAdapter = new ExpensesAdapter(me, groupId, this, (SummaryActionItemClbk)
+                    getActivity());
+        else
+            expensesAdapter.changeGroup(groupId);
+        expensesList.setAdapter(expensesAdapter);
+        groupNameRef.addValueEventListener(this);
     }
 
     @Override
@@ -117,8 +131,19 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         expensesAdapter = new ExpensesAdapter(me, groupId, this, (SummaryActionItemClbk)
                 getActivity());
         expensesList.setAdapter(expensesAdapter);
-        setHasOptionsMenu(true);
-        getActivity().setTitle(groupName);
+        isTwoPaneMode = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean
+                ("isTwoPaneMode", false);
+        if (!isTwoPaneMode) {
+            setHasOptionsMenu(true);
+            getActivity().setTitle(groupName);
+        } else {
+            toolbar = ButterKnife.findById(getActivity(), R.id.toolbar_expenses);
+            if (toolbar != null) {
+                toolbar.inflateMenu(R.menu.menu_detail_group);
+                toolbar.setTitle(groupName);
+                toolbar.setOnMenuItemClickListener(this);
+            }
+        }
 
         fabMenu.setClosedOnTouchOutside(true);
         fabShareEntry.setOnClickListener(this);
@@ -180,8 +205,12 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
         groupName = dataSnapshot.getValue().toString();
-        if (isVisible())
-            getActivity().setTitle(groupName);
+        if (isVisible()) {
+            if (!isTwoPaneMode)
+                getActivity().setTitle(groupName);
+            else if (toolbar != null)
+                toolbar.setTitle(groupName);
+        }
     }
 
     @Override
@@ -402,4 +431,8 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                 });
     }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return onOptionsItemSelected(item);
+    }
 }
