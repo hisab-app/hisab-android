@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth firebaseAuth;
     private User me;
     private List<ExpenseItem> expenses;
-    private String expenseId, activeGroupId, activeGroupName;
+    private String toDeleteExpenseId, activeGroupId, activeGroupName;
 
     {
         snackCallback = new Snackbar.Callback() {
@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     getSupportFragmentManager().beginTransaction().replace(R.id
                             .fragmentContainer, fragment, GroupsFragment.TAG).commit();
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    setTitle(getString(R.string.title_activity_groups));
                 } else {
                     //Home button won't be there for clicking if this is a two pane mode
                 }
@@ -251,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 type = (int) typeObj;
             switch (type) {
                 case ConfirmDialog.TYPE.EXPENSE_DELETE:
-                    groupExpensesRef.child(expenseId).removeValue().addOnCompleteListener(
+                    groupExpensesRef.child(toDeleteExpenseId).removeValue().addOnCompleteListener(
                             new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull
@@ -340,7 +341,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
         } else {
-            Log.d(TAG, "changig group Id" + groupId);
+            Log.d(TAG, "changing group Id" + groupId);
+            getSupportFragmentManager().beginTransaction().replace(isTwoPaneMode ? R.id
+                            .secFragmentContainer : R.id.fragmentContainer, fragment,
+                    ExpensesFragment.TAG).commit();
             ((ExpensesFragment) fragment).changeGroup(groupId);
         }
 
@@ -389,5 +393,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 error = "Unknown error";
             showSnackBar("Unable to create group " + error, Snackbar.LENGTH_INDEFINITE, "Ok");
         }
+    }
+
+    public void setToDeleteExpenseId(String expenseId) {
+        this.toDeleteExpenseId = expenseId;
     }
 }

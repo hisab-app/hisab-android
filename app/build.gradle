@@ -42,6 +42,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     //rfab
     compile 'com.github.clans:fab:1.6.4'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha1'
 }
 apply plugin: 'com.google.gms.google-services'
 

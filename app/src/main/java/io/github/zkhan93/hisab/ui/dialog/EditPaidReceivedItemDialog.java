@@ -24,6 +24,7 @@ import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
 import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
 
 /**
@@ -94,7 +95,7 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
                     expense.setShareType(optionGiveTake.getCheckedRadioButtonId() == R.id.paid ?
                             ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED);
                     expense.setWith(checkedUser);
-                    ((ExpenseItemClbk) getActivity().getFragmentManager().findFragmentByTag
+                    ((ExpenseItemClbk) ((MainActivity)getActivity()).getSupportFragmentManager().findFragmentByTag
                             (ExpensesFragment.TAG)).update(expense);
                 } else {
                     Log.d(TAG, "validation failed");

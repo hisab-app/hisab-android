@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
+
 /**
  * Created by Zeeshan Khan on 9/1/2016.
  */
@@ -26,7 +29,7 @@ public class ConfirmDialog extends DialogFragment {
         type = bundle.getInt("type");
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), 0).setMessage(msg)
                 .setPositiveButton
-                        (positiveBtnTxt, (DialogInterface.OnClickListener) getActivity())
+                        (positiveBtnTxt, (DialogInterface.OnClickListener)getActivity())
                 .setNegativeButton(negativeBtnTxt, (DialogInterface.OnClickListener) getActivity
                         ()).create();
         dialog.setOnShowListener(getOnShowListener(type));

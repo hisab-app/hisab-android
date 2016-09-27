@@ -369,13 +369,16 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
             bundle.putParcelable("me", me);
             fragment.setArguments(bundle);
         }
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment,
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
                 fragment,
                 ShareFragment.TAG).addToBackStack(ExpensesFragment.TAG).commit();
         fabMenu.hideMenu(true);
 //        getActivity().setTitle("Share with");
     }
 
+    /**
+     * {@link ExpenseItemClbk} implementations
+     */
     @Override
     public void showEditUi(ExpenseItem expense) {
         switch (expense.getItemType()) {
@@ -407,7 +410,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         bundle.putString("msg", "Do you really want to delete?");//TODO: String resource
         bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
         bundle.putString("negativeBtnTxt", "No");//TODO: String resource
-        this.toDeleteExpenseId = expenseId;
+        ((MainActivity) getActivity()).setToDeleteExpenseId(expenseId);
         ConfirmDialog confirmDialog = new ConfirmDialog();
         confirmDialog.setArguments(bundle);
         confirmDialog.show(getActivity().getFragmentManager(), ConfirmDialog.TAG);
@@ -435,4 +438,6 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     public boolean onMenuItemClick(MenuItem item) {
         return onOptionsItemSelected(item);
     }
+
+
 }

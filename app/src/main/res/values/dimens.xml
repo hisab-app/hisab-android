@@ -30,4 +30,7 @@
     <dimen name="cardview_margin_default">4dp</dimen>
 
     <dimen name="margin_groups">8dp</dimen>
+
+    <dimen name="margin_content">4dp</dimen>
+    <dimen name="padding_content">4dp</dimen>
 </resources>

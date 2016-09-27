@@ -21,6 +21,7 @@ import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -52,7 +53,8 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         } else {
             expense = savedInstanceState.getParcelable("expense");
         }
-        expenseItemUpdateClbk = (ExpenseItemClbk) getActivity().getFragmentManager().findFragmentByTag(ExpensesFragment.TAG);
+        expenseItemUpdateClbk = (ExpenseItemClbk) (((MainActivity) getActivity())
+                .getSupportFragmentManager().findFragmentByTag(ExpensesFragment.TAG));
         description.setText(expense.getDescription());
         amount.setText(String.valueOf(expense.getAmount()));
         builder.setView(view);
@@ -80,7 +82,8 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
                         Toast.LENGTH_SHORT).show();
             }
         } else {
-            Log.e(TAG, "ExpenseItemClbk not present, you have to implement ExpenseItemClbk in the" +
+            Log.e(TAG, "ExpenseItemUpdateClbk not present, you have to implement ExpenseItemClbk " +
+                    "in the" +
                     " fragment with tag used here");
         }
     }
