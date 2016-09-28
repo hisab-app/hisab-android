@@ -6,53 +6,56 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
     android:layout_marginTop="4dp"
     android:clickable="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="2dp"
-    app:cardElevation="1dp"
+    android:foreground="?selectableItemBackground"
+    android:minHeight="?attr/listPreferredItemHeight"
+    app:cardCornerRadius="4dp"
     >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:padding="8dp">
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/name"
                 style="@style/Txt.LARGE"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:textSize="16sp"
                 tools:text="Group Name"/>
 
+
             <TextView
-                android:id="@+id/time"
+                android:id="@+id/moderator"
                 style="@style/Txt.SMALL"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:textSize="12sp"
-                tools:text="at 10:41"/>
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                tools:text="You and 13 others"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/moderator"
-            style="@style/Txt.SMALL"
+        <ImageButton
+            android:id="@+id/info"
+            style="@style/Base.Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            tools:text="Zeeshan is Moderator"/>
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_info_outline_grey_800_18dp"/>
     </LinearLayout>
 </android.support.v7.widget.CardView>

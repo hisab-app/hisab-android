@@ -70,4 +70,9 @@
     <style name="Txt.SMALL" parent="Txt">
         <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Small</item>
     </style>
+
+    <style name="ItemActionPopup" parent="@style/Widget.AppCompat.Light.PopupMenu">
+        <item name="overlapAnchor">true</item>
+        <item name="android:popupBackground">@android:color/white</item>
+    </style>
 </resources>

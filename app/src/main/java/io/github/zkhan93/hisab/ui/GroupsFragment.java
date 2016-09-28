@@ -116,7 +116,7 @@ public class GroupsFragment extends Fragment implements
                 Toast.makeText(getContext(), getCurrentSortTypeString(), Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_add_group:
-                showAddGroupDialog();
+                showCreateGroupDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -172,7 +172,7 @@ public class GroupsFragment extends Fragment implements
         }
     }
 
-    public void showAddGroupDialog() {
+    public void showCreateGroupDialog() {
         DialogFragment dialog = new CreateGroupDialog();
         dialog.show(getActivity().getFragmentManager(), "dialog");
     }

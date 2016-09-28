@@ -3,7 +3,7 @@ package io.github.zkhan93.hisab.model.viewholder;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,8 +30,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     TextView name;
     @BindView(R.id.moderator)
     TextView moderator;
-    @BindView(R.id.time)
-    TextView time;
+//    @BindView(R.id.time)
+//    TextView time;
 //    @BindView(R.id.divider)
 //    View divider;
 
@@ -57,15 +57,23 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         name.setText(group.getName());
         itemView.setOnClickListener(this);
 
-        if (me.getEmail().equals(group.getModerator().getEmail())) {
-            moderator.setText(context.getString(R.string.msg_grp_created_by_you));
-            itemView.setLongClickable(true);
-            itemView.setOnLongClickListener(this);
-        } else
-            moderator.setText(group.getModerator().getName());
-        calendar.setTimeInMillis(group.getCreatedOn());
-        time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
-                true));
+//        if (me.getEmail().equals(group.getModerator().getEmail())) {
+
+        itemView.setLongClickable(true);
+        itemView.setOnLongClickListener(this);
+//        } else
+//            moderator.setText(group.getModerator().getName());
+
+        String tmp = context.getString(R.string.msg_grp_created_by_you);
+        Log.d(TAG, "group:" + group.toString());
+        if (group.getMembersCount() > 2)
+            tmp += " and " + (group.getMembersCount() - 1) + " others";
+        else if (group.getMembersCount() > 1)
+            tmp += " and " + (group.getMembersCount() - 1) + " other";
+        moderator.setText(tmp);
+//        calendar.setTimeInMillis(group.getCreatedOn());
+//        time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
+//                true));
         this.group = group;
         if (group.isSelected()) {
             itemView.setBackground(ContextCompat.getDrawable(context, R.drawable

@@ -1,9 +1,12 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -11,7 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,63 +28,67 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnClickListener,
+        PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = ExpenseItemVH.class.getSimpleName();
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM", Locale
+            .ENGLISH);
 
     @BindView(R.id.description)
     TextView description;
-    @BindView(R.id.owner)
-    TextView owner;
-    @BindView(R.id.edit)
-    ImageButton rename;
-    @BindView(R.id.delete)
-    ImageButton delete;
+    @BindView(R.id.details)
+    TextView details;
+    @BindView(R.id.amount)
+    TextView amount;
+    @BindView(R.id.actions)
+    ImageButton actions;
     @BindView(R.id.image)
     CircleImageView authorImage;
-    @BindView(R.id.divider)
-    View divider;
+
 
     private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
-    private Calendar calendar;
     private Context context;
+    private PopupMenu popup;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
             expenseItemClbk) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         this.expenseItemClbk = expenseItemClbk;
-        calendar = Calendar.getInstance();
         this.context = itemView.getContext();
-        divider.setVisibility(View.VISIBLE);
+        popup = new PopupMenu(context, actions, Gravity.RIGHT, 0, R.style.ItemActionPopup);
+        popup.getMenuInflater().inflate(R.menu.menu_expense_item_actions, popup.getMenu());
+        popup.setOnMenuItemClickListener(this);
+        actions.setOnClickListener(this);
     }
 
     public void setExpense(ExpenseItem expense, User me) {
         this.expense = expense;
-        String desc=expense.getDescription() + " - " + String.valueOf(expense.getAmount());
-
-        if(expense.getItemType()== ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
-            desc+=(expense.getShareType()== ExpenseItem.SHARE_TYPE.PAID?" to ":" from ")+expense.getWith().getName();
-
-        description.setText(desc);
-        calendar.setTimeInMillis(expense.getCreatedOn());
+        StringBuffer tmp = new StringBuffer(expense.getDescription());
+        amount.setText(String.format(Locale.ENGLISH, "%.2f %s", expense.getAmount(), context
+                .getString(R.string.rs)));
+        if (expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
+            tmp.append(expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? " to " : " from ")
+                    .append(
+                    expense.getWith().getName());
+        description.setText(tmp);
+        tmp.setLength(0);
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            owner.setText(String.format("You %s", DateUtils.getRelativeTimeSpanString
-                    (context, expense.getCreatedOn(), true)));
-            rename.setVisibility(View.VISIBLE);
-            delete.setVisibility(View.VISIBLE);
-            rename.setOnClickListener(this);
-            delete.setOnClickListener(this);
+            tmp.append("You");
+            actions.setVisibility(View.VISIBLE);
         } else {
-            owner.setText(String.format("%s %s", expense.getOwner().getName(),
-                    DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(), true)));
-            rename.setVisibility(View.GONE);
-            delete.setVisibility(View.GONE);
+            tmp.append(expense.getOwner().getName());
+            actions.setVisibility(View.GONE);
         }
-        Log.d(TAG, "https://www.gravatar.com/avatar/" + Util.md5(expense.getOwner()
-                .getEmail()));
+        tmp.append(" | ");
+        tmp.append(expense.getItemType() == ExpenseItem.ITEM_TYPE.SHARED ? "Shared" :
+                "Paid/Received");
+        tmp.append(" | ");
+        tmp.append(DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(),
+                true));
+        details.setText(tmp);
         Picasso.with(context).load(Util.getGavatarUrl(expense.getOwner().getEmail(), 200))
                 .placeholder(R.drawable.big_user).fit().centerCrop().into(authorImage);
     }
@@ -96,6 +103,9 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
             case R.id.delete:
                 expenseItemClbk.deleteExpense(expense.getId());
                 break;
+            case R.id.actions:
+                popup.show();
+                break;
             default:
                 Log.d(TAG, "click not implemented");
         }
@@ -106,6 +116,27 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     }
 
     public void hideDivider() {
-        divider.setVisibility(View.GONE);
+
+    }
+
+    /**
+     * This method will be invoked when a menu item is clicked if the item
+     * itself did not already handle the event.
+     *
+     * @param item the menu item that was clicked
+     * @return {@code true} if the event was handled, {@code false}
+     * otherwise
+     */
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_rename:
+                update();
+                return true;
+            case R.id.delete:
+                expenseItemClbk.deleteExpense(expense.getId());
+                return true;
+        }
+        return false;
     }
 }

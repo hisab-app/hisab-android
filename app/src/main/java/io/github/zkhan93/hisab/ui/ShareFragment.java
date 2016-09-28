@@ -16,6 +16,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -32,7 +34,8 @@ import io.github.zkhan93.hisab.util.Util;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ShareFragment extends Fragment implements UserItemActionClickClbk,PreferenceChangeListener {
+public class ShareFragment extends Fragment implements UserItemActionClickClbk,
+        PreferenceChangeListener {
     public static final String TAG = ShareFragment.class.getSimpleName();
 
     @BindView(R.id.users)
@@ -42,8 +45,10 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,P
     private String groupId;
     private DatabaseReference shareDbRef;
     private User me;
+    private DatabaseReference dbRef;
 
     public ShareFragment() {
+        dbRef = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -63,12 +68,11 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,P
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_share, container, false);
         ButterKnife.bind(this, rootView);
         usersListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        usersAdapter = new UsersAdapter(this,me,groupId);
+        usersAdapter = new UsersAdapter(this, me, groupId);
         usersListView.setAdapter(usersAdapter);
         getActivity().setTitle(R.string.title_fragment_share);
         return rootView;
@@ -89,28 +93,64 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,P
 
     @Override
     public void UserClicked(final ExUser user) {
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         if (user.isChecked()) {
             Log.d(TAG, "adding " + user.getName() + " to share list ");
-
             dbRef.child("groups").child(me.getId()).child(groupId).addListenerForSingleValueEvent
                     (new ValueEventListener() {
 
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            Log.d(TAG, dataSnapshot.toString() + "");
-                            FirebaseDatabase.getInstance().getReference("groups/" + user.getId()
-                                    + "/" + dataSnapshot.getKey()).setValue(dataSnapshot.getValue
-                                    (Group.class));
+                            //add the groups in user's(the user clicked) list
+
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("groups/" + user.getId() + "/" + dataSnapshot.getKey(), dataSnapshot.getValue(Group.class)
+                                    .toMap());
+                            map.put("shareWith/" + groupId + "/" + user.getId(), new User(user.getName(), user.getEmail(), user
+                                    .getId()).toMap());
+                            dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                    if (databaseError != null)
+                                        Log.d(TAG, "sharing with user" + user.getName() + " " +
+                                                "failed");
+                                }
+                            });
+                            //update the member count for this group in all its copies
+                            dbRef.child("shareWith").child(groupId)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Map<String, Object> map = new HashMap<>();
+                                            int membersCount = (int) dataSnapshot.getChildrenCount() + 1;
+                                            map.put("/groups/" + me.getId() + "/" + groupId +
+                                                    "/membersCount", membersCount);
+                                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                                map.put("/groups/" + ds.getValue(User.class).getId() + "/" + groupId +
+                                                        "/membersCount", membersCount);
+                                            }
+                                            dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
+                                                @Override
+                                                public void onComplete(DatabaseError databaseError, DatabaseReference
+                                                        databaseReference) {
+                                                    Log.d(TAG,"share successful");
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            Log.d(TAG, "group share list fetching onCancelled");
+                                        }
+                                    });
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            Log.d(TAG, "onCancelled");
+                            Log.d(TAG, "group fetching onCancelled");
                         }
                     });
-            dbRef.child("shareWith").child(groupId).child(user.getId()).setValue(new User(user
-                    .getName(), user.getEmail(), user.getId()));
+
         } else {
             Log.d(TAG, "removing " + user.getName() + " from sharing list");
             shareDbRef.child(user.getId()).removeValue();
@@ -124,11 +164,12 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,P
         outState.putString("groupId", groupId);
         outState.putParcelable("me", me);
     }
+
     @Override
     public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-        String keyChanged=preferenceChangeEvent.getKey();
-        if(keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")){
-            me= Util.getUser(getActivity());
+        String keyChanged = preferenceChangeEvent.getKey();
+        if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")) {
+            me = Util.getUser(getActivity());
         }
     }
 }

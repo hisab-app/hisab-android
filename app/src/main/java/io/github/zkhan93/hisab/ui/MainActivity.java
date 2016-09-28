@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void createGroup(String groupName) {
         Group group = new Group();
         group.setName(groupName);
+        group.setMembersCount(1);
         group.setCreatedOn(java.util.Calendar.getInstance().getTimeInMillis());
         group.setModerator(me);
         Log.d(TAG, group.toString() + "");
@@ -256,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull
-                                                       Task<Void> task) {
+                                                               Task<Void> task) {
                                     if (!task.isSuccessful()) {
                                         showSnackBar("Error occurred: " + task.getException()
                                                 .getLocalizedMessage(), Snackbar
@@ -345,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getSupportFragmentManager().beginTransaction().replace(isTwoPaneMode ? R.id
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
+            getSupportFragmentManager().executePendingTransactions();
             ((ExpensesFragment) fragment).changeGroup(groupId);
         }
 
