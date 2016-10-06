@@ -27,8 +27,8 @@ import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
-import io.github.zkhan93.hisab.model.callback.GrpSelectModeClbk;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
+import io.github.zkhan93.hisab.model.callback.GrpSelectModeClbk;
 import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
@@ -221,18 +221,21 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (isMultiMode) {
             int index = findGroupIndex(groupId);
             ExGroup group = groups.get(index);
-            if (group.getModerator().getId().equals(me.getId())) {
-                if (group.isSelected()) {
-                    selectedGroupsCount -= 1;
-                } else {
-                    selectedGroupsCount += 1;
-                }
-                group.setSelected(!group.isSelected());
-                notifyItemChanged(index);
-                contextActionBarClbk.setCount(selectedGroupsCount);
+            if (group.isSelected()) {
+                selectedGroupsCount -= 1;
+            } else {
+                selectedGroupsCount += 1;
             }
+            group.setSelected(!group.isSelected());
+            notifyItemChanged(index);
+            contextActionBarClbk.setCount(selectedGroupsCount);
         } else
             groupItemClickClbk.onGroupClicked(groupId, groupName);
+    }
+
+    @Override
+    public void onGroupInfoClicked(Group group) {
+        groupItemClickClbk.onGroupInfoClicked(group);
     }
 
     @Override
@@ -260,14 +263,14 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (menuItem.getItemId()) {
             case R.id.action_delete:
                 Log.d(TAG, "delete");
-                //TODO: delete groups from moderator's and other shared person's list,also remove
-                // expenses of this group
+
                 Map<String, Object> refs = new HashMap<>();
                 for (ExGroup group : groups) {
                     if (group.isSelected()) {
                         refs.put("groups/" + me.getId() + "/" + group.getId(),
-                                null);//moderator
+                                null);//my group list
                         refs.put("shareWith/" + group.getId() + "/" + me.getId(), null);
+                        //TODO: reduce group membersCount
                         dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {

@@ -48,6 +48,7 @@ import io.github.zkhan93.hisab.model.callback.ShowMessageClbk;
 import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
+import io.github.zkhan93.hisab.ui.dialog.GroupDetailDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
@@ -356,6 +357,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             selectGroupMsg.setVisibility(View.GONE);
             expensesContainer.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onGroupInfoClicked(Group group) {
+        GroupDetailDialog groupDetailDialog = new GroupDetailDialog();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("me", me);
+        bundle.putParcelable("group", group);
+        groupDetailDialog.setArguments(bundle);
+        groupDetailDialog.show(getFragmentManager(), GroupDetailDialog.TAG);
     }
 
     /**

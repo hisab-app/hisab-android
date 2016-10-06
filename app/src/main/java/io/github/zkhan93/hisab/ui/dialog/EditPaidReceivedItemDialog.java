@@ -70,7 +70,7 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        membersAdapter = new MembersAdapter(this, me, groupId);
+        membersAdapter = new MembersAdapter(this, me, groupId,true);
         members.setAdapter(membersAdapter);
         amount.setText(String.valueOf(expense.getAmount()));
         if (expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID)

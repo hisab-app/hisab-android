@@ -14,6 +14,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
+import io.github.zkhan93.hisab.ui.ExpensesFragment;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -33,7 +35,9 @@ public class RenameGroupDialog extends DialogFragment {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_rename_group,
                 null);
         ButterKnife.bind(this, view);
-        groupRenameClbk = (GroupRenameClbk) getActivity();
+
+        groupRenameClbk = (GroupRenameClbk) ((MainActivity) getActivity()).getSupportFragmentManager().findFragmentByTag
+                (ExpensesFragment.TAG);
         if (savedInstanceState == null) {
             Bundle bundle = getArguments();
             if (bundle != null) {

@@ -48,6 +48,9 @@
     <string name="msg_signup_done_email_check">Sign up successful, check your email to reset password.</string>
     <string name="msg_gen_error">Error occurred! try after a while.</string>
     <string name="msg_grp_created_by_you">You</string>
+    <string name="msg_members">Members</string>
+    <string name="msg_created_on">Created On</string>
+    <string name="msg_author">Author</string>
 
 
     <string name="ok">OK</string>

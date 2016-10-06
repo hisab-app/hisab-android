@@ -1,9 +1,7 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.widget.TextView;
 
@@ -44,7 +42,8 @@ public class MemberVH extends RecyclerView.ViewHolder implements View.OnClickLis
         email.setText(user.getEmail());
         Picasso.with(image.getContext()).load(Util.getGavatarUrl(user.getEmail(), 200))
                 .placeholder(R.drawable.big_user).fit().centerCrop().into(image);
-        itemView.setOnClickListener(this);
+        if (actionCallback != null)
+            itemView.setOnClickListener(this);
         this.exUser = user;
         if (exUser.isChecked())
             itemView.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable
@@ -56,6 +55,7 @@ public class MemberVH extends RecyclerView.ViewHolder implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        actionCallback.UserClicked(exUser);
+        if (actionCallback != null)
+            actionCallback.UserClicked(exUser);
     }
 }

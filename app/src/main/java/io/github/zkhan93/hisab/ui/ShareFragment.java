@@ -113,36 +113,11 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
                                     if (databaseError != null)
                                         Log.d(TAG, "sharing with user" + user.getName() + " " +
                                                 "failed");
+                                    else
+                                        updateMembersCount();
+
                                 }
                             });
-                            //update the member count for this group in all its copies
-                            dbRef.child("shareWith").child(groupId)
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            Map<String, Object> map = new HashMap<>();
-                                            int membersCount = (int) dataSnapshot.getChildrenCount() + 1;
-                                            map.put("/groups/" + me.getId() + "/" + groupId +
-                                                    "/membersCount", membersCount);
-                                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                                map.put("/groups/" + ds.getValue(User.class).getId() + "/" + groupId +
-                                                        "/membersCount", membersCount);
-                                            }
-                                            dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
-                                                @Override
-                                                public void onComplete(DatabaseError databaseError, DatabaseReference
-                                                        databaseReference) {
-                                                    Log.d(TAG,"share successful");
-                                                }
-                                            });
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            Log.d(TAG, "group share list fetching onCancelled");
-                                        }
-                                    });
                         }
 
                         @Override
@@ -154,8 +129,49 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
         } else {
             Log.d(TAG, "removing " + user.getName() + " from sharing list");
             shareDbRef.child(user.getId()).removeValue();
-            dbRef.child("groups").child(user.getId()).child(groupId).removeValue();
+            dbRef.child("groups").child(user.getId()).child(groupId).removeValue(new DatabaseReference
+                    .CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null)
+                        Log.d(TAG, "removing sharing with user" + user.getName() + " " +
+                                "failed");
+                    else
+                        updateMembersCount();
+                }
+            });
         }
+    }
+
+    private void updateMembersCount() {
+        //update the member count for this group in all its copies
+        dbRef.child("shareWith").child(groupId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Map<String, Object> map = new HashMap<>();
+                        int membersCount = (int) dataSnapshot.getChildrenCount() + 1;
+                        map.put("/groups/" + me.getId() + "/" + groupId +
+                                "/membersCount", membersCount);
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                            map.put("/groups/" + ds.getValue(User.class).getId() + "/" + groupId +
+                                    "/membersCount", membersCount);
+                        }
+                        dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference
+                                    databaseReference) {
+                                Log.d(TAG, "share successful");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "group share list fetching onCancelled");
+                    }
+                });
     }
 
     @Override

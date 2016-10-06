@@ -67,7 +67,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        membersAdapter = new MembersAdapter(this, me, groupId);
+        membersAdapter = new MembersAdapter(this, me, groupId,true);
         members.setAdapter(membersAdapter);
         if(savedInstanceState!=null)
             membersAdapter.UserClicked(new ExUser(checkedUser));

@@ -3,8 +3,8 @@ package io.github.zkhan93.hisab.model.viewholder;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -30,10 +30,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     TextView name;
     @BindView(R.id.moderator)
     TextView moderator;
-//    @BindView(R.id.time)
-//    TextView time;
-//    @BindView(R.id.divider)
-//    View divider;
+    @BindView(R.id.info)
+    ImageButton info;
 
     private View itemView;
     private GroupItemClickClbk groupItemClickClbk;
@@ -51,48 +49,41 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         this.groupItemClickClbk = groupItemClickClbk;
         calendar = Calendar.getInstance();
         this.onLongClickGroupItemClbk = onLongClickGroupItemClbk;
+        itemView.setOnClickListener(this);
+        itemView.setLongClickable(true);
+        itemView.setOnLongClickListener(this);
+        info.setOnClickListener(this);
     }
 
     public void setGroup(ExGroup group, User me) {
         name.setText(group.getName());
-        itemView.setOnClickListener(this);
-
-//        if (me.getEmail().equals(group.getModerator().getEmail())) {
-
-        itemView.setLongClickable(true);
-        itemView.setOnLongClickListener(this);
-//        } else
-//            moderator.setText(group.getModerator().getName());
-
-        String tmp = context.getString(R.string.msg_grp_created_by_you);
-        Log.d(TAG, "group:" + group.toString());
-        if (group.getMembersCount() > 2)
-            tmp += " and " + (group.getMembersCount() - 1) + " others";
-        else if (group.getMembersCount() > 1)
-            tmp += " and " + (group.getMembersCount() - 1) + " other";
+        String tmp;
+        if (group.getMembersCount() == 2)
+            tmp = group.getMembersCount() + " member";
+        else
+            tmp = group.getMembersCount() + " members";
         moderator.setText(tmp);
-//        calendar.setTimeInMillis(group.getCreatedOn());
-//        time.setText(DateUtils.getRelativeTimeSpanString(context, calendar.getTimeInMillis(),
-//                true));
         this.group = group;
         if (group.isSelected()) {
-            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
-                    .selected_list_item_background));
+            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_grey_300));
         } else {
-//            itemView.setBackground(ContextCompat.getDrawable(context, R.drawable
-//                    .list_item_background));
+            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_white_1000));
         }
-//        divider.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onClick(View view) {
-        groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
+        switch (view.getId()) {
+            case R.id.info:
+                groupItemClickClbk.onGroupInfoClicked(group);
+                break;
+            default:
+                groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
+        }
     }
 
 
     public void hideDivider() {
-//        divider.setVisibility(View.GONE);
     }
 
     @Override

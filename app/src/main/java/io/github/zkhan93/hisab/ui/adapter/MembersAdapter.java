@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,13 +37,15 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private ValueEventListener moderatorListener;
     private User me;
     private ExUser checkedUser;
+    private boolean excludeMe;
+
     {
         moderatorListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 //don't user key as Id, key is "moderator"
-                if (user.getId().equals(me.getId()))
+                if (user.getId().equals(me.getId()) && excludeMe)
                     return;
                 members.add(new ExUser(user));
             }
@@ -54,8 +57,9 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         };
     }
 
-    public MembersAdapter(UserItemActionClickClbk actionCallback, User me, String groupId) {
+    public MembersAdapter(UserItemActionClickClbk actionCallback, @NonNull User me, String groupId, boolean excludeMe) {
         this.me = me;
+        this.excludeMe = excludeMe;
         members = new ArrayList<>();
         this.actionCallback = actionCallback;
         dbRef = FirebaseDatabase.getInstance().getReference();
@@ -72,7 +76,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         switch (viewType) {
             case VIEW_TYPE.NORMAL:
                 holder = new MemberVH(inflater.inflate(R.layout.member_item,
-                        parent, false), this);
+                        parent, false), actionCallback == null ? null : this);
                 break;
             case VIEW_TYPE.EMPTY:
             default:
@@ -108,18 +112,20 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        if (dataSnapshot.getKey().equals(me.getId()))
+        if (dataSnapshot.getKey().equals(me.getId()) && excludeMe)
             return;
         User user = dataSnapshot.getValue(User.class);
         user.setId(dataSnapshot.getKey());
         if (!user.getId().equals(me.getId()))
             members.add(new ExUser(user));
-        UserClicked(checkedUser);
+        else if (!excludeMe) // for me
+            members.add(new ExUser(user));
+        UserClicked(checkedUser); // check is the
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        if (dataSnapshot.getKey().equals(me.getId()))
+        if (dataSnapshot.getKey().equals(me.getId()) && excludeMe)
             return;
         User user = dataSnapshot.getValue(User.class);
         user.setId(dataSnapshot.getKey());
@@ -133,7 +139,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-        if (dataSnapshot.getKey().equals(me.getId()))
+        if (dataSnapshot.getKey().equals(me.getId()) && excludeMe)
             return;
         User user = dataSnapshot.getValue(User.class);
         user.setId(dataSnapshot.getKey());
@@ -185,7 +191,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void UserClicked(ExUser user) {
-        if(user==null)
+        if (user == null)
             return;
         ExUser eu;
         for (int i = 0; i < members.size(); i++) {
@@ -197,10 +203,11 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
         int index = findUserIndex(user.getId());
-        if(index!=-1) {
+        if (index != -1) {
             members.get(index).setChecked(true);
             notifyItemChanged(index);
-            actionCallback.UserClicked(user);
+            if (actionCallback != null)
+                actionCallback.UserClicked(user);
         }
     }
 
