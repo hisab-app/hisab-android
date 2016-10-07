@@ -1,10 +1,44 @@
-<android.support.v7.widget.RecyclerView
-    android:id="@+id/users"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ShareFragment"
-    tools:listitem="@layout/user_item"
+    android:orientation="vertical"
     >
-</android.support.v7.widget.RecyclerView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search_text"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/msg_search_users"
+            android:lines="1"
+            android:maxLines="1"
+            android:textSize="14sp"/>
+
+        <ImageButton
+            android:id="@+id/search"
+            style="@style/Base.Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_search_grey_700_24dp"/>
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/users"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:context=".ui.ShareFragment"
+        tools:listitem="@layout/user_item"
+        >
+    </android.support.v7.widget.RecyclerView>
+</LinearLayout>

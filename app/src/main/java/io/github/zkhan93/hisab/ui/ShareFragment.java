@@ -1,14 +1,19 @@
 package io.github.zkhan93.hisab.ui;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -35,11 +41,15 @@ import io.github.zkhan93.hisab.util.Util;
  * A placeholder fragment containing a simple view.
  */
 public class ShareFragment extends Fragment implements UserItemActionClickClbk,
-        PreferenceChangeListener {
+        PreferenceChangeListener, TextWatcher, View.OnClickListener {
     public static final String TAG = ShareFragment.class.getSimpleName();
 
     @BindView(R.id.users)
     RecyclerView usersListView;
+    @BindView(R.id.search_text)
+    EditText searchText;
+    @BindView(R.id.search)
+    ImageButton searchBtn;
 
     private UsersAdapter usersAdapter;
     private String groupId;
@@ -74,6 +84,7 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
         usersListView.setLayoutManager(new LinearLayoutManager(getContext()));
         usersAdapter = new UsersAdapter(this, me, groupId);
         usersListView.setAdapter(usersAdapter);
+        searchBtn.setOnClickListener(this);
         getActivity().setTitle(R.string.title_fragment_share);
         return rootView;
     }
@@ -81,14 +92,16 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
     @Override
     public void onStart() {
         super.onStart();
-        usersAdapter.registerEventListener();
+//        usersAdapter.registerEventListener();
+        searchText.addTextChangedListener(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        usersAdapter.unregisterEventListener();
-        usersAdapter.clear();
+//        usersAdapter.unregisterEventListener();
+//        usersAdapter.clear();
+        searchText.removeTextChangedListener(this);
     }
 
     @Override
@@ -187,5 +200,44 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
         if (keyChanged.equals("name") || keyChanged.equals("email") || keyChanged.equals("user_id")) {
             me = Util.getUser(getActivity());
         }
+    }
+
+    private void searchForUser(String searchText) {
+        searchText = searchText.trim();
+        if (searchText.isEmpty() || searchText.length() < 3)
+            return;
+        //todo: search for users
+    }
+
+    /**
+     * OnClickListener
+     */
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.search:
+                searchForUser(searchText.getText().toString());
+                break;
+            default:
+                Log.d(TAG, "click not implemented");
+        }
+    }
+
+    /**
+     * TextWatcher implementation
+     */
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        searchForUser(editable.toString());
     }
 }

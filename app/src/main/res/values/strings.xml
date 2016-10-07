@@ -51,6 +51,7 @@
     <string name="msg_members">Members</string>
     <string name="msg_created_on">Created On</string>
     <string name="msg_author">Author</string>
+    <string name="msg_search_users">Search Users</string>
 
 
     <string name="ok">OK</string>

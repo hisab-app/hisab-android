@@ -219,6 +219,15 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         shareRef.removeEventListener(shareChildListeners);
     }
 
+    public void setUsers(List<User> users) {
+        this.users.clear();
+        shareRef.removeEventListener(shareChildListeners);
+        for (User user : users)
+            this.users.add(new ExUser(user));
+        shareRef.addChildEventListener(shareChildListeners);
+        notifyDataSetChanged();
+    }
+
     private interface VIEW_TYPE {
         int NORMAL = 0;
         int EMPTY = 1;
