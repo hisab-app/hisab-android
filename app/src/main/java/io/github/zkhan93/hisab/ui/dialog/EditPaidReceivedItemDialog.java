@@ -37,6 +37,8 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
 
     @BindView(R.id.amount)
     TextInputEditText amount;
+    @BindView(R.id.description)
+    TextInputEditText description;
     @BindView(R.id.optionGiveTake)
     RadioGroup optionGiveTake;
     @BindView(R.id.members)
@@ -70,9 +72,10 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        membersAdapter = new MembersAdapter(this, me, groupId,true);
+        membersAdapter = new MembersAdapter(this, me, groupId, true);
         members.setAdapter(membersAdapter);
         amount.setText(String.valueOf(expense.getAmount()));
+        description.setText(expense.getDescription());
         if (expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID)
             optionGiveTake.check(R.id.paid);
         else
@@ -95,7 +98,7 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
                     expense.setShareType(optionGiveTake.getCheckedRadioButtonId() == R.id.paid ?
                             ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED);
                     expense.setWith(checkedUser);
-                    ((ExpenseItemClbk) ((MainActivity)getActivity()).getSupportFragmentManager().findFragmentByTag
+                    ((ExpenseItemClbk) ((MainActivity) getActivity()).getSupportFragmentManager().findFragmentByTag
                             (ExpensesFragment.TAG)).update(expense);
                 } else {
                     Log.d(TAG, "validation failed");

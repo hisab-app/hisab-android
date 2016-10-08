@@ -65,7 +65,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         moderator.setText(tmp);
         this.group = group;
         if (group.isSelected()) {
-            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_grey_300));
+            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_red_200));
         } else {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_white_1000));
         }

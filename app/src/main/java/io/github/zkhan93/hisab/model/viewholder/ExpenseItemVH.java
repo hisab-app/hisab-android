@@ -66,13 +66,17 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 
     public void setExpense(ExpenseItem expense, User me) {
         this.expense = expense;
-        StringBuffer tmp = new StringBuffer(expense.getDescription());
+        StringBuffer tmp = new StringBuffer();
         amount.setText(String.format(Locale.ENGLISH, "%.2f %s", expense.getAmount(), context
                 .getString(R.string.rs)));
-        if (expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
-            tmp.append(expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? " to " : " from ")
-                    .append(
-                    expense.getWith().getName());
+        if (expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED) {
+            tmp.append(expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? "Paid to " : "Received from ")
+                    .append(expense.getWith().getName());
+            if (expense.getDescription() != null)
+                tmp.append("\n").append(expense
+                        .getDescription());
+        }
+
         description.setText(tmp);
         tmp.setLength(0);
         if (me.getEmail().equals(expense.getOwner().getEmail())) {

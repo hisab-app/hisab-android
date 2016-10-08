@@ -39,6 +39,8 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
     RadioGroup optionGiveTake;
     @BindView(R.id.members)
     RecyclerView members;
+    @BindView(R.id.description)
+    TextInputEditText description;
 
     private User me;
     private String groupId;
@@ -59,7 +61,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
             Bundle bundle = getArguments();
             groupId = bundle.getString("groupId");
             me = bundle.getParcelable("me");
-            checkedUser=bundle.getParcelable("checkedUser");
+            checkedUser = bundle.getParcelable("checkedUser");
 
         } else {
             groupId = savedInstanceState.getString("groupId");
@@ -67,9 +69,9 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        membersAdapter = new MembersAdapter(this, me, groupId,true);
+        membersAdapter = new MembersAdapter(this, me, groupId, true);
         members.setAdapter(membersAdapter);
-        if(savedInstanceState!=null)
+        if (savedInstanceState != null)
             membersAdapter.UserClicked(new ExUser(checkedUser));
         builder.setView(view);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
@@ -80,10 +82,11 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
                         .getCheckedRadioButtonId() != -1) {
                     int shareType = optionGiveTake.getCheckedRadioButtonId() == R.id.paid ?
                             ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED;
-                    String desc = shareType == ExpenseItem.SHARE_TYPE.PAID ? getString(R.string
-                            .paid) : getString(R.string.received);
-                    ((MainActivity) getActivity()).createExpense(desc
-                                    .toString(), Float.parseFloat(amount.getText().toString()),
+//                    String desc = shareType == ExpenseItem.SHARE_TYPE.PAID ? getString(R.string
+//                            .paid) : getString(R.string.received);
+                    ((MainActivity) getActivity()).createExpense(description.getText().toString(), Float.parseFloat(amount
+                            .getText()
+                                    .toString()),
                             ExpenseItem.ITEM_TYPE.PAID_RECEIVED, checkedUser, shareType);
                 } else {
                     Log.d(TAG, "validation failed");
@@ -167,7 +170,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
         try {
             String str = amount.getText().toString();
             if (str.isEmpty()) {
-                amount.setError(getString(R.string.err_required,"Amount"));
+                amount.setError(getString(R.string.err_required, "Amount"));
                 return;
             }
             float amt = Float.parseFloat(str);
