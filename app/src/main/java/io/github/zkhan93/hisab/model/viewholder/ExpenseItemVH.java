@@ -69,13 +69,13 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         StringBuffer tmp = new StringBuffer();
         amount.setText(String.format(Locale.ENGLISH, "%.2f %s", expense.getAmount(), context
                 .getString(R.string.rs)));
+        //prefix for paid/received items
         if (expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED) {
             tmp.append(expense.getShareType() == ExpenseItem.SHARE_TYPE.PAID ? "Paid to " : "Received from ")
-                    .append(expense.getWith().getName());
-            if (expense.getDescription() != null)
-                tmp.append("\n").append(expense
-                        .getDescription());
+                    .append(expense.getWith().getName()).append("\n");
         }
+        if (expense.getDescription() != null)
+            tmp.append(expense.getDescription());
 
         description.setText(tmp);
         tmp.setLength(0);
@@ -134,7 +134,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_rename:
+            case R.id.action_edit:
                 update();
                 return true;
             case R.id.delete:
