@@ -17,6 +17,7 @@ public class Group implements Parcelable {
     String name;
     User moderator;
     int membersCount;
+    boolean favorite;
     List<String> membersIds;
     long createdOn;
 
@@ -24,13 +25,14 @@ public class Group implements Parcelable {
     }
 
     public Group(String id, String name, User moderator, List<String> membersIds, long
-            createdOn, int membersCount) {
+            createdOn, int membersCount, boolean favorite) {
         this.id = id;
         this.name = name;
         this.moderator = moderator;
         this.membersIds = membersIds;
         this.createdOn = createdOn;
         this.membersCount = membersCount;
+        this.favorite = favorite;
     }
 
     public Group(String name) {
@@ -44,6 +46,9 @@ public class Group implements Parcelable {
         membersCount = parcel.readInt();
         membersIds = new ArrayList<>();
         parcel.readList(membersIds, User.class.getClassLoader());
+        boolean[] bools = new boolean[1];
+        parcel.readBooleanArray(bools);
+        favorite = bools[0];
     }
 
     public String getId() {
@@ -94,6 +99,13 @@ public class Group implements Parcelable {
         this.membersCount = membersCount;
     }
 
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
 
     @Override
     public String toString() {
@@ -103,6 +115,7 @@ public class Group implements Parcelable {
                 ", moderator=" + moderator +
                 ", membersCount=" + membersCount +
                 ", membersIds=" + membersIds +
+                ", favorite=" + favorite +
                 ", createdOn=" + createdOn +
                 '}';
     }
@@ -119,6 +132,7 @@ public class Group implements Parcelable {
         parcel.writeParcelable(moderator, flag);
         parcel.writeInt(membersCount);
         parcel.writeList(membersIds);
+        parcel.writeBooleanArray(new boolean[]{favorite});
     }
 
     public Map<String, Object> toMap() {
@@ -126,6 +140,7 @@ public class Group implements Parcelable {
         map.put("name", name);
         map.put("moderator", moderator.toMap());
         map.put("membersCount", membersCount);
+        map.put("favorite", false);
         map.put("createdOn", createdOn);
         return map;
     }
@@ -145,24 +160,52 @@ public class Group implements Parcelable {
     public static Comparator<Group> ALPHABETICAL = new Comparator<Group>() {
         @Override
         public int compare(Group g1, Group g2) {
+            if (g1.isFavorite() && g2.isFavorite())
+                return 0;
+            if (g1.isFavorite())
+                return -1;
+            else if (g2.isFavorite())
+                return 1;
+
             return g1.getName().compareTo(g2.getName());
         }
     };
     public static Comparator<Group> REVERSE_ALPHABETICAL = new Comparator<Group>() {
         @Override
         public int compare(Group g1, Group g2) {
+            if (g1.isFavorite() && g2.isFavorite())
+                return 0;
+            if (g1.isFavorite())
+                return -1;
+            else if (g2.isFavorite())
+                return 1;
+
             return g2.getName().compareTo(g1.getName());
         }
     };
     public static Comparator<Group> CHRONOLOGICAL = new Comparator<Group>() {
         @Override
         public int compare(Group g1, Group g2) {
+            if (g1.isFavorite() && g2.isFavorite())
+                return 0;
+            if (g1.isFavorite())
+                return -1;
+            else if (g2.isFavorite())
+                return 1;
+
             return Double.compare(g1.getCreatedOn(), g2.getCreatedOn());
         }
     };
     public static Comparator<Group> REVERSE_CHRONOLOGICAL = new Comparator<Group>() {
         @Override
         public int compare(Group g1, Group g2) {
+            if (g1.isFavorite() && g2.isFavorite())
+                return 0;
+            if (g1.isFavorite())
+                return -1;
+            else if (g2.isFavorite())
+                return 1;
+
             return Double.compare(g2.getCreatedOn(), g1.getCreatedOn());
         }
     };

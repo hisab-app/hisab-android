@@ -20,7 +20,7 @@ public class ExGroup extends Group {
     public ExGroup(Group group) {
         super(group.getId(), group.getName(), group.getModerator(), group.getMembersIds(), group
                 .getCreatedOn(),group
-                .getMembersCount());
+                .getMembersCount(),group.isFavorite());
         selected = false;
     }
 

@@ -5,7 +5,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.Calendar;
 
@@ -17,6 +20,7 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
+import io.github.zkhan93.hisab.util.Util;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -32,6 +36,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     TextView moderator;
     @BindView(R.id.info)
     ImageButton info;
+    @BindView(R.id.image)
+    ImageView image;
 
     private View itemView;
     private GroupItemClickClbk groupItemClickClbk;
@@ -58,7 +64,9 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     public void setGroup(ExGroup group, User me) {
         name.setText(group.getName());
         String tmp;
-        if (group.getMembersCount() == 2)
+        if (group.getMembersCount() <= 0)
+            tmp = "no members";
+        else if (group.getMembersCount() < 2)
             tmp = group.getMembersCount() + " member";
         else
             tmp = group.getMembersCount() + " members";
@@ -69,6 +77,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         } else {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_white_1000));
         }
+        Picasso.with(context).load(Util.getGavatarUrl(group.getModerator().getEmail(), 200))
+                .placeholder(R.drawable.big_user).fit().centerCrop().into(image);
     }
 
     @Override
@@ -81,11 +91,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
                 groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
         }
     }
-
-
-    public void hideDivider() {
-    }
-
+    
     @Override
     public boolean onLongClick(View view) {
         onLongClickGroupItemClbk.onLongClick(group.getId());

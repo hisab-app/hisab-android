@@ -33,6 +33,7 @@ import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
+import io.github.zkhan93.hisab.model.viewholder.HeaderVH;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -46,22 +47,24 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private User me;
     private DatabaseReference grpDbRef, dbRef;
     private ContextActionBarClbk contextActionBarClbk;
-    boolean isMultiMode;
+    boolean selectionMode;
     private int selectedGroupsCount = 0;
+    private int favCount = 0;
 
     {
-        isMultiMode = false;
+        selectionMode = false;
     }
 
     private void startMultiSelectMode() {
         //TODO:initialize traking array and start cab
         contextActionBarClbk.showCAB();
-        isMultiMode = true;
+        selectionMode = true;
     }
 
     public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me, ContextActionBarClbk
             contextActionBarClbk) {
         groups = new ArrayList<>();
+
         this.groupItemClickClbk = groupItemClickClbk;
         this.me = me;
         dbRef = FirebaseDatabase.getInstance().getReference("");
@@ -75,6 +78,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (viewType) {
             case TYPE.EMPTY:
                 return new EmptyVH(inflater.inflate(R.layout.empty, parent, false));
+            case TYPE.HEADER_FAV:
+            case TYPE.HEADER_OTHER:
+                return new HeaderVH(inflater.inflate(R.layout.group_category_header, parent, false));
             default:
                 return new GroupItemVH(inflater.inflate(R.layout.group_item, parent, false),
                         this, this);
@@ -83,31 +89,96 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == TYPE.NORMAL) {
-            GroupItemVH gHolder = (GroupItemVH) holder;
-            gHolder.setGroup(groups.get(position), me);
-            if (position == getItemCount() - 1) {
-                gHolder.hideDivider();
-            }
+        switch (getItemViewType(position)) {
+            case TYPE.NORMAL:
+                GroupItemVH gHolder = (GroupItemVH) holder;
+                gHolder.setGroup(groups.get(getActualItemPosition(position)), me);
+                break;
+            case TYPE.HEADER_FAV:
+                HeaderVH hHolder = (HeaderVH) holder;
+                hHolder.setType(HeaderVH.TYPE.FAVORITE);
+                break;
+            case TYPE.HEADER_OTHER:
+                hHolder = (HeaderVH) holder;
+                hHolder.setType(HeaderVH.TYPE.OTHER);
+                break;
+            case TYPE.EMPTY:
+                ((EmptyVH) holder).setType(EmptyVH.TYPE.GROUP);
+                break;
+            default:
+                Log.d(TAG, "invalid item type encountered");
         }
-        if (holder instanceof EmptyVH)
-            ((EmptyVH) holder).setType(EmptyVH.TYPE.GROUP);
     }
 
     @Override
     public int getItemViewType(int position) {
-        int count = groups.size();
-        if (count == 0)
+        int totalCount = groups.size();
+        //empty case handled i.e., no items at all
+        if (totalCount == 0)
             return TYPE.EMPTY;
+
+        int favCount = 0;
+        for (Group group : groups)
+            if (group.isFavorite())
+                favCount++;
+
+        if (favCount > 0) {
+            //there are some favorite items
+            if (position == 0)
+                return TYPE.HEADER_FAV;
+            else if (position == favCount + 1)
+                return TYPE.HEADER_OTHER;
+            else
+                return TYPE.NORMAL;
+        }
+        //else there are no favorite items so
         return TYPE.NORMAL;
     }
 
     @Override
     public int getItemCount() {
-        int count = groups.size();
-        return count == 0 ? 1 : count;
+        int totalCount = groups.size();
+        if (totalCount == 0)
+            return 1;
+        if (favCount > 0)
+            totalCount += 2;//fav and other headers
+        return totalCount;
     }
 
+    private int getActualItemPosition(int position) {
+        int totalCount = groups.size();
+        if (totalCount == 0)
+            return -1;
+        if (favCount > 0) {
+            if (position <= favCount) {
+                return position - 1;
+            } else {
+                return position - 2;
+            }
+        }
+        return position;
+    }
+
+    /**
+     * @param position position of item in data set
+     * @return the position of item in list UI
+     */
+    private int getItemPositing(int position) {
+        if (favCount > 0) {
+            if (position < favCount)
+                return position + 1;
+            else
+                return position + 2;
+        }
+        return position;
+    }
+
+    /**
+     * find index of group whose id is passed in local data set
+     *
+     * @param id
+     * @return
+     */
     public int findGroupIndex(String id) {
         int index = -1;
         int len = groups.size();
@@ -125,20 +196,64 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
         int size = groups.size();
-        groups.add(new ExGroup(group));
-        notifyItemInserted(size + 1);
-        if (size > 0)
-            notifyItemChanged(size - 1);//update divider
+        if (group.isFavorite()) {
+            groups.add(favCount, new ExGroup(group));
+            favCount += 1;
+            notifyItemInserted(getItemPositing(favCount));
+        } else {
+            groups.add(new ExGroup(group));
+            notifyItemInserted(getItemPositing(size));
+        }
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        Group group = dataSnapshot.getValue(Group.class);
+        ExGroup group = new ExGroup(dataSnapshot.getValue(Group.class));
         group.setId(dataSnapshot.getKey());
         int index = findGroupIndex(dataSnapshot.getKey());
         if (index != -1) {
-            groups.set(index, new ExGroup(group));
-            notifyItemChanged(index);
+            Group oldGroup = groups.get(index);
+            if (oldGroup.isFavorite()) {
+                if (group.isFavorite()) {
+                    //new group stays at index, no movement
+                    groups.set(index, group);
+                    Log.d(TAG, "changed " + index + ":" + getItemPositing(index));
+                    notifyItemChanged(getItemPositing(index));
+                } else {
+                    //item moves to end of list
+                    int oldPos = getItemPositing(index);
+                    groups.remove(index);
+                    groups.add(group);
+                    favCount -= 1;
+                    int newPos = getItemPositing(groups.size() - 1);
+                    Log.d(TAG, "moved " + index + ":" + oldPos + " " + groups.size() + ":" + newPos);
+                    if (favCount > 0)
+                        notifyItemMoved(oldPos, newPos);
+                    else
+                        notifyDataSetChanged();
+                }
+            } else {
+                if (group.isFavorite()) {
+                    //move to end of favorites list
+                    int oldPos = getItemPositing(index);
+                    groups.remove(index);
+                    favCount += 1;
+                    groups.add(favCount - 1, group);
+                    int newPos = getItemPositing(favCount - 1);
+                    Log.d(TAG, "moved " + index + ":" + oldPos + " " + (favCount - 1) + ":" + newPos);
+                    if (favCount == 0)
+                        notifyDataSetChanged();
+                    else
+                        notifyItemMoved(oldPos, newPos);
+
+
+                } else {
+                    //new group stays at index, no movement
+                    groups.set(index, group);
+                    Log.d(TAG, "changed " + index + ":" + getItemPositing(index));
+                    notifyItemChanged(getItemPositing(index));
+                }
+            }
         }
     }
 
@@ -148,13 +263,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
         int index = findGroupIndex(dataSnapshot.getKey());
-        int size = groups.size();
         if (index != -1) {
             groups.remove(index);
-            notifyItemRemoved(index);
-            if (index == size - 1 && index > 0) {
-                notifyItemChanged(index - 1);
-            }
+            notifyItemRemoved(getItemPositing(index));
         }
     }
 
@@ -179,6 +290,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public void unregisterChildEventListener() {
         grpDbRef.removeEventListener(this);
+        favCount = 0;
     }
 
     public void sort(int type) {
@@ -218,7 +330,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onGroupClicked(String groupId, String groupName) {
-        if (isMultiMode) {
+        if (selectionMode) {
             int index = findGroupIndex(groupId);
             ExGroup group = groups.get(index);
             if (group.isSelected()) {
@@ -227,7 +339,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 selectedGroupsCount += 1;
             }
             group.setSelected(!group.isSelected());
-            notifyItemChanged(index);
+            notifyItemChanged(getItemPositing(index));
             contextActionBarClbk.setCount(selectedGroupsCount);
         } else
             groupItemClickClbk.onGroupClicked(groupId, groupName);
@@ -240,7 +352,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onLongClick(String groupId) {
-        if (!isMultiMode) {
+        if (!selectionMode) {
             startMultiSelectMode();
             //TODO:remove long click listener from each group item
             onGroupClicked(groupId, null);
@@ -260,29 +372,48 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        //for references to batch update
+        Map<String, Object> refs = new HashMap<>();
         switch (menuItem.getItemId()) {
             case R.id.action_delete:
-                Log.d(TAG, "delete");
-
-                Map<String, Object> refs = new HashMap<>();
+                //delete the selected item from firebase database. changes will be reflected automatically.
                 for (ExGroup group : groups) {
                     if (group.isSelected()) {
                         refs.put("groups/" + me.getId() + "/" + group.getId(),
                                 null);//my group list
                         refs.put("shareWith/" + group.getId() + "/" + me.getId(), null);
                         //TODO: reduce group membersCount
-                        dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "group deleted from user");
-                                } else {
-                                    Log.d(TAG, "error" + task.getException().getLocalizedMessage());
-                                }
-                            }
-                        });
                     }
                 }
+                dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "group deleted from user");
+                        } else {
+                            Log.d(TAG, "error" + task.getException().getLocalizedMessage());
+                        }
+                    }
+                });
+                actionMode.finish();
+                return true;
+            case R.id.action_favorite:
+                for (ExGroup group : groups) {
+                    if (group.isSelected()) {
+                        refs.put("groups/" + me.getId() + "/" + group.getId() + "/favorite",
+                                !group.isFavorite());//toggle the favorite value
+                    }
+                }
+                dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "group favorite updated");
+                        } else {
+                            Log.d(TAG, "error" + task.getException().getLocalizedMessage());
+                        }
+                    }
+                });
                 actionMode.finish();
                 return true;
             default:
@@ -294,14 +425,14 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onDestroyActionMode(ActionMode actionMode) {
 //        actionMode = null;
 //        actionMode.finish();
-        isMultiMode = false;
+        selectionMode = false;
         selectedGroupsCount = 0;
         int i = 0;
         //clear all selection
         for (ExGroup group : groups) {
             if (group.isSelected()) {
                 group.setSelected(false);
-                notifyItemChanged(i);
+                notifyItemChanged(getItemPositing(i));
             }
             i++;
         }
@@ -311,6 +442,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     interface TYPE {
         int EMPTY = 0;
         int NORMAL = 1;
+        int HEADER_FAV = 2;
+        int HEADER_OTHER = 3;
     }
 
 }
