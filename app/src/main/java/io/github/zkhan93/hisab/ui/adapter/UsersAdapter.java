@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import io.github.zkhan93.hisab.R;
@@ -90,11 +91,20 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 moderator = dataSnapshot.getValue(User.class);
+                Iterator<ExUser> iterator = users.iterator();
+                User user;
+                while (iterator.hasNext()) {
+                    user = iterator.next();
+                    if (user.getId().equals(moderator.getId())) {
+                        iterator.remove();
+                        break;
+                    }
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d(TAG, "moderator fetching cancelled");
             }
         };
     }
@@ -222,8 +232,10 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void setUsers(List<User> users) {
         this.users.clear();
         shareRef.removeEventListener(shareChildListeners);
-        for (User user : users)
-            this.users.add(new ExUser(user));
+        for (User user : users) {
+            if (!user.getId().equals(me.getId()) && !user.getId().equals(moderator.getId()))
+                this.users.add(new ExUser(user));
+        }
         shareRef.addChildEventListener(shareChildListeners);
         notifyDataSetChanged();
     }

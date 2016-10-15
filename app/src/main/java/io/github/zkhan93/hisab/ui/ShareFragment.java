@@ -1,6 +1,5 @@
 package io.github.zkhan93.hisab.ui;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,12 +14,15 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +177,9 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference
                                     databaseReference) {
-                                Log.d(TAG, "share successful");
+                                if (databaseError != null)
+                                    Log.d(TAG, "share error: " + databaseError.getMessage());
+                                else Log.d(TAG, "share successful");
                             }
                         });
                     }
@@ -203,11 +207,48 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
     }
 
     private void searchForUser(String searchText) {
+        users.clear();
+        usersAdapter.setUsers(users);
         searchText = searchText.trim();
-        if (searchText.isEmpty() || searchText.length() < 3)
+        if (searchText.isEmpty() || searchText.length() < 4)
             return;
-        //todo: search for users
+        if (query != null)
+            query.removeEventListener(searchedUsers);
+
+        query = dbRef.child("users").orderByChild("email").startAt(searchText).endAt(searchText + "~");
+        query.addChildEventListener(searchedUsers);
     }
+
+    private List<User> users = new ArrayList<>();
+    Query query;
+    ChildEventListener searchedUsers = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "user found:" + dataSnapshot.toString());
+            users.add(dataSnapshot.getValue(User.class));
+            usersAdapter.setUsers(users);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "changed:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            Log.d(TAG, "removed:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "moved:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.d(TAG, "cancelled:" + databaseError.getMessage());
+        }
+    };
 
     /**
      * OnClickListener

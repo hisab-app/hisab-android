@@ -18,7 +18,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@null"
-            android:hint="@string/msg_search_users"
+            android:hint="@string/hint_search_users"
+            android:inputType="text"
             android:lines="1"
             android:maxLines="1"
             android:textSize="14sp"/>
