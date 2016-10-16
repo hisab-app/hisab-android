@@ -241,7 +241,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     groups.add(favCount - 1, group);
                     int newPos = getItemPositing(favCount - 1);
                     Log.d(TAG, "moved " + index + ":" + oldPos + " " + (favCount - 1) + ":" + newPos);
-                    if (favCount == 0)
+                    if (favCount == 1)
                         notifyDataSetChanged();
                     else
                         notifyItemMoved(oldPos, newPos);
