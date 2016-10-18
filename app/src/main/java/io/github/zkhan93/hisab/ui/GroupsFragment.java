@@ -95,9 +95,8 @@ public class GroupsFragment extends Fragment implements
 
     @Override
     public void onStop() {
-        super.onStop();
         groupsAdapter.unregisterChildEventListener();
-        groupsAdapter.clear();
+        super.onStop();
     }
 
     @Override

@@ -91,16 +91,13 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
-                GroupItemVH gHolder = (GroupItemVH) holder;
-                gHolder.setGroup(groups.get(getActualItemPosition(position)), me);
+                ((GroupItemVH) holder).setGroup(groups.get(getActualItemPosition(position)), me);
                 break;
             case TYPE.HEADER_FAV:
-                HeaderVH hHolder = (HeaderVH) holder;
-                hHolder.setType(HeaderVH.TYPE.FAVORITE);
+                ((HeaderVH) holder).setType(HeaderVH.TYPE.FAVORITE);
                 break;
             case TYPE.HEADER_OTHER:
-                hHolder = (HeaderVH) holder;
-                hHolder.setType(HeaderVH.TYPE.OTHER);
+                ((HeaderVH) holder).setType(HeaderVH.TYPE.OTHER);
                 break;
             case TYPE.EMPTY:
                 ((EmptyVH) holder).setType(EmptyVH.TYPE.GROUP);
@@ -139,7 +136,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public int getItemCount() {
         int totalCount = groups.size();
         if (totalCount == 0)
-            return 1;
+            return 1;//empty view
         if (favCount > 0)
             totalCount += 2;//fav and other headers
         return totalCount;
@@ -193,15 +190,22 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        Log.d(TAG, "adding child " + dataSnapshot.toString());
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
         int size = groups.size();
         if (group.isFavorite()) {
             groups.add(favCount, new ExGroup(group));
             favCount += 1;
-            notifyItemInserted(getItemPositing(favCount));
+            if (favCount == 1) {
+                notifyDataSetChanged();
+                //calling notifyItemInserted here is causing inconsistency in items
+            } else {
+                notifyItemInserted(getItemPositing(favCount - 1));//insert at last of favorites
+            }
         } else {
             groups.add(new ExGroup(group));
+            Log.d(TAG, "adding to position" + getItemPositing(size));
             notifyItemInserted(getItemPositing(size));
         }
     }
@@ -225,12 +229,17 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     groups.remove(index);
                     groups.add(group);
                     favCount -= 1;
-                    int newPos = getItemPositing(groups.size() - 1);
-                    Log.d(TAG, "moved " + index + ":" + oldPos + " " + groups.size() + ":" + newPos);
-                    if (favCount > 0)
+                    int newPos = 0;
+                    newPos = getItemPositing(groups.size() - 1);
+                    if (favCount > 0) {
                         notifyItemMoved(oldPos, newPos);
-                    else
-                        notifyDataSetChanged();
+                    } else {
+                        notifyItemRemoved(0);
+                        notifyItemRemoved(2);
+                        notifyItemMoved(1, groups.size() - 1);
+                    }
+                    Log.d(TAG, "moved " + index + ":" + (oldPos - 1) + " " + (groups.size() - 1) + ":" + newPos + " -> " +
+                            getItemCount());
                 }
             } else {
                 if (group.isFavorite()) {
@@ -240,10 +249,12 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     favCount += 1;
                     groups.add(favCount - 1, group);
                     int newPos = getItemPositing(favCount - 1);
-                    Log.d(TAG, "moved " + index + ":" + oldPos + " " + (favCount - 1) + ":" + newPos);
-                    if (favCount == 1)
-                        notifyDataSetChanged();
-                    else
+                    Log.d(TAG, "moved " + index + ":" + oldPos + " " + (favCount - 1) + ":" + newPos + " -> " + getItemCount());
+                    if (favCount == 1) {
+                        notifyItemMoved(oldPos, 0);
+                        notifyItemInserted(0);
+                        notifyItemInserted(2);
+                    } else
                         notifyItemMoved(oldPos, newPos);
 
 
@@ -280,17 +291,24 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void clear() {
+        favCount = 0;
         groups.clear();
         notifyDataSetChanged();
     }
 
     public void registerChildEventListener() {
+        Log.d(TAG, "registering " + groups.size());
         grpDbRef.orderByChild("name").addChildEventListener(this);
+        Log.d(TAG, "registered " + groups.size());
+        notifyDataSetChanged();
+
     }
 
     public void unregisterChildEventListener() {
-        grpDbRef.removeEventListener(this);
-        favCount = 0;
+        Log.d(TAG, "unregistering " + groups.size());
+        grpDbRef.orderByChild("name").removeEventListener(this);
+        clear();
+        Log.d(TAG, "unregistered " + groups.size());
     }
 
     public void sort(int type) {
