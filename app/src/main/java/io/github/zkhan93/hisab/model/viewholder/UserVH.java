@@ -1,7 +1,5 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
@@ -59,6 +57,6 @@ public class UserVH extends RecyclerView.ViewHolder implements CompoundButton
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         exUser.setChecked(b);
-        actionCallback.UserClicked(exUser);
+        actionCallback.userClicked(exUser);
     }
 }

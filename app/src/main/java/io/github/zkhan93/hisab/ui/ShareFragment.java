@@ -107,7 +107,7 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
     }
 
     @Override
-    public void UserClicked(final ExUser user) {
+    public void userClicked(final ExUser user) {
         if (user.isChecked()) {
             Log.d(TAG, "adding " + user.getName() + " to share list ");
             dbRef.child("groups").child(me.getId()).child(groupId).addListenerForSingleValueEvent

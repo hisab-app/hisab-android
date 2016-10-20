@@ -160,7 +160,7 @@ public class EditPaidReceivedItemDialog extends DialogFragment implements UserIt
     }
 
     @Override
-    public void UserClicked(ExUser user) {
+    public void userClicked(ExUser user) {
         this.checkedUser = new User(user);
         enableIfValidInput();
     }

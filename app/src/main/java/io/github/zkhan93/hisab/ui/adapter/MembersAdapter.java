@@ -120,7 +120,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             members.add(new ExUser(user));
         else if (!excludeMe) // for me
             members.add(new ExUser(user));
-        UserClicked(checkedUser); // check is the
+        userClicked(checkedUser); // check is the
     }
 
     @Override
@@ -190,7 +190,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void UserClicked(ExUser user) {
+    public void userClicked(ExUser user) {
         if (user == null)
             return;
         ExUser eu;
@@ -207,7 +207,7 @@ public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             members.get(index).setChecked(true);
             notifyItemChanged(index);
             if (actionCallback != null)
-                actionCallback.UserClicked(user);
+                actionCallback.userClicked(user);
         }
     }
 

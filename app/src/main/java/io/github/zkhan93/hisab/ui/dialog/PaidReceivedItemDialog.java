@@ -66,13 +66,14 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
         } else {
             groupId = savedInstanceState.getString("groupId");
             me = savedInstanceState.getParcelable("me");
+            checkedUser = savedInstanceState.getParcelable("checkedUser");
         }
         Log.d(TAG, "groupId=" + groupId + " me:" + me);
         members.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         membersAdapter = new MembersAdapter(this, me, groupId, true);
         members.setAdapter(membersAdapter);
-        if (savedInstanceState != null)
-            membersAdapter.UserClicked(new ExUser(checkedUser));
+        if (savedInstanceState != null && checkedUser != null)
+            membersAdapter.setCheckedUser(new ExUser(checkedUser));
         builder.setView(view);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
                 .OnClickListener() {
@@ -85,7 +86,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
 //                    String desc = shareType == ExpenseItem.SHARE_TYPE.PAID ? getString(R.string
 //                            .paid) : getString(R.string.received);
                     ((MainActivity) getActivity()).createExpense(description.getText().toString(), Float.parseFloat(amount
-                            .getText()
+                                    .getText()
                                     .toString()),
                             ExpenseItem.ITEM_TYPE.PAID_RECEIVED, checkedUser, shareType);
                 } else {
@@ -148,7 +149,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
     }
 
     @Override
-    public void UserClicked(ExUser user) {
+    public void userClicked(ExUser user) {
         this.checkedUser = new User(user);
         enableIfValidInput();
     }

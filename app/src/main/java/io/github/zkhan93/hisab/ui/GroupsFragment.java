@@ -173,7 +173,7 @@ public class GroupsFragment extends Fragment implements
 
     public void showCreateGroupDialog() {
         DialogFragment dialog = new CreateGroupDialog();
-        dialog.show(getActivity().getFragmentManager(), "dialog");
+        dialog.show(getActivity().getFragmentManager(), CreateGroupDialog.TAG);
     }
 
     @Override

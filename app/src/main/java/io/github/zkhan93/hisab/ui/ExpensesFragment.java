@@ -117,8 +117,10 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                     getActivity());
         else
             expensesAdapter.changeGroup(groupId);
-        expensesList.setAdapter(expensesAdapter);
-        groupNameRef.addValueEventListener(this);
+        if (expensesList != null)
+            expensesList.setAdapter(expensesAdapter);
+        if (groupNameRef != null)
+            groupNameRef.addValueEventListener(this);
     }
 
     @Override

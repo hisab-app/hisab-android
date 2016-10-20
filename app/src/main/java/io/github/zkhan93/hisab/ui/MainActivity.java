@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +86,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser firebaseUser;
     private FirebaseAuth firebaseAuth;
     private User me;
+    /**
+     * to hold expenses until confirmed by User and then write it to firebase
+     */
     private List<ExpenseItem> expenses;
     private String toDeleteExpenseId, activeGroupId, activeGroupName;
 
@@ -114,16 +118,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         firebaseAuth = FirebaseAuth.getInstance();
         me = Util.getUser(getApplicationContext());
         dbRef = FirebaseDatabase.getInstance().getReference();
-
+        if (savedInstanceState != null) {
+            expenses = savedInstanceState.getParcelableArrayList("expenses");
+            toDeleteExpenseId = savedInstanceState.getString("toDeleteExpenseId");
+            activeGroupId = savedInstanceState.getString("activeGroupId");
+            activeGroupName = savedInstanceState.getString("activeGroupName");
+        }
         snackbarDismissed(); //this will create a new snackbar and register callback with it
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG);
-        if (fragment == null)
-            fragment = new GroupsFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
-                GroupsFragment.TAG).commit();
         isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean
                 ("isTwoPaneMode", isTwoPaneMode).apply();
+
         if (isTwoPaneMode && selectGroupMsg != null) {
             ImageView image = ButterKnife.findById(selectGroupMsg, R.id.image);
             TextView msg = ButterKnife.findById(selectGroupMsg, R.id.msg);
@@ -131,6 +136,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
                         .drawable.big_item));
             if (msg != null) msg.setText(getString(R.string.msg_select_group));
+        }
+
+        if (activeGroupId != null && activeGroupName != null)
+            onGroupClicked(activeGroupId, activeGroupName);
+        else {
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG);
+            if (fragment == null)
+                fragment = new GroupsFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment,
+                    GroupsFragment.TAG).commit();
         }
     }
 
@@ -159,6 +174,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     getSupportFragmentManager().beginTransaction().replace(R.id
                             .fragmentContainer, fragment, GroupsFragment.TAG).commit();
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    activeGroupId = null;
+                    activeGroupName = null;
+                    toDeleteExpenseId = null;
+                    expenses = null;
                     setTitle(getString(R.string.title_activity_groups));
                 } else {
                     //Home button won't be there for clicking if this is a two pane mode
@@ -190,6 +209,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         group.setModerator(me);
         Log.d(TAG, group.toString() + "");
         dbRef.child("groups/" + me.getId()).push().setValue(group).addOnCompleteListener(this);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("expenses", (ArrayList) expenses);
+        outState.putString("toDeleteExpenseId", toDeleteExpenseId);
+        outState.putString("activeGroupId", activeGroupId);
+        outState.putString("activeGroupName", activeGroupName);
     }
 
 

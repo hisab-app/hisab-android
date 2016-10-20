@@ -56,6 +56,6 @@ public class MemberVH extends RecyclerView.ViewHolder implements View.OnClickLis
     @Override
     public void onClick(View view) {
         if (actionCallback != null)
-            actionCallback.UserClicked(exUser);
+            actionCallback.userClicked(exUser);
     }
 }

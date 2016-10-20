@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.model.ui;
 
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 
 import io.github.zkhan93.hisab.model.User;
 
@@ -11,7 +12,7 @@ public class ExUser extends User {
 
     boolean checked;
 
-    public ExUser(User user) {
+    public ExUser(@NonNull User user) {
         super(user.getName(), user.getEmail(), user.getId());
         checked = false;
     }
