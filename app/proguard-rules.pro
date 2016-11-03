@@ -15,9 +15,28 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
+
+# Basic ProGuard rules for Firebase Android SDK 2.0.0+
+-keepattributes Signature
+-keepattributes *Annotation*
+# proguard models in app properly
+-keepclassmembers class io.github.zkhan93.hisab.model.**{
+*;
 }
--keepresourcexmlelements manifest/application/meta-data@value=GlideModule
+
+# Retain generated class which implement Unbinder.
+-keep public class * implements butterknife.Unbinder { public <init>(...); }
+
+# Prevent obfuscation of types which use ButterKnife annotations since the simple name
+# is used to reflectively look up the generated ViewBinding.
+-keep class butterknife.*
+-keepclasseswithmembernames class * { @butterknife.* <methods>; }
+-keepclasseswithmembernames class * { @butterknife.* <fields>; }
+
+#Picasso
+-dontwarn com.squareup.okhttp.**
+
+
+
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod

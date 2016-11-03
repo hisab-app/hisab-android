@@ -193,7 +193,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Log.d(TAG, "adding child " + dataSnapshot.toString());
         Group group = dataSnapshot.getValue(Group.class);
         group.setId(dataSnapshot.getKey());
-        int size = groups.size();
+        int size = groups.size(); // size before adding new group to groups arrayList
         if (group.isFavorite()) {
             groups.add(favCount, new ExGroup(group));
             favCount += 1;
@@ -205,8 +205,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         } else {
             groups.add(new ExGroup(group));
-            Log.d(TAG, "adding to position" + getItemPositing(size));
-            notifyItemInserted(getItemPositing(size));
+            Log.d(TAG, "adding to position" + groups.size());
+            notifyItemInserted(groups.size());
+//            notifyDataSetChanged();
         }
     }
 
@@ -227,23 +228,23 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     //item moves to end of list
                     int oldPos = getItemPositing(index);
                     groups.remove(index);
-                    groups.add(group);
                     favCount -= 1;
-                    int newPos = 0;
-                    newPos = getItemPositing(groups.size() - 1);
-                    if (favCount > 0) {
-                        notifyItemMoved(oldPos, newPos);
-                    } else {
+                    groups.add(group);
+                    int newPos=getItemPositing(groups.size()-1);
+                    Log.d(TAG, "moved " + index + ":" + (oldPos - 1) + " " + (groups.size() - 1) + ":" + getItemPositing(groups
+                            .size()-1) + " -> " + getItemCount());
+                    notifyItemMoved(oldPos, newPos);
+                    if (favCount <= 0) {
                         notifyItemRemoved(0);
-                        notifyItemRemoved(2);
-                        notifyItemMoved(1, groups.size() - 1);
+                        notifyItemRemoved(1);
+                        Log.d(TAG, "removed headers");
+//                        notifyItemMoved(1, groups.size() - 1);
                     }
-                    Log.d(TAG, "moved " + index + ":" + (oldPos - 1) + " " + (groups.size() - 1) + ":" + newPos + " -> " +
-                            getItemCount());
                 }
             } else {
                 if (group.isFavorite()) {
                     //move to end of favorites list
+                    // this section is working fine
                     int oldPos = getItemPositing(index);
                     groups.remove(index);
                     favCount += 1;
@@ -256,8 +257,6 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         notifyItemInserted(2);
                     } else
                         notifyItemMoved(oldPos, newPos);
-
-
                 } else {
                     //new group stays at index, no movement
                     groups.set(index, group);
@@ -301,11 +300,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         grpDbRef.orderByChild("name").addChildEventListener(this);
         Log.d(TAG, "registered " + groups.size());
         notifyDataSetChanged();
-
     }
 
     public void unregisterChildEventListener() {
-        Log.d(TAG, "unregistering " + groups.size());
+        Log.d(TAG, "unregister " + groups.size());
         grpDbRef.orderByChild("name").removeEventListener(this);
         clear();
         Log.d(TAG, "unregistered " + groups.size());
