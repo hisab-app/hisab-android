@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.ui;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -116,6 +117,7 @@ public class GroupsFragment extends Fragment implements
                 return true;
             case R.id.action_add_group:
                 showCreateGroupDialog();
+//                startActivity(new Intent(getActivity().getApplicationContext(), CreateGroupActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

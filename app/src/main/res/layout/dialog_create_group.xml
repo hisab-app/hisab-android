@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -15,4 +17,31 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_grp_name"/>
     </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:id="@+id/count"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/txt_margin_mid"
+        android:drawableStart="@drawable/ic_group_grey_700_24dp"
+        android:text=" Just you"/>
+
+    <EditText
+        android:id="@+id/search"
+        style="?textAppearanceListItemSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/txt_margin_mid"
+        android:background="@null"
+        android:drawableStart="@drawable/ic_search_grey_700_24dp"
+        android:hint="@string/hint_search_users"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/contacts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/contact_item">
+
+    </android.support.v7.widget.RecyclerView>
 </LinearLayout>

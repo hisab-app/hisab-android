@@ -57,7 +57,6 @@
     <string name="msg_author">Author</string>
 
 
-
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
@@ -91,4 +90,5 @@
     <string name="dialog_key_expense_map">just for id</string>
 
     <string name="empty" translatable="false"></string>
+    <string name="title_activity_add_group">New Group</string>
 </resources>
