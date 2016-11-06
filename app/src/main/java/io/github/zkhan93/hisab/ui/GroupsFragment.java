@@ -1,11 +1,14 @@
 package io.github.zkhan93.hisab.ui;
 
+import android.Manifest;
 import android.app.DialogFragment;
-import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -40,7 +43,7 @@ public class GroupsFragment extends Fragment implements
         PreferenceChangeListener, ContextActionBarClbk, View.OnClickListener, Toolbar
         .OnMenuItemClickListener {
     public static final String TAG = GroupsFragment.class.getSimpleName();
-
+    public static final int GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS = 23;
     //member views
     @BindView(R.id.groups)
     RecyclerView groupList;
@@ -181,5 +184,37 @@ public class GroupsFragment extends Fragment implements
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         return onOptionsItemSelected(item);
+    }
+
+    /**
+     * Check contact permission, result will be handles by host activity's onRequestPermissionsResult() method
+     */
+    private void checkContactPermission() {
+        //check for permission in marshmellow and above
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.READ_CONTACTS)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_CONTACTS},
+                        GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            showCreateGroupDialog();
+        }
     }
 }

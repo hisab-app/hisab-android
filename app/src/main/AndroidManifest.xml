@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!--<uses-permission android:name="android.permission.READ_CONTACTS"/>-->
 
     <application
         android:name=".HisabApplication"
@@ -29,15 +29,15 @@
             android:name=".ui.MainActivity"
             android:label="@string/title_activity_groups"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".ui.CreateGroupActivity"
-            android:label="@string/title_activity_add_group"
-            android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.github.zkhan93.hisab.ui.MainActivity"/>
-        </activity>
+        <!--<activity-->
+            <!--android:name=".ui.CreateGroupActivity"-->
+            <!--android:label="@string/title_activity_add_group"-->
+            <!--android:parentActivityName=".ui.MainActivity"-->
+            <!--android:theme="@style/AppTheme.NoActionBar">-->
+            <!--<meta-data-->
+                <!--android:name="android.support.PARENT_ACTIVITY"-->
+                <!--android:value="io.github.zkhan93.hisab.ui.MainActivity"/>-->
+        <!--</activity>-->
     </application>
 
 </manifest>

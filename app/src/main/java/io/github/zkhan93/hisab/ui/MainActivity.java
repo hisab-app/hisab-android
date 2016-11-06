@@ -2,6 +2,7 @@ package io.github.zkhan93.hisab.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -51,6 +52,8 @@ import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.ui.dialog.GroupDetailDialog;
 import io.github.zkhan93.hisab.util.Util;
+
+import static io.github.zkhan93.hisab.ui.GroupsFragment.GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         OnCompleteListener<Void>, PreferenceChangeListener, DialogInterface.OnClickListener,
@@ -220,6 +223,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         outState.putString("activeGroupName", activeGroupName);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                Fragment grpFragment = getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG);
+                if (grpFragment == null || !(grpFragment instanceof GroupsFragment))
+                    return;
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    ((GroupsFragment) grpFragment).showCreateGroupDialog();
+                } else {
+                    ((GroupsFragment) grpFragment).showCreateGroupDialog();
+                }
+                return;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
     private void snackbarDismissed() {
         snackbar = Snackbar.make(rootCoordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);

@@ -31,10 +31,10 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:support-annotations:24.2.1'
 //firebase
-    compile 'com.google.firebase:firebase-core:9.4.0'
-    compile 'com.google.firebase:firebase-database:9.4.0'
-    compile 'com.google.firebase:firebase-auth:9.4.0'
-    compile 'com.google.android.gms:play-services-auth:9.4.0'
+    compile 'com.google.firebase:firebase-core:9.8.0'
+    compile 'com.google.firebase:firebase-database:9.8.0'
+    compile 'com.google.firebase:firebase-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
 //butter knife
     compile 'com.jakewharton:butterknife:8.1.0'
     apt 'com.jakewharton:butterknife-compiler:8.1.0'
@@ -44,7 +44,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     //rfab
     compile 'com.github.clans:fab:1.6.4'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha1'
+//    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
 }
 apply plugin: 'com.google.gms.google-services'
 

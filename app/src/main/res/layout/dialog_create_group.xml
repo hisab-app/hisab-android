@@ -18,7 +18,7 @@
             android:hint="@string/hint_grp_name"/>
     </android.support.design.widget.TextInputLayout>
 
-    <TextView
+    <!--<TextView
         android:id="@+id/count"
         style="@style/TextAppearance.AppCompat.Small"
         android:layout_width="wrap_content"
@@ -27,15 +27,32 @@
         android:drawableStart="@drawable/ic_group_grey_700_24dp"
         android:text=" Just you"/>
 
-    <EditText
-        android:id="@+id/search"
-        style="?textAppearanceListItemSmall"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/txt_margin_mid"
-        android:background="@null"
-        android:drawableStart="@drawable/ic_search_grey_700_24dp"
-        android:hint="@string/hint_search_users"/>
+        android:orientation="horizontal">
+
+        <AutoCompleteTextView
+            android:id="@+id/search"
+            style="?textAppearanceListItemSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/txt_margin_mid"
+            android:layout_weight="1"
+            android:background="@null"
+            android:drawableStart="@drawable/ic_search_grey_700_24dp"
+            android:hint="@string/hint_search_users"/>
+
+        <ImageButton
+            android:id="@+id/add_member"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:src="@drawable/ic_person_add_grey_700_24dp"
+            />
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contacts"
@@ -43,5 +60,5 @@
         android:layout_height="match_parent"
         tools:listitem="@layout/contact_item">
 
-    </android.support.v7.widget.RecyclerView>
+    </android.support.v7.widget.RecyclerView>-->
 </LinearLayout>

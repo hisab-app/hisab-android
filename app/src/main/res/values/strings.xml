@@ -69,7 +69,7 @@
     <string name="hint_name">Enter your name</string>
     <string name="hint_password">Type your password</string>
     <string name="hint_confirm_password">Confirm your password</string>
-    <string name="hint_search_users">Search Users (Email)</string>
+    <string name="hint_search_users">Start typing name</string>
 
     <string name="label_create">Create</string>
     <string name="label_cancel">Cancel</string>
