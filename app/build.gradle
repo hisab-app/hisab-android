@@ -9,8 +9,8 @@ android {
         applicationId "io.github.zkhan93.hisab"
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 10
-        versionName "1.1.0"
+        versionCode 11
+        versionName "1.2.0"
 
     }
     
@@ -35,6 +35,8 @@ dependencies {
     compile 'com.google.firebase:firebase-database:9.8.0'
     compile 'com.google.firebase:firebase-auth:9.8.0'
     compile 'com.google.android.gms:play-services-auth:9.8.0'
+    //firebase crash reporting
+    compile 'com.google.firebase:firebase-crash:9.8.0'
 //butter knife
     compile 'com.jakewharton:butterknife:8.1.0'
     apt 'com.jakewharton:butterknife-compiler:8.1.0'
