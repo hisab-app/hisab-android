@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.service.NotificationService;
 import io.github.zkhan93.hisab.util.Util;
 
 public class EntryActivity extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class EntryActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment,
                     SignInFragment.TAG).commit();
         }
+        startService(new Intent(getApplicationContext(), NotificationService.class));
     }
 
     public void loadLoginFragment(View view) {

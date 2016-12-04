@@ -188,6 +188,12 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        //todo: update group's lastChecked property to current time
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         expensesAdapter.unregisterEventListener();
