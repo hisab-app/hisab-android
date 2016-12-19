@@ -1,10 +1,13 @@
 package io.github.zkhan93.hisab.service;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import io.github.zkhan93.hisab.R;
+import io.github.zkhan93.hisab.model.ExpenseItem;
+import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.callback.ExpenseChildListenerClbk;
 import io.github.zkhan93.hisab.util.MyChildEventListener;
 
@@ -31,25 +37,31 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
     private DatabaseReference dbRef, groupDbRef;
     private List<String> groupKeys;
-    private ChildEventListener groupChildEventListener;
+    private ChildEventListener groupsChildEventListener;
     private ExpenseChildListenerClbk expenseChildListenerClbk;
     private List<MyChildEventListener> expenseChildEventListenerList;
     private boolean isUserLoggedIn;
     private String userId;
+    private List<String> groupsNotificationContent;
+    private List<String> expensesNotificationContent;
 
     {
+        groupsNotificationContent = new ArrayList<>();
+        expensesNotificationContent = new ArrayList<>();
         groupKeys = new ArrayList<>();
         expenseChildEventListenerList = new ArrayList<>();
-        groupChildEventListener = new ChildEventListener() {
+        groupsChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "group added " + dataSnapshot);
-                String key=dataSnapshot.getKey();
+                String key = dataSnapshot.getKey();
                 groupKeys.add(key);
+                Group group = dataSnapshot.getValue(Group.class);
                 MyChildEventListener myExpenseChildEventListener = new MyChildEventListener(key, expenseChildListenerClbk);
                 dbRef.child("expenses").child(key).addChildEventListener(myExpenseChildEventListener);
                 expenseChildEventListenerList.add(myExpenseChildEventListener);
                 //todo: show group added notification if the owner is not current user
+                showNotification(NOTIFICATION_TYPE.GROUP, "New Group", group.getName());
             }
 
             @Override
@@ -88,8 +100,11 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
             @Override
             public void onChildAdded(String groupId, DataSnapshot dataSnapshot, String prevKey) {
-                //todo: show notification for expense added is the user is not me
+                //todo: show notification for expense added if the user is not me
                 Log.d(TAG, "expense added " + groupId + dataSnapshot);
+                ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
+                showNotification(NOTIFICATION_TYPE.EXPENSE, "New Expense Item", expense
+                        .getDescription()+":"+expense.getAmount());
             }
 
             @Override
@@ -143,7 +158,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     @Override
     public void onDestroy() {
         if (groupDbRef != null)
-            groupDbRef.removeEventListener(groupChildEventListener);
+            groupDbRef.removeEventListener(groupsChildEventListener);
         super.onDestroy();
     }
 
@@ -169,6 +184,36 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         }
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         groupDbRef = dbRef.child("groups").child(userId);
-        groupDbRef.addChildEventListener(groupChildEventListener);
+        groupDbRef.addChildEventListener(groupsChildEventListener);
+    }
+
+    public void showNotification(int type, String title, String message) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R
+                .mipmap.ic_launcher).setContentTitle(title);
+        NotificationCompat.InboxStyle inboxStyle =
+                new NotificationCompat.InboxStyle();
+        if (type == NOTIFICATION_TYPE.EXPENSE) {
+            expensesNotificationContent.add(0, message);
+            mBuilder.setContentText("New Expenses added");
+            inboxStyle.setBigContentTitle("New expenses");
+            for (String msg : expensesNotificationContent)
+                inboxStyle.addLine(msg);
+        } else {
+            mBuilder.setContentText("New Groups added");
+            inboxStyle.setBigContentTitle("New groups");
+            for (String msg : groupsNotificationContent)
+                inboxStyle.addLine(msg);
+
+        }
+        mBuilder.setStyle(inboxStyle);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // type allows you to update the notification later on.
+        mNotificationManager.notify(type, mBuilder.build());
+    }
+
+    public interface NOTIFICATION_TYPE {
+        int GROUP = 0;
+        int EXPENSE = 1;
     }
 }
