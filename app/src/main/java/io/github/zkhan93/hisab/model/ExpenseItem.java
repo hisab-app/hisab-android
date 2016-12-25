@@ -15,6 +15,23 @@ import java.util.Map;
  */
 @IgnoreExtraProperties
 public class ExpenseItem implements Parcelable {
+    public static final Creator<ExpenseItem> CREATOR = new Creator<ExpenseItem>() {
+        @Override
+        public ExpenseItem createFromParcel(Parcel parcel) {
+            return new ExpenseItem(parcel);
+        }
+
+        @Override
+        public ExpenseItem[] newArray(int i) {
+            return new ExpenseItem[i];
+        }
+    };
+    public static Comparator<ExpenseItem> BY_TIME_DESC = new Comparator<ExpenseItem>() {
+        @Override
+        public int compare(ExpenseItem ei1, ExpenseItem ei2) {
+            return (int) (ei1.getCreatedOn() - ei2.getCreatedOn());
+        }
+    };
     @Exclude
     String id;
     String groupId;
@@ -26,7 +43,7 @@ public class ExpenseItem implements Parcelable {
     int itemType;
     String description;
     float amount;
-    long createdOn;
+    long createdOn, updatedOn;
     User with;
     /**
      * paid or received
@@ -37,7 +54,7 @@ public class ExpenseItem implements Parcelable {
     }
 
     public ExpenseItem(String id, int itemType, String groupId, User owner, String description,
-                       float amount, long createdOn, User with, int shareType) {
+                       float amount, long createdOn, long updatedOn, User with, int shareType) {
         this.id = id;
         this.itemType = itemType;
         this.groupId = groupId;
@@ -45,6 +62,7 @@ public class ExpenseItem implements Parcelable {
         this.description = description;
         this.amount = amount;
         this.createdOn = createdOn;
+        this.updatedOn = updatedOn;
         this.with = with;
         this.shareType = shareType;
     }
@@ -71,6 +89,7 @@ public class ExpenseItem implements Parcelable {
         description = parcel.readString();
         amount = parcel.readFloat();
         createdOn = parcel.readLong();
+        updatedOn = parcel.readLong();
         with = parcel.readParcelable(User.class.getClassLoader());
         shareType = parcel.readInt();
     }
@@ -131,10 +150,15 @@ public class ExpenseItem implements Parcelable {
 
     public void setCreatedOn(long createdOn) {
         this.createdOn = createdOn;
+        setUpdatedOn(createdOn);
     }
 
     public int getShareType() {
         return shareType;
+    }
+
+    public void setShareType(int shareType) {
+        this.shareType = shareType;
     }
 
     public User getWith() {
@@ -145,20 +169,25 @@ public class ExpenseItem implements Parcelable {
         this.with = with;
     }
 
-    public void setShareType(int shareType) {
-        this.shareType = shareType;
+    public long getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(long updatedOn) {
+        this.updatedOn = updatedOn;
     }
 
     @Override
     public String toString() {
         return "ExpenseItem{" +
                 "id='" + id + '\'' +
-                "itemType='" + itemType + '\'' +
                 ", groupId='" + groupId + '\'' +
-                ", owner='" + owner + '\'' +
+                ", owner=" + owner +
+                ", itemType=" + itemType +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", createdOn=" + createdOn +
+                ", updatedOn=" + updatedOn +
                 ", with=" + with +
                 ", shareType=" + shareType +
                 '}';
@@ -178,21 +207,10 @@ public class ExpenseItem implements Parcelable {
         parcel.writeString(description);
         parcel.writeFloat(amount);
         parcel.writeLong(createdOn);
+        parcel.writeLong(updatedOn);
         parcel.writeParcelable(with, i);
         parcel.writeInt(shareType);
     }
-
-    public static final Creator<ExpenseItem> CREATOR = new Creator<ExpenseItem>() {
-        @Override
-        public ExpenseItem createFromParcel(Parcel parcel) {
-            return new ExpenseItem(parcel);
-        }
-
-        @Override
-        public ExpenseItem[] newArray(int i) {
-            return new ExpenseItem[i];
-        }
-    };
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
@@ -200,21 +218,15 @@ public class ExpenseItem implements Parcelable {
         map.put("itemType", itemType);
         map.put("owner", owner.toMap());
         map.put("description", description);
-        map.put("amount",(double)amount);
+        map.put("amount", (double) amount);
         map.put("createdOn", createdOn);
+        map.put("updatedOn", updatedOn);
         if (itemType == ITEM_TYPE.PAID_RECEIVED) {
             map.put("with", with);
             map.put("shareType", shareType);
         }
         return map;
     }
-
-    public static Comparator<ExpenseItem> BY_TIME_DESC = new Comparator<ExpenseItem>() {
-        @Override
-        public int compare(ExpenseItem ei1, ExpenseItem ei2) {
-            return (int) (ei1.getCreatedOn() - ei2.getCreatedOn());
-        }
-    };
 
     /**
      * SHARED = 0;

@@ -75,7 +75,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     private String groupId, groupName;
     private ExpensesAdapter expensesAdapter;
     private User me;
-    private DatabaseReference groupNameRef, groupExpensesRef;
+    private DatabaseReference groupNameRef, groupLastCheckRef, groupExpensesRef;
     private DatabaseReference dbRef;
 
     private String toDeleteExpenseId;
@@ -103,6 +103,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         dbRef = FirebaseDatabase.getInstance().getReference();
 //        changeGroup(groupId);
         groupNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
+        groupLastCheckRef = dbRef.child("groups").child(me.getId()).child(groupId).child("lastCheckedOn");
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
@@ -190,7 +191,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     @Override
     public void onPause() {
         super.onPause();
-        //todo: update group's lastChecked property to current time
+        updateGroupLastCheck();
     }
 
     @Override
@@ -284,7 +285,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
     private void attemptRename(final String newName) {
         dbRef.child("shareWith").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-            ArrayList<String> sharedUserIds = new ArrayList<String>();
+            ArrayList<String> sharedUserIds = new ArrayList<>();
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -292,7 +293,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                 for (DataSnapshot dbs : dataSnapshot.getChildren()) {
                     sharedUserIds.add(dbs.getKey());
                 }
-                //get moderators groups name's link
+                //get moderators groups name's reference
                 dbRef.child("groups").child(me.getId()).child(groupId).child("moderator").child
                         ("id")
                         .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -301,9 +302,12 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                                 sharedUserIds.add(dataSnapshot.getValue(String.class));
                                 //update all group entries
                                 Map<String, Object> updateLocation = new HashMap<>();
+                                long now=Calendar.getInstance().getTimeInMillis();
                                 for (String userId : sharedUserIds) {
                                     updateLocation.put("/groups/" + userId + "/" + groupId +
                                             "/name", newName);
+                                    updateLocation.put("/groups/" + userId + "/" + groupId +
+                                            "/updatedOn", now);
                                 }
                                 dbRef.updateChildren(updateLocation, new DatabaseReference
                                         .CompletionListener() {
@@ -426,6 +430,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
     @Override
     public void update(ExpenseItem expense) {
+        expense.setUpdatedOn(Calendar.getInstance().getTimeInMillis());
         groupExpensesRef.child(expense.getId())
                 .setValue(expense)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
@@ -447,5 +452,20 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         return onOptionsItemSelected(item);
     }
 
+    private void updateGroupLastCheck() {
+        if (groupLastCheckRef != null)
+            groupLastCheckRef.setValue(Calendar.getInstance().getTimeInMillis()).addOnCompleteListener
+                    (getActivity(), new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (!task.isSuccessful()) {
+                                Log.d(TAG, "updating lastVisit for group failed :" + task
+                                        .getException().getLocalizedMessage());
+                            }
+                        }
+                    });
+        else
+            Log.d(TAG, "groupLastCheckRef is null");
+    }
 
 }

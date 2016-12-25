@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui;
 
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -127,6 +128,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             activeGroupId = savedInstanceState.getString("activeGroupId");
             activeGroupName = savedInstanceState.getString("activeGroupName");
         }
+        //to start into group when we have intent with group Id and name set in it
+        Intent intent = getIntent();
+        if (intent != null) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                activeGroupId = bundle.getString("groupId");
+                activeGroupName = bundle.getString("groupName");
+            }
+        }
+        //dismiss notifications if any
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         snackbarDismissed(); //this will create a new snackbar and register callback with it
         isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean
