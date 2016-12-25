@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import java.util.List;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.Group;
+import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseChildListenerClbk;
 import io.github.zkhan93.hisab.util.MyChildEventListener;
 
@@ -44,6 +46,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     private String userId;
     private List<String> groupsNotificationContent;
     private List<String> expensesNotificationContent;
+    private User me;
 
     {
         groupsNotificationContent = new ArrayList<>();
@@ -60,8 +63,9 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 MyChildEventListener myExpenseChildEventListener = new MyChildEventListener(key, expenseChildListenerClbk);
                 dbRef.child("expenses").child(key).addChildEventListener(myExpenseChildEventListener);
                 expenseChildEventListenerList.add(myExpenseChildEventListener);
-                //todo: show group added notification if the owner is not current user
-                showNotification(NOTIFICATION_TYPE.GROUP, "New Group", group.getName());
+                if (!group.getModerator().getId().equals(me.getId())) {
+                    showNotification(group);
+                }
             }
 
             @Override
@@ -100,11 +104,11 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
             @Override
             public void onChildAdded(String groupId, DataSnapshot dataSnapshot, String prevKey) {
-                //todo: show notification for expense added if the user is not me
-                Log.d(TAG, "expense added " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
-                showNotification(NOTIFICATION_TYPE.EXPENSE, "New Expense Item", expense
-                        .getDescription()+":"+expense.getAmount());
+                if (!expense.getOwner().getId().equals(me.getId())) {
+                    Log.d(TAG, "expense added " + groupId + dataSnapshot);
+                    showNotification(expense);
+                }
             }
 
             @Override
@@ -142,6 +146,18 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         }
         isUserLoggedIn = true;
         dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        me = dataSnapshot.getValue(User.class);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "services failed to get user object from firebase");
+                    }
+                });
     }
 
     @Override
@@ -187,6 +203,15 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         groupDbRef.addChildEventListener(groupsChildEventListener);
     }
 
+    public void showNotification(ExpenseItem expenseItem) {
+        showNotification(NOTIFICATION_TYPE.EXPENSE, "New Expenses", expenseItem.getOwner().getName
+                () + ":" + expenseItem.getDescription() + "@" + expenseItem.getAmount());
+    }
+
+    public void showNotification(Group group) {
+        showNotification(NOTIFICATION_TYPE.GROUP, "New Group", group.getModerator().getName() + " added you in " + group.getName());
+    }
+
     public void showNotification(int type, String title, String message) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R
                 .mipmap.ic_launcher).setContentTitle(title);
@@ -199,8 +224,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             for (String msg : expensesNotificationContent)
                 inboxStyle.addLine(msg);
         } else {
-            mBuilder.setContentText("New Groups added");
-            inboxStyle.setBigContentTitle("New groups");
+            mBuilder.setContentText(title);
+            inboxStyle.setBigContentTitle(message);
             for (String msg : groupsNotificationContent)
                 inboxStyle.addLine(msg);
 
