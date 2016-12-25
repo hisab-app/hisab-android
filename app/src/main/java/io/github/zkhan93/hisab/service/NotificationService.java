@@ -64,7 +64,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 dbRef.child("expenses").child(key).addChildEventListener(myExpenseChildEventListener);
                 expenseChildEventListenerList.add(myExpenseChildEventListener);
                 if (!group.getModerator().getId().equals(me.getId())) {
-                    showNotification(group);
+                    showNotification(group, true);
                 }
             }
 
@@ -76,6 +76,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "group removed " + dataSnapshot);
+                Group group = dataSnapshot.getValue(Group.class);
                 String key = dataSnapshot.getKey();
                 MyChildEventListener expenseChildEventListener = null;
                 Iterator<MyChildEventListener> iterator = expenseChildEventListenerList.iterator();
@@ -88,6 +89,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                     }
                 }
                 groupKeys.remove(key);
+                showNotification(group, false);
             }
 
             @Override
@@ -204,31 +206,49 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     }
 
     public void showNotification(ExpenseItem expenseItem) {
-        showNotification(NOTIFICATION_TYPE.EXPENSE, "New Expenses", expenseItem.getOwner().getName
+        showNotification(NOTIFICATION_TYPE.EXPENSE, "Expenses", expenseItem.getOwner().getName
                 () + ":" + expenseItem.getDescription() + "@" + expenseItem.getAmount());
     }
 
-    public void showNotification(Group group) {
-        showNotification(NOTIFICATION_TYPE.GROUP, "New Group", group.getModerator().getName() + " added you in " + group.getName());
+    public void showNotification(Group group, boolean added) {
+        if (added)
+            showNotification(NOTIFICATION_TYPE.GROUP, "Groups", "Added in " + group.getName());
+        else
+            showNotification(NOTIFICATION_TYPE.GROUP, "Groups", "Removed from " + group.getName());
     }
 
     public void showNotification(int type, String title, String message) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R
                 .mipmap.ic_launcher).setContentTitle(title);
-        NotificationCompat.InboxStyle inboxStyle =
-                new NotificationCompat.InboxStyle();
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         if (type == NOTIFICATION_TYPE.EXPENSE) {
             expensesNotificationContent.add(0, message);
-            mBuilder.setContentText("New Expenses added");
-            inboxStyle.setBigContentTitle("New expenses");
+            if (expensesNotificationContent.size() == 1) {
+                inboxStyle.setBigContentTitle(message);
+                mBuilder.setContentText(message);
+            } else {
+                inboxStyle.setBigContentTitle(expensesNotificationContent.size() + " new changes in" +
+                        " expenses");
+                mBuilder.setContentText(expensesNotificationContent.size() + " new changes in" +
+                        " expenses");
+            }
             for (String msg : expensesNotificationContent)
                 inboxStyle.addLine(msg);
         } else {
-            mBuilder.setContentText(title);
-            inboxStyle.setBigContentTitle(message);
+            groupsNotificationContent.add(0, message);
+
+            if (groupsNotificationContent.size() == 1) {
+                inboxStyle.setBigContentTitle(message);
+                mBuilder.setContentText(message);
+            } else {
+                inboxStyle.setBigContentTitle(groupsNotificationContent.size() + " new changes in " +
+                        "groups");
+                mBuilder.setContentText(groupsNotificationContent.size() + " new changes in " +
+                        "groups");
+            }
+
             for (String msg : groupsNotificationContent)
                 inboxStyle.addLine(msg);
-
         }
         mBuilder.setStyle(inboxStyle);
         NotificationManager mNotificationManager =
