@@ -185,7 +185,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         isUserLoggedIn = false;
         FirebaseAuth.getInstance().addAuthStateListener(this);
         mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R
-                .mipmap.ic_launcher);
+                .drawable.ic_stat_hisab);
     }
 
     @Override
