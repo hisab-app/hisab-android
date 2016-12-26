@@ -78,7 +78,9 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 MyChildEventListener myExpenseChildEventListener = new MyChildEventListener(key, expenseChildListenerClbk);
                 dbRef.child("expenses").child(key).addChildEventListener(myExpenseChildEventListener);
                 expenseChildEventListenerList.add(myExpenseChildEventListener);
-                if (!group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn()) {
+                if (me != null && !group.getModerator().getId().equals(me.getId()) &&
+                        lastGroupsVisit < group
+                                .getUpdatedOn()) {
                     showNotification(group, ACTION.ADDED);
                 }
             }
@@ -88,7 +90,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 Log.d(TAG, "group changed " + dataSnapshot);
                 Group group = dataSnapshot.getValue(Group.class);
                 groupLastChecked.put(dataSnapshot.getKey(), group.getLastCheckedOn());
-                if (!group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn()) {
+                if (me != null && !group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn()) {
                     showNotification(group, ACTION.UPDATE);
                 }
             }
@@ -110,7 +112,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                     }
                 }
                 groupKeys.remove(key);
-                if (!group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn())
+                if (me != null && !group.getModerator().getId().equals(me.getId()) &&
+                        lastGroupsVisit < group.getUpdatedOn())
                     showNotification(group, ACTION.DELETE);
             }
 
@@ -129,8 +132,9 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             @Override
             public void onChildAdded(String groupId, DataSnapshot dataSnapshot, String prevKey) {
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
-                if (!expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
-                        (groupId) < expense.getCreatedOn()) {
+                if (me != null && !expense.getOwner().getId().equals(me.getId()) &&
+                        groupLastChecked.get
+                                (groupId) < expense.getCreatedOn()) {
                     Log.d(TAG, "expense added " + groupId + dataSnapshot);
                     showNotification(expense, ACTION.ADDED);
                     dirtyGroupIds.add(expense.getGroupId());
@@ -141,7 +145,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildChanged(String groupId, DataSnapshot dataSnapshot, String prevKey) {
                 Log.d(TAG, "expense changed " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
-                if (!expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
+                if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     Log.d(TAG, "expense changed " + groupId + dataSnapshot);
                     showNotification(expense, ACTION.UPDATE);
@@ -153,7 +157,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildRemoved(String groupId, DataSnapshot dataSnapshot) {
                 Log.d(TAG, "expense removed " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
-                if (!expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
+                if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     Log.d(TAG, "expense removed " + groupId + dataSnapshot);
                     showNotification(expense, ACTION.DELETE);
@@ -197,6 +201,10 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             isUserLoggedIn = false;
             return;
         }
+        init();
+    }
+
+    private void init() {
         isUserLoggedIn = true;
         dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -231,9 +239,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
     @Override
     public void onDestroy() {
-        if (groupDbRef != null)
-            groupDbRef.removeEventListener(groupsChildEventListener);
-        dbRef.child("users").child(me.getId()).child("lastVisitOn").removeEventListener(lastGroupVisitListner);
+        unregisterChildEventListeners();
         super.onDestroy();
     }
 
@@ -241,17 +247,19 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         if (firebaseAuth.getCurrentUser() != null) {
+            init();
             dbRef = FirebaseDatabase.getInstance().getReference();
             isUserLoggedIn = true;
-            setChildEventListeners();
+            registerChildEventListeners();
         } else {
             isUserLoggedIn = false;
+            unregisterChildEventListeners();
         }
     }
 
-    private void setChildEventListeners() {
+    private void registerChildEventListeners() {
         if (dbRef == null) {
-            Log.d(TAG, "database reference is null not setting child listeners");
+            Log.d(TAG, "database reference is null not registerring child listeners");
             return;
         }
         if (!isUserLoggedIn) {
@@ -260,6 +268,19 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         groupDbRef = dbRef.child("groups").child(userId);
         groupDbRef.addChildEventListener(groupsChildEventListener);
+    }
+
+    private void unregisterChildEventListeners() {
+        if (dbRef != null) {
+            Log.d(TAG, "database reference is null cannot unregister child listeners");
+            groupDbRef = dbRef.child("groups").child(userId);
+            groupDbRef.removeEventListener(groupsChildEventListener);
+            dbRef.child("users").child(me.getId()).child("lastVisitOn").removeEventListener(lastGroupVisitListner);
+        }
+        if (expenseChildEventListenerList != null)
+            for (MyChildEventListener mel : expenseChildEventListenerList)
+                dbRef.child("expenses").child(mel.getGroupId()).removeEventListener(mel);
+        expenseChildEventListenerList.clear();
     }
 
     public void showNotification(ExpenseItem expenseItem, int type) {
