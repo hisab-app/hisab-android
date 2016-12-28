@@ -9,7 +9,9 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -21,6 +23,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,16 +60,18 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     private List<MyChildEventListener> expenseChildEventListenerList;
     private boolean isUserLoggedIn;
     private String userId;
-    private List<GroupNotification> groupsNotificationContent;
-    private List<ExpenseNotification> expensesNotificationContent;
+    //    private List<GroupNotification> groupsNotificationContent;
+    private ArrayMap<String, GroupNotification> groupsNotificationContent;
+    //    private List<ExpenseNotification> expensesNotificationContent;
+    private ArrayMap<String, ExpenseNotification> expensesNotificationContent;
     private User me;
     private long lastGroupsVisit;
     private PendingIntent actionIntent;
     private NotificationCompat.Builder mBuilder;
 
     {
-        groupsNotificationContent = new ArrayList<>();
-        expensesNotificationContent = new ArrayList<>();
+        groupsNotificationContent = new ArrayMap<>();
+        expensesNotificationContent = new ArrayMap<>();
         groupKeys = new HashSet<>();
         groupLastChecked = new HashMap<>();
         expenseChildEventListenerList = new ArrayList<>();
@@ -287,20 +294,20 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     public void addNotificationItem(ExpenseItem expenseItem, int type) {
         switch (type) {
             case ACTION.UPDATE:
-                expensesNotificationContent.add(new ExpenseNotification(expenseItem.getUpdatedOn
+                expensesNotificationContent.put(expenseItem.getId(), new ExpenseNotification(expenseItem.getUpdatedOn
                         (), expenseItem.getGroupId(), expenseItem
                         .getOwner().getName() + " updated: " + expenseItem.getDescription() + "@" +
                         expenseItem.getAmount()));
 
                 break;
             case ACTION.ADDED:
-                expensesNotificationContent.add(new
+                expensesNotificationContent.put(expenseItem.getId(), new
                         ExpenseNotification(expenseItem.getCreatedOn(), expenseItem.getGroupId(),
                         expenseItem.getOwner().getName() + " added: " + expenseItem.getDescription()
                                 + "@" + expenseItem.getAmount()));
                 break;
             case ACTION.DELETE:
-                expensesNotificationContent.add(new ExpenseNotification(Calendar.getInstance()
+                expensesNotificationContent.put(expenseItem.getId(), new ExpenseNotification(Calendar.getInstance()
                         .getTimeInMillis(), expenseItem.getGroupId(), expenseItem
                         .getOwner().getName() + " removed: " + expenseItem.getDescription() + "@" +
                         expenseItem.getAmount()));
@@ -314,17 +321,17 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     public void addNotificationItem(Group group, int type) {
         switch (type) {
             case ACTION.ADDED:
-                groupsNotificationContent.add(new GroupNotification(group.getUpdatedOn(), "Included " +
+                groupsNotificationContent.put(group.getId(), new GroupNotification(group.getUpdatedOn(), "Included " +
                         "in " + group.getName
                         (), group.getId()));
                 break;
             case ACTION.DELETE:
-                groupsNotificationContent.add(new GroupNotification(Calendar.getInstance()
+                groupsNotificationContent.put(group.getId(), new GroupNotification(Calendar.getInstance()
                         .getTimeInMillis(), "Removed from " + group
                         .getName(), group.getId()));
                 break;
             case ACTION.UPDATE:
-                groupsNotificationContent.add(new GroupNotification(group.getUpdatedOn(), "Renamed " + group.getName
+                groupsNotificationContent.put(group.getId(), new GroupNotification(group.getUpdatedOn(), "Renamed " + group.getName
                         (), group.getId()));
                 break;
             default:
@@ -336,30 +343,37 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     public void showNotification() {
         NotificationCompat.InboxStyle inboxStyle;
         //clean expense notification content list
-        Iterator<ExpenseNotification> exIterator = expensesNotificationContent.listIterator();
+        List<ExpenseNotification> expensesNotificationContentTmp = (List<ExpenseNotification>) expensesNotificationContent.values();
+        Collections.sort(expensesNotificationContentTmp, new Comparator<ExpenseNotification>() {
+            @Override
+            public int compare(ExpenseNotification et1, ExpenseNotification et2) {
+                return (int) (et1.getCreateOn() - et2.getCreateOn());
+            }
+        });
+        Iterator<ExpenseNotification> exIterator = expensesNotificationContentTmp.listIterator();
         while (exIterator.hasNext()) {
             ExpenseNotification exn = exIterator.next();
             if (groupLastChecked.containsKey(exn.getGroupId()) &&
                     exn.getCreateOn() <= groupLastChecked.get(exn.getGroupId()))
                 exIterator.remove();
         }
-        if (expensesNotificationContent.size() > 0) {
+        if (expensesNotificationContentTmp.size() > 0) {
             //show expense notification
             mBuilder.setContentTitle("Expenses");
             inboxStyle = new NotificationCompat.InboxStyle();
-            if (expensesNotificationContent.size() == 1) {
-                inboxStyle.setBigContentTitle(expensesNotificationContent.get(0).getMessage());
-                mBuilder.setContentText(expensesNotificationContent.get(0).getMessage());
+            if (expensesNotificationContentTmp.size() == 1) {
+                inboxStyle.setBigContentTitle(expensesNotificationContentTmp.get(0).getMessage());
+                mBuilder.setContentText(expensesNotificationContentTmp.get(0).getMessage());
             } else {
-                inboxStyle.setBigContentTitle(expensesNotificationContent.size() + " expenses " +
+                inboxStyle.setBigContentTitle(expensesNotificationContentTmp.size() + " expenses " +
                         "update");
-                mBuilder.setContentText(expensesNotificationContent.size() + " expenses update");
+                mBuilder.setContentText(expensesNotificationContentTmp.size() + " expenses update");
                 Set<String> groupCount = new HashSet<>();
-                for (ExpenseNotification exn : expensesNotificationContent) {
+                for (ExpenseNotification exn : expensesNotificationContentTmp) {
                     inboxStyle.addLine(exn.getMessage());
                     groupCount.add(exn.getGroupId());
                 }
-                inboxStyle.setSummaryText(expensesNotificationContent.size() + " updates from " +
+                inboxStyle.setSummaryText(expensesNotificationContentTmp.size() + " updates from " +
                         "" + groupCount.size() + " groups");
             }
             mBuilder.setStyle(inboxStyle);
@@ -370,28 +384,36 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             mNotificationManager.notify(NOTIFICATION_TYPE.EXPENSE, mBuilder.build());
         }
 
+
         //clean group notification content list
-        Iterator<GroupNotification> grpIterator = groupsNotificationContent.listIterator();
+        List<GroupNotification> groupsNotificationContentTmp = (List<GroupNotification>) groupsNotificationContent.values();
+        Collections.sort(groupsNotificationContentTmp, new Comparator<GroupNotification>() {
+            @Override
+            public int compare(GroupNotification gpn1, GroupNotification gpn2) {
+                return (int) (gpn1.getCreatedOn() - gpn2.getCreatedOn());
+            }
+        });
+        Iterator<GroupNotification> grpIterator = groupsNotificationContentTmp.listIterator();
         while (grpIterator.hasNext()) {
             GroupNotification grpn = grpIterator.next();
             if (grpn.getCreatedOn() <= lastGroupsVisit) {
                 grpIterator.remove();
             }
         }
-        if (groupsNotificationContent.size() > 0) {
+        if (groupsNotificationContentTmp.size() > 0) {
             //show group notification
             mBuilder.setContentTitle("Groups");
             inboxStyle = new NotificationCompat.InboxStyle();
 
-            if (groupsNotificationContent.size() == 1) {
-                inboxStyle.setBigContentTitle(groupsNotificationContent.get(0).getMessage());
-                mBuilder.setContentText(groupsNotificationContent.get(0).getMessage());
+            if (groupsNotificationContentTmp.size() == 1) {
+                inboxStyle.setBigContentTitle(groupsNotificationContentTmp.get(0).getMessage());
+                mBuilder.setContentText(groupsNotificationContentTmp.get(0).getMessage());
             } else {
-                inboxStyle.setBigContentTitle(groupsNotificationContent.size() + " group updates");
-                mBuilder.setContentText(groupsNotificationContent.size() + " group updates");
+                inboxStyle.setBigContentTitle(groupsNotificationContentTmp.size() + " group updates");
+                mBuilder.setContentText(groupsNotificationContentTmp.size() + " group updates");
             }
 
-            for (GroupNotification grpn : groupsNotificationContent)
+            for (GroupNotification grpn : groupsNotificationContentTmp)
                 inboxStyle.addLine(grpn.getMessage());
             mBuilder.setStyle(inboxStyle);
             mBuilder.setContentIntent(actionIntent);
