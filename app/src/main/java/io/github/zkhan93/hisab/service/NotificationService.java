@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +33,8 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseChildListenerClbk;
+import io.github.zkhan93.hisab.model.notification.ExpenseNotification;
+import io.github.zkhan93.hisab.model.notification.GroupNotification;
 import io.github.zkhan93.hisab.ui.MainActivity;
 import io.github.zkhan93.hisab.util.MyChildEventListener;
 
@@ -52,10 +55,9 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     private List<MyChildEventListener> expenseChildEventListenerList;
     private boolean isUserLoggedIn;
     private String userId;
-    private List<String> groupsNotificationContent;
-    private List<String> expensesNotificationContent;
+    private List<GroupNotification> groupsNotificationContent;
+    private List<ExpenseNotification> expensesNotificationContent;
     private User me;
-    private Set<String> dirtyGroupIds;
     private long lastGroupsVisit;
     private PendingIntent actionIntent;
     private NotificationCompat.Builder mBuilder;
@@ -63,7 +65,6 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     {
         groupsNotificationContent = new ArrayList<>();
         expensesNotificationContent = new ArrayList<>();
-        dirtyGroupIds = new HashSet<>();
         groupKeys = new HashSet<>();
         groupLastChecked = new HashMap<>();
         expenseChildEventListenerList = new ArrayList<>();
@@ -81,7 +82,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 if (me != null && !group.getModerator().getId().equals(me.getId()) &&
                         lastGroupsVisit < group
                                 .getUpdatedOn()) {
-                    showNotification(group, ACTION.ADDED);
+                    addNotificationItem(group, ACTION.ADDED);
                 }
             }
 
@@ -91,7 +92,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 Group group = dataSnapshot.getValue(Group.class);
                 groupLastChecked.put(dataSnapshot.getKey(), group.getLastCheckedOn());
                 if (me != null && !group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn()) {
-                    showNotification(group, ACTION.UPDATE);
+                    addNotificationItem(group, ACTION.UPDATE);
                 }
             }
 
@@ -114,7 +115,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 groupKeys.remove(key);
                 if (me != null && !group.getModerator().getId().equals(me.getId()) &&
                         lastGroupsVisit < group.getUpdatedOn())
-                    showNotification(group, ACTION.DELETE);
+                    addNotificationItem(group, ACTION.DELETE);
             }
 
             @Override
@@ -136,8 +137,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                         groupLastChecked.get
                                 (groupId) < expense.getCreatedOn()) {
                     Log.d(TAG, "expense added " + groupId + dataSnapshot);
-                    showNotification(expense, ACTION.ADDED);
-                    dirtyGroupIds.add(expense.getGroupId());
+                    addNotificationItem(expense, ACTION.ADDED);
+
                 }
             }
 
@@ -148,8 +149,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     Log.d(TAG, "expense changed " + groupId + dataSnapshot);
-                    showNotification(expense, ACTION.UPDATE);
-                    dirtyGroupIds.add(expense.getGroupId());
+                    addNotificationItem(expense, ACTION.UPDATE);
+
                 }
             }
 
@@ -160,8 +161,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     Log.d(TAG, "expense removed " + groupId + dataSnapshot);
-                    showNotification(expense, ACTION.DELETE);
-                    dirtyGroupIds.add(expense.getGroupId());
+                    addNotificationItem(expense, ACTION.DELETE);
+
                 }
             }
 
@@ -283,85 +284,124 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
         expenseChildEventListenerList.clear();
     }
 
-    public void showNotification(ExpenseItem expenseItem, int type) {
+    public void addNotificationItem(ExpenseItem expenseItem, int type) {
         switch (type) {
             case ACTION.UPDATE:
-                showNotification(NOTIFICATION_TYPE.EXPENSE, "Expenses", expenseItem
+                expensesNotificationContent.add(new ExpenseNotification(expenseItem.getUpdatedOn
+                        (), expenseItem.getGroupId(), expenseItem
                         .getOwner().getName() + " updated: " + expenseItem.getDescription() + "@" +
-                        expenseItem.getAmount());
+                        expenseItem.getAmount()));
+
                 break;
             case ACTION.ADDED:
-                showNotification(NOTIFICATION_TYPE.EXPENSE, "Expenses", expenseItem.getOwner().getName
-                        () + " added: " + expenseItem.getDescription() + "@" + expenseItem.getAmount
-                        ());
+                expensesNotificationContent.add(new
+                        ExpenseNotification(expenseItem.getCreatedOn(), expenseItem.getGroupId(),
+                        expenseItem.getOwner().getName() + " added: " + expenseItem.getDescription()
+                                + "@" + expenseItem.getAmount()));
                 break;
             case ACTION.DELETE:
-                showNotification(NOTIFICATION_TYPE.EXPENSE, "Expenses", expenseItem
+                expensesNotificationContent.add(new ExpenseNotification(Calendar.getInstance()
+                        .getTimeInMillis(), expenseItem.getGroupId(), expenseItem
                         .getOwner().getName() + " removed: " + expenseItem.getDescription() + "@" +
-                        expenseItem.getAmount());
+                        expenseItem.getAmount()));
                 break;
             default:
                 Log.d(TAG, "invalid expense update type");
         }
+        showNotification();
     }
 
-    public void showNotification(Group group, int type) {
+    public void addNotificationItem(Group group, int type) {
         switch (type) {
             case ACTION.ADDED:
-                showNotification(NOTIFICATION_TYPE.GROUP, "Groups", "Included in " + group.getName
-                        ());
+                groupsNotificationContent.add(new GroupNotification(group.getUpdatedOn(), "Included " +
+                        "in " + group.getName
+                        (), group.getId()));
                 break;
             case ACTION.DELETE:
-                showNotification(NOTIFICATION_TYPE.GROUP, "Groups", "Removed from " + group.getName());
+                groupsNotificationContent.add(new GroupNotification(Calendar.getInstance()
+                        .getTimeInMillis(), "Removed from " + group
+                        .getName(), group.getId()));
                 break;
             case ACTION.UPDATE:
-                showNotification(NOTIFICATION_TYPE.GROUP, "Groups", "Renamed " + group.getName
-                        ());
+                groupsNotificationContent.add(new GroupNotification(group.getUpdatedOn(), "Renamed " + group.getName
+                        (), group.getId()));
                 break;
             default:
                 Log.d(TAG, "invalid group update type");
         }
+        showNotification();
     }
 
-    public void showNotification(int type, String title, String message) {
-        mBuilder.setContentTitle(title);
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        if (type == NOTIFICATION_TYPE.EXPENSE) {
-            expensesNotificationContent.add(0, message);
+    public void showNotification() {
+        NotificationCompat.InboxStyle inboxStyle;
+        //clean expense notification content list
+        Iterator<ExpenseNotification> exIterator = expensesNotificationContent.listIterator();
+        while (exIterator.hasNext()) {
+            ExpenseNotification exn = exIterator.next();
+            if (groupLastChecked.containsKey(exn.getGroupId()) &&
+                    exn.getCreateOn() <= groupLastChecked.get(exn.getGroupId()))
+                exIterator.remove();
+        }
+        if (expensesNotificationContent.size() > 0) {
+            //show expense notification
+            mBuilder.setContentTitle("Expenses");
+            inboxStyle = new NotificationCompat.InboxStyle();
             if (expensesNotificationContent.size() == 1) {
-                inboxStyle.setBigContentTitle(message);
-                mBuilder.setContentText(message);
+                inboxStyle.setBigContentTitle(expensesNotificationContent.get(0).getMessage());
+                mBuilder.setContentText(expensesNotificationContent.get(0).getMessage());
             } else {
                 inboxStyle.setBigContentTitle(expensesNotificationContent.size() + " expenses " +
                         "update");
                 mBuilder.setContentText(expensesNotificationContent.size() + " expenses update");
-                for (String msg : expensesNotificationContent)
-                    inboxStyle.addLine(msg);
+                Set<String> groupCount = new HashSet<>();
+                for (ExpenseNotification exn : expensesNotificationContent) {
+                    inboxStyle.addLine(exn.getMessage());
+                    groupCount.add(exn.getGroupId());
+                }
                 inboxStyle.setSummaryText(expensesNotificationContent.size() + " updates from " +
-                        "" + dirtyGroupIds.size() + " groups");
+                        "" + groupCount.size() + " groups");
             }
+            mBuilder.setStyle(inboxStyle);
+            mBuilder.setContentIntent(actionIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // type allows you to update the notification later on.
+            mNotificationManager.notify(NOTIFICATION_TYPE.EXPENSE, mBuilder.build());
+        }
 
-        } else {
-            groupsNotificationContent.add(0, message);
+        //clean group notification content list
+        Iterator<GroupNotification> grpIterator = groupsNotificationContent.listIterator();
+        while (grpIterator.hasNext()) {
+            GroupNotification grpn = grpIterator.next();
+            if (grpn.getCreatedOn() <= lastGroupsVisit) {
+                grpIterator.remove();
+            }
+        }
+        if (groupsNotificationContent.size() > 0) {
+            //show group notification
+            mBuilder.setContentTitle("Groups");
+            inboxStyle = new NotificationCompat.InboxStyle();
 
             if (groupsNotificationContent.size() == 1) {
-                inboxStyle.setBigContentTitle(message);
-                mBuilder.setContentText(message);
+                inboxStyle.setBigContentTitle(groupsNotificationContent.get(0).getMessage());
+                mBuilder.setContentText(groupsNotificationContent.get(0).getMessage());
             } else {
                 inboxStyle.setBigContentTitle(groupsNotificationContent.size() + " group updates");
                 mBuilder.setContentText(groupsNotificationContent.size() + " group updates");
             }
 
-            for (String msg : groupsNotificationContent)
-                inboxStyle.addLine(msg);
+            for (GroupNotification grpn : groupsNotificationContent)
+                inboxStyle.addLine(grpn.getMessage());
+            mBuilder.setStyle(inboxStyle);
+            mBuilder.setContentIntent(actionIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // type allows you to update the notification later on.
+            mNotificationManager.notify(NOTIFICATION_TYPE.GROUP, mBuilder.build());
         }
 
-        mBuilder.setStyle(inboxStyle);
-        mBuilder.setContentIntent(actionIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // type allows you to update the notification later on.
-        mNotificationManager.notify(type, mBuilder.build());
+
     }
 
     public interface NOTIFICATION_TYPE {

@@ -37,7 +37,7 @@
           android:layout_height="wrap_content"
           android:layout_gravity="bottom|end"
           android:layout_margin="@dimen/fab_margin"
-          android:contentDescription="Create Group"
+          android:contentDescription="Create GroupNotification"
           android:src="@drawable/ic_add_grey_50_24dp"/>-->
 
 </android.support.design.widget.CoordinatorLayout>
