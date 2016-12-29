@@ -39,6 +39,6 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-        <service android:name=".service.NotificationService" />
+        <service android:name=".service.NotificationService"/>
     </application>
 </manifest>

@@ -5,13 +5,14 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -23,7 +24,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -139,11 +139,11 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
             @Override
             public void onChildAdded(String groupId, DataSnapshot dataSnapshot, String prevKey) {
+                Log.d(TAG, "expense added " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) &&
                         groupLastChecked.get
                                 (groupId) < expense.getCreatedOn()) {
-                    Log.d(TAG, "expense added " + groupId + dataSnapshot);
                     addNotificationItem(expense, ACTION.ADDED);
 
                 }
@@ -155,7 +155,6 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
-                    Log.d(TAG, "expense changed " + groupId + dataSnapshot);
                     addNotificationItem(expense, ACTION.UPDATE);
 
                 }
@@ -167,7 +166,6 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
-                    Log.d(TAG, "expense removed " + groupId + dataSnapshot);
                     addNotificationItem(expense, ACTION.DELETE);
 
                 }
@@ -187,6 +185,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 lastGroupsVisit = dataSnapshot.getValue(Long.class);
+                Log.d(TAG, "lastGroupVisit updated :" + lastGroupsVisit);
             }
 
             @Override
@@ -194,32 +193,37 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 Log.d(TAG, "service failed to fetch last group visit time from firebase");
             }
         };
-        isUserLoggedIn = false;
-        FirebaseAuth.getInstance().addAuthStateListener(this);
         mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R
                 .drawable.ic_stat_hisab);
     }
 
     @Override
     public void onCreate() {
-        super.onCreate();
+        Log.d(TAG, "onCreate service");
+        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getApplicationContext
+                ());
+        lastGroupsVisit = spf.getLong("service_lastGroupsVisit", Calendar.getInstance()
+                .getTimeInMillis());
+        isUserLoggedIn = spf.getBoolean("service_isUserLoggedIn", false);
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            //not logged in
-            dbRef = null;
             isUserLoggedIn = false;
-            return;
+        } else {
+            isUserLoggedIn = true;
+            init();
         }
-        init();
+        FirebaseAuth.getInstance().addAuthStateListener(this);
+        super.onCreate();
     }
 
     private void init() {
-        isUserLoggedIn = true;
         dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         me = dataSnapshot.getValue(User.class);
+                        me.setId(dataSnapshot.getKey());
+                        Log.d(TAG, "me updated");
                         //add watcher on lastVisitOn value for me
                         dbRef.child("users").child(me.getId()).child("lastVisitOn").addValueEventListener
                                 (lastGroupVisitListner);
@@ -247,6 +251,11 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
     @Override
     public void onDestroy() {
+        //save lastGroupsVisit
+        Log.d(TAG, "service destroyed values saved");
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                .putLong("service_lastGroupsVisit", lastGroupsVisit)
+                .putBoolean("service_isUserLoggedIn", isUserLoggedIn).apply();
         unregisterChildEventListeners();
         super.onDestroy();
     }
@@ -255,13 +264,13 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         if (firebaseAuth.getCurrentUser() != null) {
-            init();
-            dbRef = FirebaseDatabase.getInstance().getReference();
             isUserLoggedIn = true;
+            init();
             registerChildEventListeners();
         } else {
-            isUserLoggedIn = false;
             unregisterChildEventListeners();
+            isUserLoggedIn = false;
+            dbRef = null;
         }
     }
 
@@ -280,11 +289,11 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
     private void unregisterChildEventListeners() {
         if (dbRef != null) {
-            Log.d(TAG, "database reference is null cannot unregister child listeners");
             groupDbRef = dbRef.child("groups").child(userId);
             groupDbRef.removeEventListener(groupsChildEventListener);
             dbRef.child("users").child(me.getId()).child("lastVisitOn").removeEventListener(lastGroupVisitListner);
-        }
+        } else
+            Log.d(TAG, "database reference is null cannot unregister child listeners");
         if (expenseChildEventListenerList != null)
             for (MyChildEventListener mel : expenseChildEventListenerList)
                 dbRef.child("expenses").child(mel.getGroupId()).removeEventListener(mel);
@@ -343,7 +352,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     public void showNotification() {
         NotificationCompat.InboxStyle inboxStyle;
         //clean expense notification content list
-        List<ExpenseNotification> expensesNotificationContentTmp = (List<ExpenseNotification>) expensesNotificationContent.values();
+        List<ExpenseNotification> expensesNotificationContentTmp = new ArrayList<>();
+        expensesNotificationContentTmp.addAll(expensesNotificationContent.values());
         Collections.sort(expensesNotificationContentTmp, new Comparator<ExpenseNotification>() {
             @Override
             public int compare(ExpenseNotification et1, ExpenseNotification et2) {
@@ -386,7 +396,8 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
 
         //clean group notification content list
-        List<GroupNotification> groupsNotificationContentTmp = (List<GroupNotification>) groupsNotificationContent.values();
+        List<GroupNotification> groupsNotificationContentTmp = new ArrayList<>();
+        groupsNotificationContentTmp.addAll(groupsNotificationContent.values());
         Collections.sort(groupsNotificationContentTmp, new Comparator<GroupNotification>() {
             @Override
             public int compare(GroupNotification gpn1, GroupNotification gpn2) {
@@ -425,6 +436,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
 
 
     }
+
 
     public interface NOTIFICATION_TYPE {
         int GROUP = 0;
