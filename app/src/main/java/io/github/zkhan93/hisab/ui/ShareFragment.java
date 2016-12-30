@@ -34,6 +34,7 @@ import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.Group;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.MembersCountNodesFetchCompleteClbk;
 import io.github.zkhan93.hisab.model.callback.UserItemActionClickClbk;
 import io.github.zkhan93.hisab.model.ui.ExUser;
 import io.github.zkhan93.hisab.ui.adapter.UsersAdapter;
@@ -52,12 +53,41 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
     EditText searchText;
     @BindView(R.id.search)
     ImageButton searchBtn;
-
+    Query query;
     private UsersAdapter usersAdapter;
     private String groupId;
     private DatabaseReference shareDbRef;
     private User me;
     private DatabaseReference dbRef;
+    private List<User> users = new ArrayList<>();
+    ChildEventListener searchedUsers = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "user found:" + dataSnapshot.toString());
+            users.add(dataSnapshot.getValue(User.class));
+            usersAdapter.setUsers(users);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "changed:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            Log.d(TAG, "removed:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            Log.d(TAG, "moved:" + dataSnapshot.toString());
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.d(TAG, "cancelled:" + databaseError.getMessage());
+        }
+    };
 
     public ShareFragment() {
         dbRef = FirebaseDatabase.getInstance().getReference();
@@ -108,87 +138,108 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
 
     @Override
     public void userClicked(final ExUser user) {
-        if (user.isChecked()) {
-            Log.d(TAG, "adding " + user.getName() + " to share list ");
-            dbRef.child("groups").child(me.getId()).child(groupId).addListenerForSingleValueEvent
-                    (new ValueEventListener() {
+        updateMembersCount(new MembersCountNodesFetchCompleteClbk() {
+            @Override
+            public void onMembersCountNodeComplete(final List<String> memberCountNodes) {
+                if (user.isChecked()) {
+                    Log.d(TAG, "adding " + user.getName() + " to share list ");
 
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            //add the groups in user's(the user clicked) list
+                    dbRef.child("groups").child(me.getId()).child(groupId).addListenerForSingleValueEvent
+                            (new ValueEventListener() {
 
-                            Map<String, Object> map = new HashMap<>();
-                            map.put("groups/" + user.getId() + "/" + dataSnapshot.getKey(), dataSnapshot.getValue(Group.class)
-                                    .toMap());
-                            map.put("shareWith/" + groupId + "/" + user.getId(), new User(user.getName(), user.getEmail(), user
-                                    .getId()).toMap());
-                            dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
                                 @Override
-                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                    if (databaseError != null)
-                                        Log.d(TAG, "sharing with user" + user.getName() + " " +
-                                                "failed");
-                                    else
-                                        updateMembersCount();
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    //add the groups in user's(the user clicked) list
+                                    Group group = dataSnapshot.getValue(Group.class);
+                                    group.setMembersCount(memberCountNodes.size() + 1);
+                                    Map<String, Object> map = new HashMap<>();
+                                    for (String s : memberCountNodes) {
+                                        map.put(s, memberCountNodes.size() + 1);
+                                    }
+                                    map.put("groups/" + user.getId() + "/" + dataSnapshot.getKey
+                                            (), group.toMap());
+                                    map.put("shareWith/" + groupId + "/" + user.getId(), new User(user.getName(), user.getEmail(), user
+                                            .getId()).toMap());
+                                    Log.d(TAG, map.toString());
+                                    //removing children of above node
+                                    dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
+                                        @Override
+                                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                            if (databaseError != null)
+                                                Log.d(TAG, "sharing with user" + user.getName() + " " +
+                                                        "failed");
+                                        }
+                                    });
+                                }
 
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Log.d(TAG, "group fetching onCancelled");
                                 }
                             });
-                        }
 
+                } else {
+                    Log.d(TAG, "removing " + user.getName() + " from sharing list");
+                    Map<String, Object> map = new HashMap<>();
+                    for (String s : memberCountNodes) {
+                        map.put(s, memberCountNodes.size() - 1);
+                    }
+                    map.put("shareWith/" + groupId + "/" + user.getId(), null);
+                    map.put("groups/" + user.getId() + "/" + groupId, null);
+                    //remove children node of above end
+                    map.remove("/groups/" + user.getId() + "/" + groupId + "/membersCount");
+                    //shareDbRef.child(user.getId()).removeValue();
+                    //child("groups").child(user.getId()).child(groupId).removeValue(
+                    dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.d(TAG, "group fetching onCancelled");
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            if (databaseError != null)
+                                Log.d(TAG, "removing sharing with user" + user.getName() + " " +
+                                        "failed");
                         }
                     });
-
-        } else {
-            Log.d(TAG, "removing " + user.getName() + " from sharing list");
-            shareDbRef.child(user.getId()).removeValue();
-            dbRef.child("groups").child(user.getId()).child(groupId).removeValue(new DatabaseReference
-                    .CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    if (databaseError != null)
-                        Log.d(TAG, "removing sharing with user" + user.getName() + " " +
-                                "failed");
-                    else
-                        updateMembersCount();
                 }
-            });
-        }
+            }
+        });
     }
 
-    private void updateMembersCount() {
+    private void updateMembersCount(final MembersCountNodesFetchCompleteClbk
+                                            membersCountNodesFetchCompleteClbk) {
         //update the member count for this group in all its copies
+
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            List<String> nodes = new ArrayList<>();
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+//                int membersCount = (int) dataSnapshot.getChildrenCount() + 1;
+                nodes.add("/groups/" + me.getId() + "/" + groupId +
+                        "/membersCount");
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    nodes.add("/groups/" + ds.getValue(User.class).getId() + "/" +
+                            groupId +
+                            "/membersCount");
+                }
+                Log.d(TAG, "nodes to update are" + nodes.toString());
+                membersCountNodesFetchCompleteClbk.onMembersCountNodeComplete(nodes);
+//                        dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
+//                            @Override
+//                            public void onComplete(DatabaseError databaseError, DatabaseReference
+//                                    databaseReference) {
+//                                if (databaseError != null)
+//                                    Log.d(TAG, "share error: " + databaseError.getMessage());
+//                                else Log.d(TAG, "share successful");
+//                            }
+//                        });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "group share list fetching onCancelled");
+            }
+        };
         dbRef.child("shareWith").child(groupId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Map<String, Object> map = new HashMap<>();
-                        int membersCount = (int) dataSnapshot.getChildrenCount() + 1;
-                        map.put("/groups/" + me.getId() + "/" + groupId +
-                                "/membersCount", membersCount);
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            map.put("/groups/" + ds.getValue(User.class).getId() + "/" + groupId +
-                                    "/membersCount", membersCount);
-                        }
-                        dbRef.updateChildren(map, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference
-                                    databaseReference) {
-                                if (databaseError != null)
-                                    Log.d(TAG, "share error: " + databaseError.getMessage());
-                                else Log.d(TAG, "share successful");
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d(TAG, "group share list fetching onCancelled");
-                    }
-                });
+                .addListenerForSingleValueEvent(valueEventListener);
     }
 
     @Override
@@ -218,37 +269,6 @@ public class ShareFragment extends Fragment implements UserItemActionClickClbk,
         query = dbRef.child("users").orderByChild("email").startAt(searchText).endAt(searchText + "~");
         query.addChildEventListener(searchedUsers);
     }
-
-    private List<User> users = new ArrayList<>();
-    Query query;
-    ChildEventListener searchedUsers = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Log.d(TAG, "user found:" + dataSnapshot.toString());
-            users.add(dataSnapshot.getValue(User.class));
-            usersAdapter.setUsers(users);
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Log.d(TAG, "changed:" + dataSnapshot.toString());
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            Log.d(TAG, "removed:" + dataSnapshot.toString());
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            Log.d(TAG, "moved:" + dataSnapshot.toString());
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            Log.d(TAG, "cancelled:" + databaseError.getMessage());
-        }
-    };
 
     /**
      * OnClickListener
