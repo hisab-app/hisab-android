@@ -82,6 +82,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 String key = dataSnapshot.getKey();
                 groupKeys.add(key);
                 Group group = dataSnapshot.getValue(Group.class);
+                group.setId(key);
                 groupLastChecked.put(key, group.getLastCheckedOn());
                 MyChildEventListener myExpenseChildEventListener = new MyChildEventListener(key, expenseChildListenerClbk);
                 dbRef.child("expenses").child(key).addChildEventListener(myExpenseChildEventListener);
@@ -97,6 +98,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "group changed " + dataSnapshot);
                 Group group = dataSnapshot.getValue(Group.class);
+                group.setId(dataSnapshot.getKey());
                 groupLastChecked.put(dataSnapshot.getKey(), group.getLastCheckedOn());
                 if (me != null && !group.getModerator().getId().equals(me.getId()) && lastGroupsVisit < group.getUpdatedOn()) {
                     addNotificationItem(group, ACTION.UPDATE);
@@ -108,6 +110,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 Log.d(TAG, "group removed " + dataSnapshot);
                 Group group = dataSnapshot.getValue(Group.class);
                 String key = dataSnapshot.getKey();
+                group.setId(key);
                 groupLastChecked.remove(key);
                 MyChildEventListener expenseChildEventListener = null;
                 Iterator<MyChildEventListener> iterator = expenseChildEventListenerList.iterator();
@@ -141,6 +144,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildAdded(String groupId, DataSnapshot dataSnapshot, String prevKey) {
                 Log.d(TAG, "expense added " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
+                expense.setId(dataSnapshot.getKey());
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) &&
                         groupLastChecked.get
                                 (groupId) < expense.getCreatedOn()) {
@@ -153,6 +157,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildChanged(String groupId, DataSnapshot dataSnapshot, String prevKey) {
                 Log.d(TAG, "expense changed " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
+                expense.setId(dataSnapshot.getKey());
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     addNotificationItem(expense, ACTION.UPDATE);
@@ -164,6 +169,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             public void onChildRemoved(String groupId, DataSnapshot dataSnapshot) {
                 Log.d(TAG, "expense removed " + groupId + dataSnapshot);
                 ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
+                expense.setId(dataSnapshot.getKey());
                 if (me != null && !expense.getOwner().getId().equals(me.getId()) && groupLastChecked.get
                         (groupId) < expense.getUpdatedOn()) {
                     addNotificationItem(expense, ACTION.DELETE);
