@@ -76,9 +76,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private GoogleSignInOptions gso;
     private ValueEventListener nameValueListener;
 
-    public SignInFragment() {
-    }
-
     {
         nameValueListener = new ValueEventListener() {
             @Override
@@ -95,6 +92,9 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                         .getMessage());
             }
         };
+    }
+
+    public SignInFragment() {
     }
 
     @Override
@@ -217,8 +217,10 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     @Override
     public void onDestroy() {
         super.onDestroy();
-        googleApiClient.stopAutoManage(getActivity());
-        googleApiClient.disconnect();
+        if (googleApiClient != null) {
+            googleApiClient.stopAutoManage(getActivity());
+            googleApiClient.disconnect();
+        }
     }
 
     public void loginBtnAction() {

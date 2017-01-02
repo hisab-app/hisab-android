@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -394,6 +395,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             }
             mBuilder.setStyle(inboxStyle);
             mBuilder.setContentIntent(actionIntent);
+            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             // type allows you to update the notification later on.
@@ -434,13 +436,12 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 inboxStyle.addLine(grpn.getMessage());
             mBuilder.setStyle(inboxStyle);
             mBuilder.setContentIntent(actionIntent);
+            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             // type allows you to update the notification later on.
             mNotificationManager.notify(NOTIFICATION_TYPE.GROUP, mBuilder.build());
         }
-
-
     }
 
 
