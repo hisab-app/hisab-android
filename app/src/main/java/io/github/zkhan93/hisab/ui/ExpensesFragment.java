@@ -75,10 +75,9 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     private String groupId, groupName;
     private ExpensesAdapter expensesAdapter;
     private User me;
-    private DatabaseReference groupNameRef, groupLastCheckRef, groupExpensesRef;
+    private DatabaseReference groupNameRef, groupExpensesRef;
     private DatabaseReference dbRef;
 
-    private String toDeleteExpenseId;
     private ShowMessageClbk showMessageClbk;
     private boolean isTwoPaneMode;
 
@@ -103,7 +102,6 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         dbRef = FirebaseDatabase.getInstance().getReference();
 //        changeGroup(groupId);
         groupNameRef = dbRef.child("groups").child(me.getId()).child(groupId).child("name");
-        groupLastCheckRef = dbRef.child("groups").child(me.getId()).child(groupId).child("lastCheckedOn");
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
@@ -190,8 +188,9 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
     @Override
     public void onPause() {
+        PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit
+                ().putLong(groupId, Calendar.getInstance().getTimeInMillis()).apply();
         super.onPause();
-        updateGroupLastCheck();
     }
 
     @Override
@@ -302,7 +301,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                                 sharedUserIds.add(dataSnapshot.getValue(String.class));
                                 //update all group entries
                                 Map<String, Object> updateLocation = new HashMap<>();
-                                long now=Calendar.getInstance().getTimeInMillis();
+                                long now = Calendar.getInstance().getTimeInMillis();
                                 for (String userId : sharedUserIds) {
                                     updateLocation.put("/groups/" + userId + "/" + groupId +
                                             "/name", newName);
@@ -341,8 +340,8 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
      * Called from {@link ExpenseItemDialog} and {@link PaidReceivedItemDialog}'s positive
      * button's [@link OnClickListener]
      *
-     * @param description
-     * @param amount
+     * @param description decription of expense to create
+     * @param amount      amount
      */
     public void createExpense(String description, float amount, int itemType, User with, int
             shareType) {
@@ -361,7 +360,8 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                     public void onComplete(@NonNull Task<Void> task) {
                         String msg = "";
                         if (!task.isSuccessful()) {
-                            msg = "Error occurred: " + task.getException().getLocalizedMessage();
+                            msg = new StringBuilder("Error occurred: ").append(task.getException()
+                                    .getLocalizedMessage()).toString();
                             showMessageClbk.showMessage(msg, ShowMessageClbk.TYPE.SNACKBAR,
                                     Snackbar.LENGTH_INDEFINITE);
                         }
@@ -450,22 +450,6 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         return onOptionsItemSelected(item);
-    }
-
-    private void updateGroupLastCheck() {
-        if (groupLastCheckRef != null)
-            groupLastCheckRef.setValue(Calendar.getInstance().getTimeInMillis()).addOnCompleteListener
-                    (getActivity(), new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (!task.isSuccessful()) {
-                                Log.d(TAG, "updating lastVisit for group failed :" + task
-                                        .getException().getLocalizedMessage());
-                            }
-                        }
-                    });
-        else
-            Log.d(TAG, "groupLastCheckRef is null");
     }
 
 }

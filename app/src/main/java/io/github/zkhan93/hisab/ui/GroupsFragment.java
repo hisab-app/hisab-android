@@ -5,7 +5,6 @@ import android.app.DialogFragment;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -22,11 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 import java.util.prefs.PreferenceChangeEvent;
@@ -60,7 +54,6 @@ public class GroupsFragment extends Fragment implements
     private User me;
     private ActionMode actionMode;
     private Toolbar toolbar;
-    private DatabaseReference lastVisitRef;
 
     private int sortType = Group.SORT_TYPE.ALPHABETICAL;
 
@@ -78,8 +71,7 @@ public class GroupsFragment extends Fragment implements
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_groups, container, false);
         ButterKnife.bind(this, rootView);
-        lastVisitRef = FirebaseDatabase.getInstance().getReference().child("users").child(me
-                .getId()).child("lastVisitOn");
+
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
         groupList.setAdapter(groupsAdapter);
@@ -110,8 +102,9 @@ public class GroupsFragment extends Fragment implements
 
     @Override
     public void onPause() {
+        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong
+                ("lastVisitOn", Calendar.getInstance().getTimeInMillis()).apply();
         super.onPause();
-        updateLastVisit();
     }
 
     @Override
@@ -137,7 +130,6 @@ public class GroupsFragment extends Fragment implements
                 return true;
             case R.id.action_add_group:
                 showCreateGroupDialog();
-//                startActivity(new Intent(getActivity().getApplicationContext(), CreateGroupActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -233,20 +225,4 @@ public class GroupsFragment extends Fragment implements
         }
     }
 
-    private void updateLastVisit() {
-        if (lastVisitRef != null) {
-            lastVisitRef.setValue(Calendar.getInstance().getTimeInMillis()).addOnCompleteListener
-                    (getActivity(), new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (!task.isSuccessful()) {
-                                Log.d(TAG, "updating lastVisit for group failed :" + task
-                                        .getException().getLocalizedMessage());
-                            }
-                        }
-                    });
-        } else {
-            Log.d(TAG, "lastVisitRef is null");
-        }
-    }
 }
