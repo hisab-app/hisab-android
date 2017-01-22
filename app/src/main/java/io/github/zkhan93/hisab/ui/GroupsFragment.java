@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DialogFragment;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -64,6 +65,7 @@ public class GroupsFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         me = Util.getUser(getContext());
+        Parcel parcel=null;
     }
 
     @Override

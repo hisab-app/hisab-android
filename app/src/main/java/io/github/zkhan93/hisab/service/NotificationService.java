@@ -301,7 +301,7 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
             case ACTION.UPDATE:
                 expensesNotificationContent.put(expenseItem.getId(), new ExpenseNotification(expenseItem.getUpdatedOn
                         (), expenseItem.getGroupId(), expenseItem
-                        .getOwner().getName() + " updated: " + expenseItem.getDescription() + "@" +
+                        .getOwner().getName() + " updated: " + expenseItem.getDescription() + " - "+
                         expenseItem.getAmount()));
 
                 break;
@@ -309,12 +309,12 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
                 expensesNotificationContent.put(expenseItem.getId(), new
                         ExpenseNotification(expenseItem.getCreatedOn(), expenseItem.getGroupId(),
                         expenseItem.getOwner().getName() + " added: " + expenseItem.getDescription()
-                                + "@" + expenseItem.getAmount()));
+                                + " - " + expenseItem.getAmount()));
                 break;
             case ACTION.DELETE:
                 expensesNotificationContent.put(expenseItem.getId(), new ExpenseNotification(Calendar.getInstance()
                         .getTimeInMillis(), expenseItem.getGroupId(), expenseItem
-                        .getOwner().getName() + " removed: " + expenseItem.getDescription() + "@" +
+                        .getOwner().getName() + " removed: " + expenseItem.getDescription() + " - "+
                         expenseItem.getAmount()));
                 break;
             default:
@@ -445,12 +445,10 @@ public class NotificationService extends Service implements FirebaseAuth.AuthSta
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key == null || sharedPreferences == null)
             return;
-        long newVal = sharedPreferences.getLong(key, Calendar.getInstance().getTimeInMillis());
-        Log.d(TAG, "preference update " + key + ":" + newVal);
-        if (key.equals("lastGroupsVisit"))
-            lastGroupsVisit = newVal;
-        else {
-            groupLastChecked.put(key, newVal);
+        Log.d(TAG, "preference update " + key);
+        if (key.equals("lastGroupsVisit")) {
+            lastGroupsVisit = sharedPreferences.getLong(key, Calendar.getInstance().getTimeInMillis());;
+            groupLastChecked.put(key, lastGroupsVisit);
         }
     }
 

@@ -323,7 +323,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
         Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this);
-
     }
 
     private void showError(String msg) {
