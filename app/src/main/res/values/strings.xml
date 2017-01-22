@@ -80,8 +80,8 @@
     <string name="err_zero_amount">Must be non zero</string>
     <string name="err_email_taken">This email already exist</string>
 
-    <string name="fab_shared">Shared</string>
-    <string name="fab_paid_received">Paid or Received</string>
+    <string name="fab_shared">Add Expense</string>
+    <string name="fab_paid_received">Cash Entry</string>
 
 
     <string name="dialog_key_expense_id">just for id</string>
@@ -89,6 +89,6 @@
     <string name="dialog_key_group_id">just for id</string>
     <string name="dialog_key_expense_map">just for id</string>
 
-    <string name="empty" translatable="false"></string>
+    <string name="empty" translatable="false"> </string>
     <string name="title_activity_add_group">New Group</string>
 </resources>

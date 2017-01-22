@@ -4,6 +4,7 @@
     <!--@color/md_deep_orange_500-->
     <color name="colorTextOnPrimary">@color/md_white_1000</color>
 
+    <color name="colorPrimaryLight">#E57373</color>
     <color name="colorPrimaryDark">#C65557</color>
     <color name="colorTextOnPrimaryDark">@color/md_white_1000</color>
 
