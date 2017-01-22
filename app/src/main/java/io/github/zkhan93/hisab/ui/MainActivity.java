@@ -66,9 +66,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @Nullable
-    @BindView(R.id.toolbar_groups)
-    Toolbar toolbar_groups;
-    @Nullable
     @BindView(R.id.toolbar_expenses)
     Toolbar toolbar_expenses;
     @BindView(R.id.root_coordinate_layout)
@@ -175,10 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = item.getItemId();
         switch (id) {
             case R.id.action_logout:
-                firebaseAuth.signOut();
-                Util.clearPreferences(getApplicationContext());
-                startActivity(new Intent(this, EntryActivity.class));
-                finish();
+                logout();
                 return true;
             case android.R.id.home:
                 if (!isTwoPaneMode) {
@@ -253,6 +247,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    public void logout(){
+        firebaseAuth.signOut();
+        Util.clearPreferences(getApplicationContext());
+        startActivity(new Intent(this, EntryActivity.class));
+        finish();
     }
 
     private void snackbarDismissed() {

@@ -65,7 +65,7 @@ public class GroupsFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         me = Util.getUser(getContext());
-        Parcel parcel=null;
+        Parcel parcel = null;
     }
 
     @Override
@@ -132,6 +132,9 @@ public class GroupsFragment extends Fragment implements
                 return true;
             case R.id.action_add_group:
                 showCreateGroupDialog();
+                return true;
+            case R.id.action_logout:
+                ((MainActivity) getActivity()).logout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
