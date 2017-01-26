@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/btn_sign_up"
+        style="@style/Btn.Large.Inverse"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/btn_txt_signup"
+        android:theme="@style/Btn.Primary"
+    />

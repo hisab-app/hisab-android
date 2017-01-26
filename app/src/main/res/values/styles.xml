@@ -41,13 +41,18 @@
         <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
-    <style name="BtnLarge">
+    <style name="Btn.Large">
         <item name="android:textAppearance">?android:textAppearanceButton</item>
         <item name="android:paddingTop">@dimen/btn_padding_high</item>
         <item name="android:paddingBottom">@dimen/btn_padding_high</item>
         <item name="android:paddingRight">@dimen/btn_padding_high</item>
         <item name="android:paddingLeft">@dimen/btn_padding_high</item>
 
+    </style>
+
+    <style name="Btn.Large.Inverse">
+        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
     <style name="Btn.Warning">
@@ -74,5 +79,10 @@
     <style name="ItemActionPopup" parent="@style/Widget.AppCompat.Light.PopupMenu">
         <item name="overlapAnchor">true</item>
         <item name="android:popupBackground">@android:color/white</item>
+    </style>
+
+    <style name="SignInLayout">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 </resources>

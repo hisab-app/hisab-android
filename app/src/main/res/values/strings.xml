@@ -45,7 +45,7 @@
     <string name="msg_summary_give">Pay %1$.2f %2$s</string>
     <string name="msg_summary_collect">Collect %1$.2f %2$s</string>
     <string name="msg_in_progress">Hold on! loading..</string>
-    <string name="msg_signin_with_link">Already have account? <b><u>Sign in</u></b></string>
+    <string name="msg_signin_with_link">Already registered? <b><u>Login Me</u></b></string>
     <string name="msg_signup_with_link">Don\'t have account? <b><u>Sign up</u></b></string>
     <string name="msg_signin_forget_pswd">Forget password? <b><u>Reset</u></b></string>
     <string name="msg_reset_email_check">Check your mail for instructions to reset password.</string>
@@ -65,9 +65,9 @@
     <string name="hint_grp_rename">Group\'s name</string>
     <string name="hint_desc">Description</string>
     <string name="hint_amount">Amount</string>
-    <string name="hint_email">Enter your email address</string>
-    <string name="hint_name">Enter your name</string>
-    <string name="hint_password">Type your password</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_name">Full Name</string>
+    <string name="hint_password">Password</string>
     <string name="hint_confirm_password">Confirm your password</string>
     <string name="hint_search_users">Start typing email</string>
 
