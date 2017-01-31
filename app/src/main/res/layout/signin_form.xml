@@ -16,6 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:maxWidth="320dp"
         android:padding="10dp"
         android:scaleType="centerInside"
         android:src="@drawable/title"/>
@@ -37,9 +38,9 @@
         android:textAppearance="?android:textAppearance"/>
 
     <android.support.design.widget.TextInputLayout
+        style="@style/SignInLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/SignInLayout"
         >
 
         <EditText

@@ -81,7 +81,7 @@ public class GroupsFragment extends Fragment implements
                 ("isTwoPaneMode", false))
             setHasOptionsMenu(true);
         else {
-            toolbar = ButterKnife.findById(getActivity(), R.id.toolbar_groups);
+            toolbar = ButterKnife.findById(getActivity(), R.id.toolbar);
             if (toolbar != null) {
                 toolbar.setTitle(getString(R.string.title_activity_groups));
                 toolbar.inflateMenu(R.menu.menu_groups_frag);
@@ -132,9 +132,6 @@ public class GroupsFragment extends Fragment implements
                 return true;
             case R.id.action_add_group:
                 showCreateGroupDialog();
-                return true;
-            case R.id.action_logout:
-                ((MainActivity) getActivity()).logout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

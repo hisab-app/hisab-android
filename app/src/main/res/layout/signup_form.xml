@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:padding="10dp"
+        android:maxWidth="320dp"
         android:scaleType="centerInside"
         android:src="@drawable/title"/>
 
