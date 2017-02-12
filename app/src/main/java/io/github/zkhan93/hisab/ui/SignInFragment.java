@@ -36,6 +36,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -120,7 +121,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
                         //google sign in
                         User user = new User
                                 (firebaseUser.getDisplayName(), firebaseUser.getEmail(),
-                                        userId);
+                                        userId, FirebaseInstanceId.getInstance().getToken());
                         firebaseDatabase.getReference("users").child(userId).setValue(user)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
@@ -348,24 +349,27 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Go
     private void resetPassword() {
         clearError();
         if (edtTxtEmail == null) {
-            Log.d(TAG, "no email feild");
+            Log.d(TAG, "no email field");
             return;
         }
-        String email = edtTxtEmail.getText().toString().trim();
+        final String email = edtTxtEmail.getText().toString().trim();
         if (email.isEmpty()) {
             edtTxtEmail.setError("Enter you email address to reset your password");
             edtTxtEmail.requestFocus();
             return;
         }
+
+        showProgress();
         firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(getActivity(), new
                 OnCompleteListener<Void>() {
 
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         String msg = null;
+                        hideProgress();
                         if (task.isSuccessful()) {
                             msg = getString(R.string
-                                    .msg_reset_email_check);
+                                    .msg_reset_email_check,email);
                         } else {
                             msg = task.getException().getLocalizedMessage();
                             if (msg == null) {

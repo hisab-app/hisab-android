@@ -58,7 +58,7 @@ import static io.github.zkhan93.hisab.ui.GroupsFragment.GRP_FRAGMENT_PERMISSIONS
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         OnCompleteListener<Void>, PreferenceChangeListener, DialogInterface.OnClickListener,
-        SummaryActionItemClbk, ShowMessageClbk, GroupItemClickClbk {
+        SummaryActionItemClbk, ShowMessageClbk, GroupItemClickClbk,FirebaseAuth.AuthStateListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbRef = FirebaseDatabase.getInstance().getReference();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.addAuthStateListener(this);
         me = Util.getUser(getApplicationContext());
         dbRef = FirebaseDatabase.getInstance().getReference();
         if (savedInstanceState != null) {
@@ -252,8 +253,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void logout(){
         firebaseAuth.signOut();
         Util.clearPreferences(getApplicationContext());
-        startActivity(new Intent(this, EntryActivity.class));
-        finish();
+        //startActivity(LoginActivity) and finish() on this activity is called in Auth
+        // listener method below
     }
 
     private void snackbarDismissed() {
@@ -473,5 +474,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void setToDeleteExpenseId(String expenseId) {
         this.toDeleteExpenseId = expenseId;
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        if(firebaseAuth.getCurrentUser()==null){
+            finish();
+            startActivity(new Intent(this, EntryActivity.class));
+        }
     }
 }

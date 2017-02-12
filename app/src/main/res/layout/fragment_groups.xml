@@ -1,11 +1,14 @@
 <android.support.v7.widget.RecyclerView
-    android:id="@+id/groups"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/groups"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/padding_content"
+    android:layout_marginRight="@dimen/padding_content"
     tools:choiceMode="multipleChoiceModal"
     tools:context=".ui.GroupsFragment"
     tools:listitem="@layout/group_item"
+    tools:showIn="@layout/activity_main"
     >
 </android.support.v7.widget.RecyclerView>

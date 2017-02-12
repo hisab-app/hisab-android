@@ -29,6 +29,7 @@ public class User implements Parcelable {
     String email;
     String id;
     Long lastVisitOn;
+    String token;
 
     public User() {
     }
@@ -40,10 +41,16 @@ public class User implements Parcelable {
         lastVisitOn = Calendar.getInstance().getTimeInMillis();
     }
 
+    public User(String name, String email, String id, String token) {
+        this(name, email, id);
+        this.token = token;
+    }
+
     public User(Parcel parcel) {
         id = parcel.readString();
         name = parcel.readString();
         email = parcel.readString();
+        token = parcel.readString();
         lastVisitOn = parcel.readLong();
     }
 
@@ -83,6 +90,14 @@ public class User implements Parcelable {
         this.lastVisitOn = lastVisitOn;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -93,6 +108,7 @@ public class User implements Parcelable {
         parcel.writeString(id);
         parcel.writeString(name);
         parcel.writeString(email);
+        parcel.writeString(token);
         parcel.writeLong(lastVisitOn);
     }
 
@@ -103,6 +119,7 @@ public class User implements Parcelable {
                 ", email='" + email + '\'' +
                 ", id='" + id + '\'' +
                 ", lastVisitOn=" + lastVisitOn +
+                ", token='" + token + '\'' +
                 '}';
     }
 
@@ -112,6 +129,7 @@ public class User implements Parcelable {
         map.put("email", email);
         map.put("id", id);
         map.put("lastVisitOn", lastVisitOn);
+//        map.put("token", token);
         return map;
     }
 

@@ -55,21 +55,17 @@ public class ExpenseItem implements Parcelable {
 
     public ExpenseItem(String id, int itemType, String groupId, User owner, String description,
                        float amount, long createdOn, long updatedOn, User with, int shareType) {
+        this(description, amount, with, shareType);
         this.id = id;
-        this.itemType = itemType;
         this.groupId = groupId;
         this.owner = owner;
-        this.description = description;
-        this.amount = amount;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
-        this.with = with;
-        this.shareType = shareType;
+        this.itemType = itemType;
     }
 
     public ExpenseItem(String description, float amount, User with, int shareType) {
-        this.description = description;
-        this.amount = amount;
+        this(description, amount);
         this.itemType = ITEM_TYPE.PAID_RECEIVED;
         this.with = with;
         this.shareType = shareType;

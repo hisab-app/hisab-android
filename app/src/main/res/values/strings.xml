@@ -48,7 +48,8 @@
     <string name="msg_signin_with_link">Already registered? <b><u>Login Me</u></b></string>
     <string name="msg_signup_with_link">Don\'t have account? <b><u>Sign up</u></b></string>
     <string name="msg_signin_forget_pswd">Forget password? <b><u>Reset</u></b></string>
-    <string name="msg_reset_email_check">Check your mail for instructions to reset password.</string>
+    <string name="msg_reset_email_check">We have sent an e-mail to %s with instructions to reset
+        the password</string>
     <string name="msg_signup_done_email_check">Sign up successful, check your email to reset password.</string>
     <string name="msg_gen_error">Error occurred! try after a while.</string>
     <string name="msg_grp_created_by_you">You</string>
