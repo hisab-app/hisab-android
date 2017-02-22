@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
-
+apply plugin: 'org.greenrobot.greendao'
 android {
     compileSdkVersion 25
     buildToolsVersion "23.0.3"
@@ -51,6 +51,7 @@ dependencies {
     //    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
     //for communication simplification
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'org.greenrobot:greendao:3.2.0'
 
 }
 apply plugin: 'com.google.gms.google-services'
