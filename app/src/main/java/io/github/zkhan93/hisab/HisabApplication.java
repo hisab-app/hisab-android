@@ -25,6 +25,10 @@ public class HisabApplication extends Application {
     //green dao
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "hisab-db");
         Database db = helper.getWritableDb();
+        if(BuildConfig.DEBUG){
+//            DaoMaster.dropAllTables(db,true);
+//            DaoMaster.createAllTables(db,false);
+        }
         daoSession = new DaoMaster(db).newSession();
     }
 

@@ -1,21 +1,37 @@
 package io.github.zkhan93.hisab.util;
 
-import android.Manifest;
-import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.media.RingtoneManager;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 
+import io.github.zkhan93.hisab.HisabApplication;
+import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.notification.DaoSession;
+import io.github.zkhan93.hisab.model.notification.LocalExpense;
+import io.github.zkhan93.hisab.model.notification.LocalExpenseDao;
+import io.github.zkhan93.hisab.model.notification.LocalGroup;
+import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
  * Created by n193211 on 6/30/2016.
  */
 public class Util {
+    public static final String TAG = Util.class.getSimpleName();
+
     public static String encodedEmail(String email) {
         return email.replace('.', ',');
     }
@@ -82,5 +98,92 @@ public class Util {
             return PreferenceManager.getDefaultSharedPreferences(context).contains("logged_in");
         else
             return false;
+    }
+
+    public static String getPluralString(Collection items) {
+        if (items == null)
+            return "";
+        return items.size() > 1 ? "s" : "";
+    }
+
+    public static String getPluralString(long items) {
+        if (items < 2)
+            return "";
+        return "s";
+    }
+
+    public static void showNotification(Context context) {
+        DaoSession daoSession = ((HisabApplication) context.getApplicationContext()).getDaoSession();
+        NotificationCompat.Builder mBuilder;
+        PendingIntent actionIntent = PendingIntent.getActivity(context, 0, new Intent
+                (context,
+                        MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        int notificationCount = 0;
+        List<LocalGroup> groups = daoSession.getLocalGroupDao().loadAll();
+        mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
+                .drawable.ic_stat_hisab);
+        mBuilder.setContentTitle(String.format(Locale.ENGLISH, " %d group%s have new entries",
+                groups.size(), getPluralString(groups.size())));
+        mBuilder.setContentText("this is group summary content");
+        mBuilder.setGroup("gsn");
+        mBuilder.setGroupSummary(true);
+        mBuilder.setContentIntent(actionIntent);
+        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        NotificationManager mNotificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        // type allows you to update the notification later on.
+        mNotificationManager.notify(notificationCount++, mBuilder.build());
+        for (LocalGroup group : groups) {
+            //reset groupexpenses so that it fetches again and get us the latest data from db
+            group.resetExpenses();
+            //fetch only top 5 items from database
+            List<LocalExpense> expenseList = daoSession.getLocalExpenseDao().queryBuilder().where
+                    (LocalExpenseDao.Properties.GroupId.eq(group.getId()))
+                    .limit(5).list();
+            //calculate totla number of expenses
+            int expensesCount = (int) daoSession.getLocalExpenseDao().queryBuilder().where
+                    (LocalExpenseDao.Properties.GroupId.eq(group.getId())).count();
+            //get the total amount added under that group
+            Cursor cursor = daoSession.getDatabase().rawQuery("select sum(amount) " +
+                    "from " + LocalExpenseDao.TABLENAME + " where " + LocalExpenseDao.Properties
+                    .GroupId.columnName + "=?", new String[]{group.getId()});
+            cursor.moveToFirst();
+            float amount = cursor.getFloat(0);
+            cursor.close();
+
+            String title = String.format(Locale.ENGLISH, "%d update%s in %s", expensesCount, getPluralString(expensesCount), group.getName());
+            String summary=String.format(Locale.ENGLISH, "+%.2f INR", amount);
+            //build intent for this notification
+            Bundle bundle = new Bundle();
+            bundle.putString("groupId", group.getId());
+            bundle.putString("groupName", group.getName());
+            bundle.putInt("notificationId", notificationCount);
+
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.putExtras(bundle);
+            actionIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
+                    .drawable.ic_stat_hisab);
+            mBuilder.setContentTitle(title);
+            mBuilder.setContentText(summary);
+            mBuilder.setGroup("gsn");
+            mBuilder.setContentIntent(actionIntent);
+            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+            // type allows you to update the notification later on.
+            NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
+            inbox.setBigContentTitle(title);
+            inbox.setSummaryText(summary);
+            if (expensesCount > expenseList.size())
+                inbox.setSummaryText(String.format(Locale.ENGLISH, "+%d more",
+                        expensesCount - expenseList.size()));
+            for (LocalExpense expense : expenseList) {
+                inbox.addLine(String.format(Locale.ENGLISH, "%s: %s - %.2f", expense.getOwnerName()
+                        , expense.getDesc(), expense.getAmount()));
+            }
+            mBuilder.setStyle(inbox);
+            mNotificationManager.notify(notificationCount++, mBuilder.build());
+
+        }
     }
 }

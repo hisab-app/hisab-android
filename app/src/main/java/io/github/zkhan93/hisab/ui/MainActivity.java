@@ -58,7 +58,7 @@ import static io.github.zkhan93.hisab.ui.GroupsFragment.GRP_FRAGMENT_PERMISSIONS
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         OnCompleteListener<Void>, PreferenceChangeListener, DialogInterface.OnClickListener,
-        SummaryActionItemClbk, ShowMessageClbk, GroupItemClickClbk,FirebaseAuth.AuthStateListener {
+        SummaryActionItemClbk, ShowMessageClbk, GroupItemClickClbk, FirebaseAuth.AuthStateListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -128,15 +128,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         //to start into group when we have intent with group Id and name set in it
         Intent intent = getIntent();
+        int notificationId = -1;
         if (intent != null) {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
                 activeGroupId = bundle.getString("groupId");
                 activeGroupName = bundle.getString("groupName");
+                notificationId = bundle.getInt("notificationId", -1);
+
             }
         }
-        //dismiss notifications if any
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        Log.d(TAG,"notification clicked:"+notificationId);
+//        //dismiss notifications if any
+        if (notificationId != -1)
+            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
         snackbarDismissed(); //this will create a new snackbar and register callback with it
         isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean
@@ -172,6 +177,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_loadnotifications:
+                Util.showNotification(getApplicationContext());
+                return true;
             case R.id.action_logout:
                 logout();
                 return true;
@@ -250,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void logout(){
+    public void logout() {
         firebaseAuth.signOut();
         Util.clearPreferences(getApplicationContext());
         //startActivity(LoginActivity) and finish() on this activity is called in Auth
@@ -412,6 +420,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
             getSupportFragmentManager().executePendingTransactions();
+            setTitle(activeGroupName);
             ((ExpensesFragment) fragment).changeGroup(groupId);
         }
 
@@ -478,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        if(firebaseAuth.getCurrentUser()==null){
+        if (firebaseAuth.getCurrentUser() == null) {
             finish();
             startActivity(new Intent(this, EntryActivity.class));
         }

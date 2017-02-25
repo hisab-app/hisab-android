@@ -212,7 +212,8 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        groupName = dataSnapshot.getValue().toString();
+        if (dataSnapshot != null && dataSnapshot.getValue(String.class) != null)
+            groupName = dataSnapshot.getValue(String.class);
         if (isVisible()) {
             if (!isTwoPaneMode)
                 getActivity().setTitle(groupName);
