@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -115,24 +116,14 @@ public class Util {
     public static void showNotification(Context context) {
         DaoSession daoSession = ((HisabApplication) context.getApplicationContext()).getDaoSession();
         NotificationCompat.Builder mBuilder;
-        PendingIntent actionIntent = PendingIntent.getActivity(context, 0, new Intent
-                (context,
-                        MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent actionIntent;
         int notificationCount = 0;
         List<LocalGroup> groups = daoSession.getLocalGroupDao().loadAll();
-        mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
-                .drawable.ic_stat_hisab);
-        mBuilder.setContentTitle(String.format(Locale.ENGLISH, " %d group%s have new entries",
-                groups.size(), getPluralString(groups.size())));
-        mBuilder.setContentText("this is group summary content");
-        mBuilder.setGroup("gsn");
-        mBuilder.setGroupSummary(true);
-        mBuilder.setContentIntent(actionIntent);
-        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        // type allows you to update the notification later on.
-        mNotificationManager.notify(notificationCount++, mBuilder.build());
+
+        float totalAmount = 0;
+
         for (LocalGroup group : groups) {
             //reset groupexpenses so that it fetches again and get us the latest data from db
             group.resetExpenses();
@@ -151,17 +142,21 @@ public class Util {
             float amount = cursor.getFloat(0);
             cursor.close();
 
+            totalAmount += amount;
+
             String title = String.format(Locale.ENGLISH, "%d update%s in %s", expensesCount, getPluralString(expensesCount), group.getName());
-            String summary=String.format(Locale.ENGLISH, "+%.2f INR", amount);
+            String summary = String.format(Locale.ENGLISH, "+%.2f INR", amount);
             //build intent for this notification
             Bundle bundle = new Bundle();
             bundle.putString("groupId", group.getId());
             bundle.putString("groupName", group.getName());
             bundle.putInt("notificationId", notificationCount);
-
+            Log.d(TAG, bundle.toString());
             Intent intent = new Intent(context, MainActivity.class);
             intent.putExtras(bundle);
-            actionIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            intent.setAction(Long.toString(System.currentTimeMillis()));
+            actionIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent
+                    .FLAG_ONE_SHOT);
 
             mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
                     .drawable.ic_stat_hisab);
@@ -185,5 +180,19 @@ public class Util {
             mNotificationManager.notify(notificationCount++, mBuilder.build());
 
         }
+        actionIntent = PendingIntent.getActivity(context, 0,
+                new Intent(context, MainActivity.class),
+                PendingIntent.FLAG_ONE_SHOT);
+        mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
+                .drawable.ic_stat_hisab);
+        mBuilder.setContentTitle(String.format(Locale.ENGLISH, " %d group%s have new entries",
+                groups.size(), getPluralString(groups.size())));
+        mBuilder.setContentText(String.format(Locale.ENGLISH, "%.2f worth expenses added", totalAmount));
+        mBuilder.setGroup("gsn");
+        mBuilder.setGroupSummary(true);
+        mBuilder.setContentIntent(actionIntent);
+        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        // type allows you to update the notification later on.
+        mNotificationManager.notify(notificationCount, mBuilder.build());
     }
 }

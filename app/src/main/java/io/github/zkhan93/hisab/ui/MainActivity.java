@@ -138,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         }
-        Log.d(TAG,"notification clicked:"+notificationId);
+        Log.d(TAG,String.format("notification clicked: %d %s : %s",notificationId,activeGroupId,
+                activeGroupName));
 //        //dismiss notifications if any
         if (notificationId != -1)
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
