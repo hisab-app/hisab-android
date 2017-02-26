@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.RingtoneManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -15,12 +16,15 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import io.github.zkhan93.hisab.HisabApplication;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.User;
+import io.github.zkhan93.hisab.model.callback.NotificationCountLoadClbk;
 import io.github.zkhan93.hisab.model.notification.DaoSession;
 import io.github.zkhan93.hisab.model.notification.LocalExpense;
 import io.github.zkhan93.hisab.model.notification.LocalExpenseDao;
@@ -113,6 +117,58 @@ public class Util {
         return "s";
     }
 
+    public static void getNotificationMapFromDisk(Context context, final NotificationCountLoadClbk
+            notificationCountLoadClbk) {
+        if (context == null)
+            return;
+        final DaoSession daoSession = ((HisabApplication) context.getApplicationContext())
+                .getDaoSession();
+        if (daoSession == null)
+            return;
+        new AsyncTask<Void, Void, Map<String, Integer>>() {
+            @Override
+            protected Map<String, Integer> doInBackground(Void... voids) {
+                Map<String, Integer> notificationCounts = new HashMap<>();
+                for (LocalGroup group : daoSession.getLocalGroupDao().loadAll()) {
+                    long expenses = daoSession.getLocalExpenseDao().queryBuilder().where
+                            (LocalExpenseDao.Properties.GroupId.eq(group.getId())).count();
+                    if (expenses > 0) {
+                        notificationCounts.put(group.getId(), (int) expenses);
+                    }
+                }
+                return notificationCounts;
+            }
+
+            @Override
+            protected void onPostExecute(Map<String, Integer> notificationCounts) {
+                notificationCountLoadClbk.onNotificationCountLoaded(notificationCounts);
+            }
+        }.execute();
+    }
+
+    public static void deleteNotifications(Context context, String groupId) {
+        if (context == null)
+            return;
+        final DaoSession daoSession = ((HisabApplication) context.getApplicationContext())
+                .getDaoSession();
+        if (daoSession == null)
+            return;
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                String groupId = strings[0];
+                daoSession.getLocalExpenseDao().queryBuilder().where(LocalExpenseDao.Properties
+                        .GroupId.eq(groupId))
+                        .buildDelete().executeDeleteWithoutDetachingEntities();
+//                daoSession.getLocalExpenseDao().getDatabase().rawQuery(String.format("delete from %s " +
+//                        "where %s=? ", LocalExpenseDao.TABLENAME, LocalExpenseDao.Properties.GroupId
+//                        .columnName), new String[]{groupId});
+//                daoSession.getLocalGroupDao().deleteByKey(groupId);
+                return null;
+            }
+        }.execute(groupId);
+    }
+
     public static void showNotification(Context context) {
         DaoSession daoSession = ((HisabApplication) context.getApplicationContext()).getDaoSession();
         NotificationCompat.Builder mBuilder;
@@ -134,6 +190,8 @@ public class Util {
             //calculate totla number of expenses
             int expensesCount = (int) daoSession.getLocalExpenseDao().queryBuilder().where
                     (LocalExpenseDao.Properties.GroupId.eq(group.getId())).count();
+            if (expensesCount <= 0)
+                continue;
             //get the total amount added under that group
             Cursor cursor = daoSession.getDatabase().rawQuery("select sum(amount) " +
                     "from " + LocalExpenseDao.TABLENAME + " where " + LocalExpenseDao.Properties
@@ -182,7 +240,7 @@ public class Util {
         }
         actionIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MainActivity.class),
-                PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
                 .drawable.ic_stat_hisab);
         mBuilder.setContentTitle(String.format(Locale.ENGLISH, " %d group%s have new entries",

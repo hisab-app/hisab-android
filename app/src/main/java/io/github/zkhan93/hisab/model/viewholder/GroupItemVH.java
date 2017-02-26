@@ -1,6 +1,7 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -34,6 +35,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     TextView name;
     @BindView(R.id.moderator)
     TextView moderator;
+    @BindView(R.id.counter)
+    TextView counter;
     @BindView(R.id.info)
     ImageButton info;
     @BindView(R.id.image)
@@ -61,8 +64,16 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         info.setOnClickListener(this);
     }
 
-    public void setGroup(ExGroup group, User me) {
+    public void setGroup(ExGroup group, User me, int count) {
         name.setText(group.getName());
+        if (count > 0) {
+            counter.setVisibility(View.VISIBLE);
+            counter.setText(String.valueOf(count));
+            name.setTypeface(null, Typeface.BOLD);
+        } else {
+            counter.setVisibility(View.GONE);
+            name.setTypeface(null, Typeface.NORMAL);
+        }
         String tmp;
         if (group.getMembersCount() <= 0)
             tmp = "no members";
@@ -91,7 +102,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
                 groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
         }
     }
-    
+
     @Override
     public boolean onLongClick(View view) {
         onLongClickGroupItemClbk.onLongClick(group.getId());

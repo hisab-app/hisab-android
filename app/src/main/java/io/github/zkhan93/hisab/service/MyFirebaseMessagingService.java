@@ -6,9 +6,12 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Map;
 
 import io.github.zkhan93.hisab.HisabApplication;
+import io.github.zkhan93.hisab.model.events.ExpenseAddedEvent;
 import io.github.zkhan93.hisab.model.notification.DaoSession;
 import io.github.zkhan93.hisab.model.notification.LocalExpense;
 import io.github.zkhan93.hisab.model.notification.LocalGroup;
@@ -51,7 +54,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             expense.setTimestamp(Long.parseLong(tmpData.get("timestamp")));
             expense.setAmount(Float.parseFloat(tmpData.get("amount")));
             expense.setGroup(group);
-            daoSession.getLocalExpenseDao().insert(expense);
+            daoSession.getLocalExpenseDao().insertOrReplace(expense);
+
+            //notifiy active listeners(GroupsAdapter) about this expense being added
+            EventBus.getDefault().post(new ExpenseAddedEvent(expense));
+
             Util.showNotification(getApplicationContext());
         }
     }

@@ -76,6 +76,7 @@ public class GroupsFragment extends Fragment implements
 
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
+
         groupList.setAdapter(groupsAdapter);
         if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean
                 ("isTwoPaneMode", false))
@@ -100,6 +101,12 @@ public class GroupsFragment extends Fragment implements
     public void onStart() {
         super.onStart();
         groupsAdapter.registerChildEventListener();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Util.getNotificationMapFromDisk(getActivity().getApplicationContext(), groupsAdapter);
     }
 
     @Override

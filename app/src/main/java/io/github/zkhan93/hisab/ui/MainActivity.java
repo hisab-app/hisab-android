@@ -141,8 +141,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG,String.format("notification clicked: %d %s : %s",notificationId,activeGroupId,
                 activeGroupName));
 //        //dismiss notifications if any
-        if (notificationId != -1)
+        if (notificationId != -1) {
+            //we came here from an notification intent need to cancel that notification
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
+        }
         snackbarDismissed(); //this will create a new snackbar and register callback with it
         isTwoPaneMode = findViewById(R.id.secFragmentContainer) != null;
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean

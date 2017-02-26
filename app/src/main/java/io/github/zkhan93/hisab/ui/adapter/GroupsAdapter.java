@@ -17,6 +17,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +32,9 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.GrpSelectModeClbk;
+import io.github.zkhan93.hisab.model.callback.NotificationCountLoadClbk;
 import io.github.zkhan93.hisab.model.callback.OnLongClickGroupItemClbk;
+import io.github.zkhan93.hisab.model.events.ExpenseAddedEvent;
 import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
@@ -40,25 +45,21 @@ import io.github.zkhan93.hisab.model.viewholder.HeaderVH;
  */
 public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
         ChildEventListener, GrpSelectModeClbk, GroupItemClickClbk, OnLongClickGroupItemClbk,
-        ActionMode.Callback {
+        ActionMode.Callback, NotificationCountLoadClbk {
     public static final String TAG = GroupsAdapter.class.getSimpleName();
-    private List<ExGroup> groups;
     GroupItemClickClbk groupItemClickClbk;
+    boolean selectionMode;
+    private Map<String, Integer> newItemCount;
+    private List<ExGroup> groups;
     private User me;
     private DatabaseReference grpDbRef, dbRef;
     private ContextActionBarClbk contextActionBarClbk;
-    boolean selectionMode;
     private int selectedGroupsCount = 0;
     private int favCount = 0;
 
     {
         selectionMode = false;
-    }
-
-    private void startMultiSelectMode() {
-        //TODO:initialize traking array and start cab
-        contextActionBarClbk.showCAB();
-        selectionMode = true;
+        newItemCount = new HashMap<>();
     }
 
     public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me, ContextActionBarClbk
@@ -70,6 +71,12 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         dbRef = FirebaseDatabase.getInstance().getReference("");
         grpDbRef = dbRef.child("groups/" + me.getId());
         this.contextActionBarClbk = contextActionBarClbk;
+    }
+
+    private void startMultiSelectMode() {
+        //TODO:initialize traking array and start cab
+        contextActionBarClbk.showCAB();
+        selectionMode = true;
     }
 
     @Override
@@ -91,7 +98,11 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
-                ((GroupItemVH) holder).setGroup(groups.get(getActualItemPosition(position)), me);
+                ExGroup group = groups.get(getActualItemPosition(position));
+                int newCount = 0;
+                if (newItemCount.containsKey(group.getId()))
+                    newCount = newItemCount.get(group.getId());
+                ((GroupItemVH) holder).setGroup(group, me, newCount);
                 break;
             case TYPE.HEADER_FAV:
                 ((HeaderVH) holder).setType(HeaderVH.TYPE.FAVORITE);
@@ -310,6 +321,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Log.d(TAG, "registering " + groups.size());
         grpDbRef.orderByChild("name").addChildEventListener(this);
         Log.d(TAG, "registered " + groups.size());
+        EventBus.getDefault().register(this);
         notifyDataSetChanged();
     }
 
@@ -317,7 +329,34 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Log.d(TAG, "unregister " + groups.size());
         grpDbRef.orderByChild("name").removeEventListener(this);
         clear();
+        EventBus.getDefault().unregister(this);
         Log.d(TAG, "unregistered " + groups.size());
+    }
+
+    @Subscribe
+    public void OnMessageEvent(ExpenseAddedEvent expenseEvent) {
+        String groupId = expenseEvent.getExpense().getGroupId();
+        int count = 1;
+        if (newItemCount.containsKey(groupId))
+            count += newItemCount.get(groupId);
+        newItemCount.put(groupId, count);
+
+        for (int i = 0; i < groups.size(); i++) {
+            ExGroup group = groups.get(i);
+            if (group.getId().equals(groupId)) {
+                notifyItemChanged(getItemPositing(i));
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onNotificationCountLoaded(Map<String, Integer> notificationCountMap) {
+        if (notificationCountMap == null)
+            return;
+        newItemCount = notificationCountMap;
+        notifyDataSetChanged();
+
     }
 
     public void sort(int type) {

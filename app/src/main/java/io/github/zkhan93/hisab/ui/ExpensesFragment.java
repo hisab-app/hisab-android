@@ -105,6 +105,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
+        Util.deleteNotifications(getActivity().getApplicationContext(),groupId);
     }
 
     public void changeGroup(String groupId) {
