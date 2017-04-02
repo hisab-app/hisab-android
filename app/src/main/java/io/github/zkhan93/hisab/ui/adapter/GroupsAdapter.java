@@ -75,7 +75,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private void startMultiSelectMode() {
         //TODO:initialize traking array and start cab
-        contextActionBarClbk.showCAB();
+        if (contextActionBarClbk != null)
+            contextActionBarClbk.showCAB();
         selectionMode = true;
     }
 
@@ -406,7 +407,8 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
             group.setSelected(!group.isSelected());
             notifyItemChanged(getItemPositing(index));
-            contextActionBarClbk.setCount(selectedGroupsCount);
+            if (contextActionBarClbk != null)
+                contextActionBarClbk.setCount(selectedGroupsCount);
         } else
             groupItemClickClbk.onGroupClicked(groupId, groupName);
     }

@@ -180,9 +180,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_loadnotifications:
-                Util.showNotification(getApplicationContext());
-                return true;
+//            case R.id.action_loadnotifications:
+//                Util.showNotification(getApplicationContext());
+//                return true;
             case R.id.action_logout:
                 logout();
                 return true;

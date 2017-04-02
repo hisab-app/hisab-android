@@ -65,6 +65,9 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     }
 
     public void setGroup(ExGroup group, User me, int count) {
+        if (group == null)
+            return;
+
         name.setText(group.getName());
         if (count > 0) {
             counter.setVisibility(View.VISIBLE);
@@ -88,6 +91,8 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         } else {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_white_1000));
         }
+        if (group.getModerator() == null || group.getModerator().getEmail() == null)
+            return;
         Picasso.with(context).load(Util.getGavatarUrl(group.getModerator().getEmail(), 200))
                 .placeholder(R.drawable.big_user).fit().centerCrop().into(image);
     }

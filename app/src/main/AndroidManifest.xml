@@ -32,13 +32,6 @@
             android:label="@string/title_activity_groups"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <receiver android:name=".service.BootBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
-            </intent-filter>
-        </receiver>
         <!--<service android:name=".service.NotificationService"/>-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -48,7 +41,7 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent"/>
-
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
         <service
             android:name=".service.MyFirebaseInstanceIdService">
             <intent-filter>
@@ -61,5 +54,17 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+        <receiver android:name=".widget.WidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/widget_info" />
+        </receiver>
+        <activity android:name=".widget.WidgetConfigActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
