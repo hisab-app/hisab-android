@@ -94,7 +94,7 @@
     <string name="title_activity_add_group">New Group</string>
 
     <string name="widget_summary">Group\'s Amount</string>
-    <string name="widget_group_name">for $1%s</string>
+    <string name="widget_group_name">for %1$s</string>
     <string name="widget_summary_content_desc">Group\'s Amount</string>
     <string name="widget_group_name_content_desc">Group name</string>
 </resources>

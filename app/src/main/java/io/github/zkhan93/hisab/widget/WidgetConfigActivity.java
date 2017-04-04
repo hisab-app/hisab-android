@@ -77,7 +77,7 @@ public class WidgetConfigActivity extends Activity {
     static void saveTitlePref(Context context, int appWidgetId, String groupName, String groupId) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.putString(PREF_PREFIX_KEY + appWidgetId + "group_name", groupName);
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "group_name", groupId);
+        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "group_id", groupId);
         prefs.apply();
     }
 

@@ -1,8 +1,11 @@
 package io.github.zkhan93.hisab.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.google.firebase.database.DataSnapshot;
@@ -16,7 +19,6 @@ import java.util.List;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
-import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
 import io.github.zkhan93.hisab.util.Util;
 
 /**
@@ -24,33 +26,72 @@ import io.github.zkhan93.hisab.util.Util;
  */
 
 public class WidgetProvider extends AppWidgetProvider {
+    public static final String TAG = WidgetProvider.class.getSimpleName();
+    public static final String ACTION_UPDATE = "update";
     private static List<ExpenseItem> expenses;
     private static User me;
 
-    static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager, final
-    int appWidgetId) {
+    static void updateAppWidget(final Context context, final AppWidgetManager appWidgetManager,
+                                final
+                                int appWidgetId) {
+        Log.d(TAG, "got update for " + appWidgetId);
         me = Util.getUser(context);
         String groupName = WidgetConfigActivity.loadGroupNamePref(context, appWidgetId);
-        String groupId = WidgetConfigActivity.loadGroupIdPref(context, appWidgetId);
+        final String groupId = WidgetConfigActivity.loadGroupIdPref(context, appWidgetId);
         // Construct the RemoteViews object
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         views.setTextViewText(R.id.name, context.getString(R.string.widget_group_name, groupName));
-        FirebaseDatabase.getInstance().getReference().child("expenses").child(groupId)
+        final FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
+        firebaseDatabase.goOnline();
+        firebaseDatabase.getReference().child("shareWith").child(groupId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        float finalValue = 0;
-                        if (expenses == null)
-                            expenses = new ArrayList<ExpenseItem>();
-                        expenses.clear();
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            ExpenseItem ex = ds.getValue(ExpenseItem.class);
-                            ex.setId(ds.getKey());
-                            expenses.add(ex);
-                        }
-                        views.setTextViewText(R.id.name, String.valueOf(getMyExpensesSum
-                                () + getPaidReceived()));
-                        appWidgetManager.updateAppWidget(appWidgetId, views);
+                        //count members
+                        final long noOfMembers = dataSnapshot.getChildrenCount() + 1;
+                        firebaseDatabase.getReference().child("expenses").child
+                                (groupId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        float finalValue = 0;
+                                        if (expenses == null)
+                                            expenses = new ArrayList<ExpenseItem>();
+                                        expenses.clear();
+                                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                            ExpenseItem ex = ds.getValue(ExpenseItem.class);
+                                            ex.setId(ds.getKey());
+                                            expenses.add(ex);
+                                        }
+                                        float amount = getTotalAmount();
+                                        float myExpenses = getMyExpensesSum() + getPaidReceived();
+                                        float genShare = amount / noOfMembers;
+                                        float myShare = genShare - myExpenses;
+                                        String msg = null;
+                                        String rs = context.getString(R.string.rs);
+                                        msg = context.getString(myShare < 0 ? R.string.msg_summary_collect : R.string
+                                                        .msg_summary_give,
+                                                Math.abs(myShare), rs);
+
+                                        if (myShare == 0) {
+                                            msg = context.getString(R.string.msg_your_clear);
+                                        }
+                                        views.setTextViewText(R.id.summary, msg);
+                                        Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+                                                new int[]{appWidgetId});
+                                        PendingIntent pIntent = PendingIntent.getBroadcast(context,
+                                                appWidgetId, intent, PendingIntent
+                                                        .FLAG_UPDATE_CURRENT);
+                                        views.setOnClickPendingIntent(R.id.widget, pIntent);
+                                        appWidgetManager.updateAppWidget(appWidgetId, views);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
 
                     @Override
@@ -58,6 +99,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
                     }
                 });
+
         // Instruct the widget manager to update the widget
     }
 
@@ -70,7 +112,7 @@ public class WidgetProvider extends AppWidgetProvider {
         return res;
     }
 
-    private static  float getMyExpensesSum() {
+    private static float getMyExpensesSum() {
         float res = 0;
         for (ExpenseItem ex : expenses) {
             if (ex != null && ex.getOwner().getId().equals(me.getId()) && ex.getItemType() ==
