@@ -11,18 +11,19 @@
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:src="@drawable/big_glass"
-        android:tint="@color/md_grey_500"/>
+        android:contentDescription="@string/content_desc_empty_image"
+        android:tint="@color/md_grey_500"
+        tools:src="@drawable/big_glass"/>
 
     <TextView
         android:id="@+id/msg"
-        android:padding="@dimen/txt_padding_mid"
         style="@style/Txt.LARGE"
-        android:textColor="?android:textColorTertiary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:padding="@dimen/txt_padding_mid"
+        android:textColor="?android:textColorTertiary"
         tools:text="@string/msg_empty"/>
 
     <TextView

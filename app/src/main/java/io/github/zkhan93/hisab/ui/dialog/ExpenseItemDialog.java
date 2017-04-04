@@ -66,18 +66,18 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
         boolean result = true;
         try {
             if (desc == null || desc.isEmpty()) {
-                description.setError("Description cannot be empty");
+                description.setError(getString(R.string.err_empty_desc));
                 description.requestFocus();
                 result = false;
             }
             Float famt = Float.parseFloat(amt);
             if (famt <= 0) {
-                amount.setError("Amount must be a non zero positive value");
+                amount.setError(getString(R.string.err_amount_non_zero_positive));
                 amount.requestFocus();
                 result = false;
             }
         } catch (NumberFormatException ex) {
-            amount.setError("Invalid amount value");
+            amount.setError(getString(R.string.err_invalid_amount));
             amount.requestFocus();
             result = false;
         }
@@ -99,7 +99,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
         int len=editable.toString().length();
         if(len>100){
             editable.delete(100,len);
-            description.setError("Keep the description short and crisp.");
+            description.setError(getString(R.string.err_long_desc));
         }
     }
 }

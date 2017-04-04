@@ -181,7 +181,7 @@ public class GroupsFragment extends Fragment implements
 
     @Override
     public void setCount(int count) {
-        actionMode.setTitle(count + " Selected");
+        actionMode.setTitle(getString(R.string.title_cab,count));
     }
 
     @Override

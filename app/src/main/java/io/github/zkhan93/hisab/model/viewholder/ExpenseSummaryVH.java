@@ -39,7 +39,8 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder implements View.On
 
     public void setSummaryExpense(float amount, float myExpenses, int noOfMembers, User me, User
             owner) {
-        this.description.setText("Total expenses " + String.valueOf(amount));
+        this.description.setText(context.getString(R.string
+                .msg_total_expenses,amount));
         noOfMembers += 1;//including self
         if (noOfMembers == 1) {
             individualAmount.setText(context.getString(R.string.msg_share_to_split));
@@ -58,7 +59,7 @@ public class ExpenseSummaryVH extends RecyclerView.ViewHolder implements View.On
             individualAmount.setText(String.format(msg, noOfMembers, genShare, myExpenses,
                     myShare));
         } else {
-            individualAmount.setText("Invalid value");
+            individualAmount.setText(context.getString(R.string.msg_invalid_value));
             Log.e(TAG, "invalid members count encountered");
         }
         if (owner == null || !owner.getId().equals(me.getId())) {

@@ -136,12 +136,12 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
         try {
             Float famt = Float.parseFloat(amt);
             if (famt <= 0) {
-                amount.setError("Amount must be a non zero positive value");
+                amount.setError(getString(R.string.err_amount_non_zero_positive));
                 amount.requestFocus();
                 result = false;
             }
         } catch (NumberFormatException ex) {
-            amount.setError("Invalid amount value");
+            amount.setError(getString(R.string.err_invalid_amount));
             amount.requestFocus();
             result = false;
         }

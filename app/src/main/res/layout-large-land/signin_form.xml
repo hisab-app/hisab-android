@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="130dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="@string/app_name"
             android:padding="10dp"
             android:scaleType="centerInside"
             android:src="@drawable/title"/>

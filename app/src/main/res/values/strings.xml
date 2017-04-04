@@ -24,6 +24,9 @@
     <string name="action_share">Share</string>
     <string name="action_favorite">Favorite</string>
     <string name="action_delete">Delete</string>
+    <string name="action_menu">Menu</string>
+    <string name="action_archive">Archive</string>
+    <string name="action_info">Info</string>
     <string name="action_add_group">New Group</string>
 
     <string name="btn_txt_login">Login</string>
@@ -56,7 +59,10 @@
     <string name="msg_members">Members</string>
     <string name="msg_created_on">Created On</string>
     <string name="msg_author">Author</string>
-
+    <string name="msg_total_expenses">Total Expenses %1$.2f</string>
+    <string name="msg_invalid_value">Invalid value</string>
+    <string name="msg_cannot_update">Cannot update expense invalid values</string>
+    <string name="title_cab">%1$d Selected</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -80,6 +86,11 @@
     <string name="err_invalid_amount">Invalid amount</string>
     <string name="err_zero_amount">Must be non zero</string>
     <string name="err_email_taken">This email already exist</string>
+    <string name="err_empty_desc">Description cannot be empty</string>
+    <string name="err_amount_non_zero_positive">Amount must be a non zero positive value</string>
+    <string name="err_long_desc">Keep the description short and crisp.</string>
+
+
 
     <string name="fab_shared">Add Expense</string>
     <string name="fab_paid_received">Cash Entry</string>
@@ -97,4 +108,6 @@
     <string name="widget_group_name">for %1$s</string>
     <string name="widget_summary_content_desc">Group\'s Amount</string>
     <string name="widget_group_name_content_desc">Group name</string>
+
+    <string name="content_desc_empty_image">Empty image! No content found.</string>
 </resources>
