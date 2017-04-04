@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         }
-        Log.d(TAG,String.format("notification clicked: %d %s : %s",notificationId,activeGroupId,
+        Log.d(TAG, String.format("notification clicked: %d %s : %s", notificationId, activeGroupId,
                 activeGroupName));
 //        //dismiss notifications if any
         if (notificationId != -1) {
@@ -208,6 +208,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Util.scheduleJob(getApplicationContext());
+    }
+
 
     @Override
     public void onClick(View view) {

@@ -9,14 +9,16 @@ import android.media.RingtoneManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -35,6 +37,7 @@ import io.github.zkhan93.hisab.model.notification.DaoSession;
 import io.github.zkhan93.hisab.model.notification.LocalExpense;
 import io.github.zkhan93.hisab.model.notification.LocalExpenseDao;
 import io.github.zkhan93.hisab.model.notification.LocalGroup;
+import io.github.zkhan93.hisab.service.SyncAndNotifyJob;
 import io.github.zkhan93.hisab.ui.MainActivity;
 
 /**
@@ -260,4 +263,45 @@ public class Util {
         mNotificationManager.notify(notificationCount, mBuilder.build());
     }
 
+    public static void scheduleJob(Context context) {
+        //if not scheduled
+        if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean
+                ("job_scheduled", false)) {
+            Bundle myExtrasBundle = new Bundle();
+            myExtrasBundle.putString("some_key", "some_value");
+            FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver
+                    (context));
+            Job myJob = dispatcher.newJobBuilder()
+                    // the JobService that will be called
+                    .setService(SyncAndNotifyJob.class)
+                    // uniquely identifies the job
+                    .setTag(SyncAndNotifyJob.TAG)
+                    // one-off job
+                    .setRecurring(false)
+                    // don't persist past a device reboot
+                    .setLifetime(Lifetime.FOREVER)
+                    // start between 0 and 24 hours from now
+                    .setTrigger(Trigger.executionWindow(0, 3600000))
+                    // don't overwrite an existing job with the same tag
+                    .setReplaceCurrent(true)
+                    // retry with exponential backoff
+                    .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                    // constraints that need to be satisfied for the job to run
+                    .setConstraints(
+                            // only run on an unmetered network
+                            Constraint.ON_UNMETERED_NETWORK,
+                            // only run when the device is charging
+                            Constraint.DEVICE_CHARGING
+                    )
+                    .setExtras(myExtrasBundle)
+                    .build();
+
+            dispatcher.mustSchedule(myJob);
+            PreferenceManager
+                    .getDefaultSharedPreferences(context)
+                    .edit()
+                    .putBoolean("job_scheduled", true)
+                    .apply();
+        }
+    }
 }
