@@ -6,7 +6,7 @@ android {
         config {
             keyAlias 'hisab'
             keyPassword 'password'
-            storeFile file('$rootdir/../../../projects/Hisab/keystore/keystore.jks')
+            storeFile file('../keystore.jks')
             storePassword 'password'
         }
     }
