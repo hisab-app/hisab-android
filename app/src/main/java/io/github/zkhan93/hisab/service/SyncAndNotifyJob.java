@@ -82,7 +82,7 @@ public class SyncAndNotifyJob extends JobService {
 
                     }
                 });
-        Util.scheduleJob(getApplicationContext());
+//        Util.scheduleJob(getApplicationContext());
         return false;
     }
 

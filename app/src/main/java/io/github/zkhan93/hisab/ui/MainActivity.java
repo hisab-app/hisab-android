@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        Util.scheduleJob(getApplicationContext());
+//        Util.scheduleJob(getApplicationContext());
     }
 
 

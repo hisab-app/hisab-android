@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -166,13 +167,14 @@ public class Util {
             @Override
             protected Void doInBackground(String... strings) {
                 String groupId = strings[0];
-                daoSession.getLocalExpenseDao().queryBuilder().where(LocalExpenseDao.Properties
-                        .GroupId.eq(groupId))
+                daoSession.getLocalExpenseDao().queryBuilder().whereOr(LocalExpenseDao.Properties
+                        .GroupId.eq(groupId),LocalExpenseDao.Properties.GroupId.isNull())
                         .buildDelete().executeDeleteWithoutDetachingEntities();
 //                daoSession.getLocalExpenseDao().getDatabase().rawQuery(String.format("delete from %s " +
 //                        "where %s=? ", LocalExpenseDao.TABLENAME, LocalExpenseDao.Properties.GroupId
 //                        .columnName), new String[]{groupId});
 //                daoSession.getLocalGroupDao().deleteByKey(groupId);
+                Log.d(TAG,"deleting seen notification entries from database");
                 return null;
             }
         }.execute(groupId);
@@ -187,20 +189,26 @@ public class Util {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        float totalAmount = 0;
 
-        for (LocalGroup group : groups) {
-            //reset groupexpenses so that it fetches again and get us the latest data from db
+        float totalAmount = 0;
+        Iterator<LocalGroup> itr=groups.iterator();
+        while (itr.hasNext()) {
+            LocalGroup group=itr.next();
+            //fetch expenses again to get the latest data from db
             group.resetExpenses();
             //fetch only top 5 items from database
             List<LocalExpense> expenseList = daoSession.getLocalExpenseDao().queryBuilder().where
                     (LocalExpenseDao.Properties.GroupId.eq(group.getId()))
                     .limit(5).list();
-            //calculate totla number of expenses
+            //calculate total number of expenses
             int expensesCount = (int) daoSession.getLocalExpenseDao().queryBuilder().where
                     (LocalExpenseDao.Properties.GroupId.eq(group.getId())).count();
-            if (expensesCount <= 0)
+
+            if (expensesCount <= 0) {
+                itr.remove();
+                Log.d(TAG,"removing groups having no notification");
                 continue;
+            }
             //get the total amount added under that group
             Cursor cursor = daoSession.getDatabase().rawQuery("select sum(amount) " +
                     "from " + LocalExpenseDao.TABLENAME + " where " + LocalExpenseDao.Properties
@@ -226,12 +234,12 @@ public class Util {
                     .FLAG_ONE_SHOT);
 
             mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
-                    .drawable.ic_stat_hisab);
-            mBuilder.setContentTitle(title);
-            mBuilder.setContentText(summary);
-            mBuilder.setGroup("gsn");
-            mBuilder.setContentIntent(actionIntent);
-            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                    .drawable.ic_stat_hisab)
+                    .setContentTitle(title)
+                    .setContentText(summary)
+                    .setGroup("gsn")
+                    .setContentIntent(actionIntent)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             // type allows you to update the notification later on.
             NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
             inbox.setBigContentTitle(title);
@@ -247,20 +255,23 @@ public class Util {
             mNotificationManager.notify(notificationCount++, mBuilder.build());
 
         }
-        actionIntent = PendingIntent.getActivity(context, 0,
-                new Intent(context, MainActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
-                .drawable.ic_stat_hisab);
-        mBuilder.setContentTitle(String.format(Locale.ENGLISH, " %d group%s have new entries",
-                groups.size(), getPluralString(groups.size())));
-        mBuilder.setContentText(String.format(Locale.ENGLISH, "%.2f worth expenses added", totalAmount));
-        mBuilder.setGroup("gsn");
-        mBuilder.setGroupSummary(true);
-        mBuilder.setContentIntent(actionIntent);
-        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        // type allows you to update the notification later on.
-        mNotificationManager.notify(notificationCount, mBuilder.build());
+        if(notificationCount>1) {
+            //create summary notification is notification are grater than 1
+            actionIntent = PendingIntent.getActivity(context, 0,
+                    new Intent(context, MainActivity.class),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R
+                    .drawable.ic_stat_hisab)
+                    .setContentTitle(String.format(Locale.ENGLISH, "%d group%s have new entries",
+                            groups.size(), getPluralString(groups.size())))
+                    .setContentText(String.format(Locale.ENGLISH, "%.2f worth expenses added", totalAmount))
+                    .setGroup("gsn")
+                    .setGroupSummary(true)
+                    .setContentIntent(actionIntent)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+            // type allows you to update the notification later on.
+            mNotificationManager.notify(notificationCount, mBuilder.build());
+        }
     }
 
     public static void scheduleJob(Context context) {
