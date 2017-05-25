@@ -27,4 +27,18 @@
         <item name="android:colorButtonNormal">@color/colorDanger</item>
         <item name="android:textColor">@color/md_white_1000</item>
     </style>
+
+    <style name="Subheading">
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Subhead</item>
+    </style>
+
+    <style name="Body1">
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Body1</item>
+    </style>
+    <style name="Body2">
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Body2</item>
+    </style>
+    <style name="Caption">
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Caption</item>
+    </style>
 </resources>

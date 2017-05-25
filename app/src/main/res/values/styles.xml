@@ -65,15 +65,32 @@
         <item name="android:textColor">@color/md_white_1000</item>
     </style>
 
+
+    <style name="Subheading">
+        <item name="android:textAppearance">@android:style/TextAppearance.Medium</item>
+
+    </style>
+
+    <style name="Body1">
+        <item name="android:textAppearance">@android:style/TextAppearance.Small</item>
+    </style>
+    <style name="Body2">
+        <item name="android:textAppearance">@android:style/TextAppearance.Small</item>
+    </style>
+    <style name="Caption">
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="Txt">
+
     </style>
 
     <style name="Txt.LARGE" parent="Txt">
-        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Large</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
     </style>
 
     <style name="Txt.SMALL" parent="Txt">
-        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Small</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.Small</item>
     </style>
 
     <style name="ItemActionPopup" parent="@style/Widget.AppCompat.Light.PopupMenu">

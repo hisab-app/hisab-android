@@ -1,11 +1,9 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,12 +31,12 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
 
     @BindView(R.id.name)
     TextView name;
-    @BindView(R.id.moderator)
-    TextView moderator;
+    @BindView(R.id.latest_content)
+    TextView latestContent;
+    @BindView(R.id.latest_name)
+    TextView latestName;
     @BindView(R.id.counter)
     TextView counter;
-    @BindView(R.id.info)
-    ImageButton info;
     @BindView(R.id.image)
     ImageView image;
 
@@ -61,7 +59,6 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         itemView.setOnClickListener(this);
         itemView.setLongClickable(true);
         itemView.setOnLongClickListener(this);
-        info.setOnClickListener(this);
     }
 
     public void setGroup(ExGroup group, User me, int count) {
@@ -72,10 +69,10 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
         if (count > 0) {
             counter.setVisibility(View.VISIBLE);
             counter.setText(String.valueOf(count));
-            name.setTypeface(null, Typeface.BOLD);
+//            name.setTypeface(null, Typeface.BOLD);
         } else {
             counter.setVisibility(View.GONE);
-            name.setTypeface(null, Typeface.NORMAL);
+//            name.setTypeface(null, Typeface.NORMAL);
         }
         String tmp;
         if (group.getMembersCount() <= 0)
@@ -84,7 +81,7 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
             tmp = group.getMembersCount() + " member";
         else
             tmp = group.getMembersCount() + " members";
-        moderator.setText(tmp);
+        latestContent.setText(tmp);
         this.group = group;
         if (group.isSelected()) {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_red_200));
@@ -100,9 +97,6 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.info:
-                groupItemClickClbk.onGroupInfoClicked(group);
-                break;
             default:
                 groupItemClickClbk.onGroupClicked(group.getId(), group.getName());
         }

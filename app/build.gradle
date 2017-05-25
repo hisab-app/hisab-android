@@ -2,6 +2,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'org.greenrobot.greendao'
 android {
+    dexOptions{
+        maxProcessCount 2
+        javaMaxHeapSize "2g"
+    }
     signingConfigs {
         config {
             keyAlias 'hisab'

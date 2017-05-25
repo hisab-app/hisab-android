@@ -182,6 +182,7 @@ public class GroupsFragment extends Fragment implements
     @Override
     public void setCount(int count) {
         actionMode.setTitle(getString(R.string.title_cab,count));
+//        actionMode.getMenu().getItem(R.id.action_info).setVisible(count==1);
     }
 
     @Override

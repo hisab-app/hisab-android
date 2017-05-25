@@ -41,42 +41,45 @@
 
             <TextView
                 android:id="@+id/name"
-                style="@style/Txt.LARGE"
+                style="@style/Subheading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                tools:text="Group Name"/>
+                tools:text="Roommates"/>
 
-
-            <TextView
-                android:id="@+id/moderator"
-                style="@style/Txt.SMALL"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="14sp"
-                tools:text="13 members"/>
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/latest_name"
+                    style="@style/Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    tools:text="Danish: "/>
+
+                <TextView
+                    android:id="@+id/latest_content"
+                    style="@style/Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    tools:text="+120 for lunch"/>
+            </LinearLayout>
         </LinearLayout>
 
 
         <TextView
             android:id="@+id/counter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:background="@drawable/circle"
             android:gravity="center"
             android:textColor="@color/md_white_1000"
-            android:textSize="11sp"
-            tools:text="333"/>
-
-        <ImageButton
-            android:id="@+id/info"
-            android:contentDescription="@string/action_info"
-            style="@style/Base.Widget.AppCompat.Button.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_info_outline_grey_800_18dp"/>
+            android:textSize="9sp"
+            android:textStyle="bold"
+            tools:text="99+"/>
     </LinearLayout>
 </LinearLayout>
