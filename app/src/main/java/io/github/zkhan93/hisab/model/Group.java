@@ -79,6 +79,8 @@ public class Group implements Parcelable {
     String id;
     String name;
     User moderator;
+    String lastMsgName;
+    String lastMsgDesc;
     int membersCount;
     boolean favorite;
     List<String> membersIds;
@@ -107,6 +109,8 @@ public class Group implements Parcelable {
     public Group(Parcel parcel) {
         id = parcel.readString();
         name = parcel.readString();
+        lastMsgName = parcel.readString();
+        lastMsgDesc = parcel.readString();
         moderator = parcel.readParcelable(User.class.getClassLoader());
         membersCount = parcel.readInt();
         membersIds = new ArrayList<>();
@@ -192,6 +196,22 @@ public class Group implements Parcelable {
         this.updatedOn = updatedOn;
     }
 
+    public String getLastMsgName() {
+        return lastMsgName;
+    }
+
+    public void setLastMsgName(String lastMsgName) {
+        this.lastMsgName = lastMsgName;
+    }
+
+    public String getLastMsgDesc() {
+        return lastMsgDesc;
+    }
+
+    public void setLastMsgDesc(String lastMsgDesc) {
+        this.lastMsgDesc = lastMsgDesc;
+    }
+
     @Override
     public String toString() {
         return "Group{" +
@@ -204,6 +224,8 @@ public class Group implements Parcelable {
                 ", createdOn=" + createdOn +
                 ", updatedOn=" + updatedOn +
                 ", lastCheckedOn=" + lastCheckedOn +
+                ", lastMsgName=" + lastMsgName +
+                ", lastMsgDesc=" + lastMsgDesc +
                 '}';
     }
 
@@ -216,6 +238,8 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel parcel, int flag) {
         parcel.writeString(id);
         parcel.writeString(name);
+        parcel.writeString(lastMsgName);
+        parcel.writeString(lastMsgDesc);
         parcel.writeParcelable(moderator, flag);
         parcel.writeInt(membersCount);
         parcel.writeList(membersIds);
@@ -233,6 +257,8 @@ public class Group implements Parcelable {
         map.put("favorite", false);
         map.put("createdOn", createdOn);
         map.put("updatedOn", updatedOn);
+        map.put("lastMsgName", lastMsgName);
+        map.put("lastMsgDesc", lastMsgDesc);
         return map;
     }
 

@@ -74,14 +74,16 @@ public class GroupItemVH extends RecyclerView.ViewHolder implements View.OnClick
             counter.setVisibility(View.GONE);
 //            name.setTypeface(null, Typeface.NORMAL);
         }
-        String tmp;
-        if (group.getMembersCount() <= 0)
-            tmp = "no members";
-        else if (group.getMembersCount() < 2)
-            tmp = group.getMembersCount() + " member";
-        else
-            tmp = group.getMembersCount() + " members";
-        latestContent.setText(tmp);
+//        String tmp;
+//        if (group.getMembersCount() <= 0)
+//            tmp = "no members";
+//        else if (group.getMembersCount() < 2)
+//            tmp = group.getMembersCount() + " member";
+//        else
+//            tmp = group.getMembersCount() + " members";
+//        latestContent.setText(tmp);
+        latestName.setText(group.getLastMsgName());
+        latestContent.setText(group.getLastMsgDesc());
         this.group = group;
         if (group.isSelected()) {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.md_red_200));

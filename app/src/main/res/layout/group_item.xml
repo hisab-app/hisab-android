@@ -57,11 +57,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textSize="14sp"
-                    tools:text="Danish: "/>
+                    tools:text="Danish"/>
 
                 <TextView
                     android:id="@+id/latest_content"
-                    style="@style/Caption"
+                    style="@style/Body1"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
