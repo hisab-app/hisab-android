@@ -507,7 +507,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         //TODO:add on long click listeners to items
     }
 
-    interface TYPE {
+    public interface TYPE {
         int EMPTY = 0;
         int NORMAL = 1;
         int HEADER_FAV = 2;

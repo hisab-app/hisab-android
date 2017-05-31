@@ -3,6 +3,7 @@ package io.github.zkhan93.hisab.ui;
 import android.Manifest;
 import android.app.DialogFragment;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.preference.PreferenceManager;
@@ -10,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -77,7 +80,12 @@ public class GroupsFragment extends Fragment implements
         groupList.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
 
+
+        HorizontalDividerDecoration horizontalDividerDecoration = new HorizontalDividerDecoration(getResources(), R.drawable.horizontal_divider, getActivity().getTheme());
+        groupList.addItemDecoration(horizontalDividerDecoration);
+
         groupList.setAdapter(groupsAdapter);
+
         if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean
                 ("isTwoPaneMode", false))
             setHasOptionsMenu(true);
@@ -177,11 +185,15 @@ public class GroupsFragment extends Fragment implements
     @Override
     public void showCAB() {
         actionMode = getActivity().startActionMode(groupsAdapter);
+//        if (Build.VERSION.SDK_INT >= 21)
+//            getActivity().getWindow().setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
     }
 
     @Override
     public void setCount(int count) {
-        actionMode.setTitle(getString(R.string.title_cab,count));
+        if (count == 0)
+            actionMode.finish();
+        actionMode.setTitle(getString(R.string.title_cab, count));
 //        actionMode.getMenu().getItem(R.id.action_info).setVisible(count==1);
     }
 

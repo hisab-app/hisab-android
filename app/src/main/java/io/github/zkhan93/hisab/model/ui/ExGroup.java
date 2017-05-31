@@ -31,9 +31,7 @@ public class ExGroup extends Group {
     public ExGroup(Group group) {
         super(group.getId(), group.getName(), group.getModerator(), group.getMembersIds(), group
                 .getCreatedOn(), group.getUpdatedOn(), group
-                .getMembersCount(), group.isFavorite());
-        setLastMsgName(group.getLastMsgName());
-        setLastMsgDesc(group.getLastMsgDesc());
+                .getMembersCount(), group.isFavorite(),group.getLastExpense());
         selected = false;
     }
 

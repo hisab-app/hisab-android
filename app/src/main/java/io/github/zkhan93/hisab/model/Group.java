@@ -79,19 +79,18 @@ public class Group implements Parcelable {
     String id;
     String name;
     User moderator;
-    String lastMsgName;
-    String lastMsgDesc;
+    ExpenseItem lastExpense;
     int membersCount;
     boolean favorite;
     List<String> membersIds;
-    long createdOn,updatedOn;
+    long createdOn, updatedOn;
     long lastCheckedOn;
 
     public Group() {
     }
 
     public Group(String id, String name, User moderator, List<String> membersIds, long
-            createdOn,long updatedOn, int membersCount, boolean favorite) {
+            createdOn, long updatedOn, int membersCount, boolean favorite, ExpenseItem lastExpense) {
         this.id = id;
         this.name = name;
         this.moderator = moderator;
@@ -100,6 +99,7 @@ public class Group implements Parcelable {
         this.updatedOn = updatedOn;
         this.membersCount = membersCount;
         this.favorite = favorite;
+        this.lastExpense = lastExpense;
     }
 
     public Group(String name) {
@@ -109,14 +109,13 @@ public class Group implements Parcelable {
     public Group(Parcel parcel) {
         id = parcel.readString();
         name = parcel.readString();
-        lastMsgName = parcel.readString();
-        lastMsgDesc = parcel.readString();
         moderator = parcel.readParcelable(User.class.getClassLoader());
         membersCount = parcel.readInt();
         membersIds = new ArrayList<>();
         createdOn = parcel.readLong();
         updatedOn = parcel.readLong();
         lastCheckedOn = parcel.readLong();
+        lastExpense = parcel.readParcelable(ExpenseItem.class.getClassLoader());
         parcel.readList(membersIds, User.class.getClassLoader());
         boolean[] bools = new boolean[1];
         parcel.readBooleanArray(bools);
@@ -196,20 +195,12 @@ public class Group implements Parcelable {
         this.updatedOn = updatedOn;
     }
 
-    public String getLastMsgName() {
-        return lastMsgName;
+    public ExpenseItem getLastExpense() {
+        return lastExpense;
     }
 
-    public void setLastMsgName(String lastMsgName) {
-        this.lastMsgName = lastMsgName;
-    }
-
-    public String getLastMsgDesc() {
-        return lastMsgDesc;
-    }
-
-    public void setLastMsgDesc(String lastMsgDesc) {
-        this.lastMsgDesc = lastMsgDesc;
+    public void setLastExpense(ExpenseItem lastExpense) {
+        this.lastExpense = lastExpense;
     }
 
     @Override
@@ -224,8 +215,7 @@ public class Group implements Parcelable {
                 ", createdOn=" + createdOn +
                 ", updatedOn=" + updatedOn +
                 ", lastCheckedOn=" + lastCheckedOn +
-                ", lastMsgName=" + lastMsgName +
-                ", lastMsgDesc=" + lastMsgDesc +
+                ", lastExpense=" + lastExpense.toString() +
                 '}';
     }
 
@@ -238,14 +228,13 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel parcel, int flag) {
         parcel.writeString(id);
         parcel.writeString(name);
-        parcel.writeString(lastMsgName);
-        parcel.writeString(lastMsgDesc);
         parcel.writeParcelable(moderator, flag);
         parcel.writeInt(membersCount);
         parcel.writeList(membersIds);
         parcel.writeLong(createdOn);
         parcel.writeLong(updatedOn);
         parcel.writeLong(lastCheckedOn);
+        parcel.writeParcelable(lastExpense,0);
         parcel.writeBooleanArray(new boolean[]{favorite});
     }
 
@@ -257,8 +246,7 @@ public class Group implements Parcelable {
         map.put("favorite", false);
         map.put("createdOn", createdOn);
         map.put("updatedOn", updatedOn);
-        map.put("lastMsgName", lastMsgName);
-        map.put("lastMsgDesc", lastMsgDesc);
+        map.put("lastExpense", lastExpense.toMap());
         return map;
     }
 
