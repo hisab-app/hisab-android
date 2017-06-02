@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -39,13 +40,15 @@ import io.github.zkhan93.hisab.model.ui.ExGroup;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.GroupItemVH;
 import io.github.zkhan93.hisab.model.viewholder.HeaderVH;
+import io.github.zkhan93.hisab.ui.MainActivity;
+import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
         ChildEventListener, GrpSelectModeClbk, GroupItemClickClbk, OnLongClickGroupItemClbk,
-        ActionMode.Callback, NotificationCountLoadClbk {
+        NotificationCountLoadClbk {
     public static final String TAG = GroupsAdapter.class.getSimpleName();
     GroupItemClickClbk groupItemClickClbk;
     boolean selectionMode;
@@ -55,6 +58,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private DatabaseReference grpDbRef, dbRef;
     private ContextActionBarClbk contextActionBarClbk;
     private int selectedGroupsCount = 0;
+    private List<String> savedSelectedGroupIds;
     private int favCount = 0;
 
     {
@@ -65,7 +69,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public GroupsAdapter(GroupItemClickClbk groupItemClickClbk, User me, ContextActionBarClbk
             contextActionBarClbk) {
         groups = new ArrayList<>();
-
+        savedSelectedGroupIds = new ArrayList<>();
         this.groupItemClickClbk = groupItemClickClbk;
         this.me = me;
         dbRef = FirebaseDatabase.getInstance().getReference("");
@@ -220,6 +224,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Log.d(TAG, "adding to position" + groups.size());
             notifyItemInserted(getItemPositing(groups.size()));
 //            notifyDataSetChanged();
+        }
+
+        if (savedSelectedGroupIds.contains(group.getId())) {
+            onGroupClicked(group.getId(), null);
         }
     }
 
@@ -413,10 +421,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             groupItemClickClbk.onGroupClicked(groupId, groupName);
     }
 
-    @Override
-    public void onGroupInfoClicked(Group group) {
-        groupItemClickClbk.onGroupInfoClicked(group);
-    }
+//    @Override
+//    public void onGroupInfoClicked(Group group) {
+//        groupItemClickClbk.onGroupInfoClicked(group);
+//    }
 
     @Override
     public void onLongClick(String groupId) {
@@ -427,72 +435,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    @Override
-    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-        actionMode.getMenuInflater().inflate(R.menu.menu_groups_context, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-        return false;
-    }
-
-    @Override
-    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-        //for references to batch update
-        Map<String, Object> refs = new HashMap<>();
-        switch (menuItem.getItemId()) {
-            case R.id.action_delete:
-                //delete the selected item from firebase database. changes will be reflected automatically.
-                for (ExGroup group : groups) {
-                    if (group.isSelected()) {
-                        refs.put("groups/" + me.getId() + "/" + group.getId(),
-                                null);//my group list
-                        refs.put("shareWith/" + group.getId() + "/" + me.getId(), null);
-                        //TODO: reduce group membersCount
-                    }
-                }
-                dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "group deleted from user");
-                        } else {
-                            Log.d(TAG, "error" + task.getException().getLocalizedMessage());
-                        }
-                    }
-                });
-                actionMode.finish();
-                return true;
-            case R.id.action_favorite:
-                for (ExGroup group : groups) {
-                    if (group.isSelected()) {
-                        refs.put("groups/" + me.getId() + "/" + group.getId() + "/favorite",
-                                !group.isFavorite());//toggle the favorite value
-                    }
-                }
-                dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "group favorite updated");
-                        } else {
-                            Log.d(TAG, "error" + task.getException().getLocalizedMessage());
-                        }
-                    }
-                });
-                actionMode.finish();
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
     public void onDestroyActionMode(ActionMode actionMode) {
-//        actionMode = null;
-//        actionMode.finish();
         selectionMode = false;
         selectedGroupsCount = 0;
         int i = 0;
@@ -505,6 +448,73 @@ public class GroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             i++;
         }
         //TODO:add on long click listeners to items
+    }
+
+    public void deleteSelectedGroups() {
+        Map<String, Object> refs = new HashMap<>();
+        //delete the selected item from firebase database. changes will be reflected automatically.
+        for (ExGroup group : groups) {
+            if (group.isSelected()) {
+                refs.put("groups/" + me.getId() + "/" + group.getId(),
+                        null);//my group list
+                refs.put("shareWith/" + group.getId() + "/" + me.getId(), null);
+                //TODO: reduce group membersCount
+            }
+        }
+        dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "group deleted from user");
+                } else {
+                    Log.d(TAG, "error" + task.getException().getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    public void favoriteSelectedGroups() {
+        Map<String, Object> refs = new HashMap<>();
+        for (ExGroup group : groups) {
+            if (group.isSelected()) {
+                refs.put("groups/" + me.getId() + "/" + group.getId() + "/favorite",
+                        !group.isFavorite());//toggle the favorite value
+            }
+        }
+        dbRef.updateChildren(refs).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "group favorite updated");
+                } else {
+                    Log.d(TAG, "error" + task.getException().getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    public ArrayList<String> getSelectedGroupIds() {
+        ArrayList<String> ids = new ArrayList<>();
+        for (ExGroup group : groups) {
+            if (group.isSelected()) {
+                ids.add(group.getId());
+            }
+        }
+        return ids;
+    }
+
+    public void setSavedSelectedGroupIds(List<String> groupIds) {
+        if (groupIds == null || groupIds.size() == 0)
+            return;
+        startMultiSelectMode();
+        savedSelectedGroupIds = groupIds;
+    }
+
+    public Group getSelectedGroup() {
+        for (ExGroup group : groups)
+            if (group.isSelected())
+                return group;
+        return null;
     }
 
     public interface TYPE {

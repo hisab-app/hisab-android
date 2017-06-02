@@ -368,7 +368,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
                                 }
                             });
-
+                    break;
+                case ConfirmDialog.TYPE.GROUP_DELETE:
+                    ((GroupsFragment) getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG)).deleteSelectedGroupConfirmed();
+                    ;
                     break;
                 default:
                     Log.d(TAG, "invalid tag value in positive button");
@@ -442,8 +445,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
     public void onGroupInfoClicked(Group group) {
+        if (group == null)
+            return;
         GroupDetailDialog groupDetailDialog = new GroupDetailDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable("me", me);

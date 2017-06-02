@@ -3,15 +3,12 @@ package io.github.zkhan93.hisab.ui;
 import android.Manifest;
 import android.app.DialogFragment;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,10 +20,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -38,6 +36,7 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ContextActionBarClbk;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
+import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
@@ -46,7 +45,7 @@ import io.github.zkhan93.hisab.util.Util;
  */
 public class GroupsFragment extends Fragment implements
         PreferenceChangeListener, ContextActionBarClbk, View.OnClickListener, Toolbar
-        .OnMenuItemClickListener {
+        .OnMenuItemClickListener, ActionMode.Callback {
     public static final String TAG = GroupsFragment.class.getSimpleName();
     public static final int GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS = 23;
     //member views
@@ -68,7 +67,7 @@ public class GroupsFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         me = Util.getUser(getContext());
-        Parcel parcel = null;
+
     }
 
     @Override
@@ -85,7 +84,8 @@ public class GroupsFragment extends Fragment implements
         groupList.addItemDecoration(horizontalDividerDecoration);
 
         groupList.setAdapter(groupsAdapter);
-
+        if (savedInstanceState != null)
+            groupsAdapter.setSavedSelectedGroupIds(savedInstanceState.getStringArrayList("selectedGroups"));
         if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean
                 ("isTwoPaneMode", false))
             setHasOptionsMenu(true);
@@ -102,6 +102,7 @@ public class GroupsFragment extends Fragment implements
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList("selectedGroups", groupsAdapter.getSelectedGroupIds());
         super.onSaveInstanceState(outState);
     }
 
@@ -184,17 +185,24 @@ public class GroupsFragment extends Fragment implements
 
     @Override
     public void showCAB() {
-        actionMode = getActivity().startActionMode(groupsAdapter);
-//        if (Build.VERSION.SDK_INT >= 21)
-//            getActivity().getWindow().setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+        actionMode = getActivity().startActionMode(this);//groupsAdapter
     }
 
     @Override
     public void setCount(int count) {
-        if (count == 0)
+        if (count == 0) {
             actionMode.finish();
+            return;
+        } else if (count > 1) {
+            //hide favorites and info
+            actionMode.getMenu().findItem(R.id.action_favorite).setVisible(false);
+            actionMode.getMenu().findItem(R.id.action_info).setVisible(false);
+        } else {
+            //show favorites and info
+            actionMode.getMenu().findItem(R.id.action_favorite).setVisible(true);
+            actionMode.getMenu().findItem(R.id.action_info).setVisible(true);
+        }
         actionMode.setTitle(getString(R.string.title_cab, count));
-//        actionMode.getMenu().getItem(R.id.action_info).setVisible(count==1);
     }
 
     @Override
@@ -247,4 +255,53 @@ public class GroupsFragment extends Fragment implements
         }
     }
 
+    public void deleteSelectedGroupConfirmed() {
+        groupsAdapter.deleteSelectedGroups();
+        actionMode.finish();
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        actionMode.getMenuInflater().inflate(R.menu.menu_groups_context, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        return false;
+    }
+
+
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        //for references to batch update
+        Map<String, Object> refs = new HashMap<>();
+        switch (menuItem.getItemId()) {
+            case R.id.action_delete:
+                Bundle bundle = new Bundle();
+                bundle.putInt("type", ConfirmDialog.TYPE.GROUP_DELETE);
+                bundle.putString("msg", "Do you really want to delete?");//TODO: String resource
+                bundle.putString("positiveBtnTxt", "Yes");//TODO: String resource
+                bundle.putString("negativeBtnTxt", "No");//TODO: String resource
+
+                ConfirmDialog confirmDialog = new ConfirmDialog();
+                confirmDialog.setArguments(bundle);
+                confirmDialog.show(getActivity().getFragmentManager(), ConfirmDialog.TAG);
+                return true;
+            case R.id.action_favorite:
+                groupsAdapter.favoriteSelectedGroups();
+                actionMode.finish();
+                return true;
+            case R.id.action_info:
+                ((MainActivity)getActivity()).onGroupInfoClicked(groupsAdapter.getSelectedGroup());
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        groupsAdapter.onDestroyActionMode(actionMode);
+    }
 }

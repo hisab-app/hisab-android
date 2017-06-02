@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F16667</color>
+    <color name="colorPrimary">@color/md_red_400</color>
     <!--@color/md_deep_orange_500-->
     <color name="colorTextOnPrimary">@color/md_white_1000</color>
 
-    <color name="colorPrimaryLight">#E57373</color>
-    <color name="colorPrimaryDark">#C65557</color>
+    <color name="colorPrimaryLight">@color/md_red_300</color>
+    <color name="colorPrimaryDark">@color/md_red_600</color>
     <color name="colorTextOnPrimaryDark">@color/md_white_1000</color>
 
     <color name="colorAccent">#485A5F</color>

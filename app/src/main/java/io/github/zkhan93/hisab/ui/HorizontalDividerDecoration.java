@@ -68,11 +68,11 @@ public class HorizontalDividerDecoration extends RecyclerView.ItemDecoration {
                     || adapter.getItemViewType(i + 1) == GroupsAdapter.TYPE.HEADER_OTHER) {
                 inverseDividerDrawable.setBounds(left + leftOffset, top, right - rightOffset, bottom);
                 inverseDividerDrawable.draw(canvas);
-                Log.d(TAG, "onDraw: drawing clearing");
+//                Log.d(TAG, "onDraw: drawing clearing");
             } else {
                 dividerDrawable.setBounds(left + leftOffset, top, right - rightOffset, bottom);
                 dividerDrawable.draw(canvas);
-                Log.d(TAG, "onDraw: drawing divider");
+//                Log.d(TAG, "onDraw: drawing divider");
             }
 
         }

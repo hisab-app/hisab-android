@@ -29,7 +29,7 @@ public class ConfirmDialog extends DialogFragment {
         type = bundle.getInt("type");
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), 0).setMessage(msg)
                 .setPositiveButton
-                        (positiveBtnTxt, (DialogInterface.OnClickListener)getActivity())
+                        (positiveBtnTxt, (DialogInterface.OnClickListener) getActivity())
                 .setNegativeButton(negativeBtnTxt, (DialogInterface.OnClickListener) getActivity
                         ()).create();
         dialog.setOnShowListener(getOnShowListener(type));
@@ -53,7 +53,7 @@ public class ConfirmDialog extends DialogFragment {
                     public void onShow(DialogInterface dialogInterface) {
                         ((AlertDialog) dialogInterface).getButton(DialogInterface
                                 .BUTTON_POSITIVE).setTag(TYPE.EXPENSE_DELETE);
-                        Log.d(TAG,"set delete tag");
+                        Log.d(TAG, "set delete tag");
                     }
                 };
 
@@ -63,10 +63,18 @@ public class ConfirmDialog extends DialogFragment {
                     public void onShow(DialogInterface dialogInterface) {
                         ((AlertDialog) dialogInterface).getButton(DialogInterface
                                 .BUTTON_POSITIVE).setTag(TYPE.GROUP_ARCHIVE);
-                        Log.d(TAG,"set archive tag");
+                        Log.d(TAG, "set archive tag");
                     }
                 };
-
+            case TYPE.GROUP_DELETE:
+                return new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        ((AlertDialog) dialogInterface).getButton(DialogInterface
+                                .BUTTON_POSITIVE).setTag(TYPE.GROUP_DELETE);
+                        Log.d(TAG, "set archive tag");
+                    }
+                };
             default:
                 return null;
         }
@@ -76,6 +84,7 @@ public class ConfirmDialog extends DialogFragment {
         int EXPENSE_DELETE = 1;
         int GROUP_ARCHIVE = 2;
         int INVALID = 3;
+        int GROUP_DELETE = 4;
     }
 
 }

@@ -7,5 +7,4 @@ import io.github.zkhan93.hisab.model.Group;
  */
 public interface GroupItemClickClbk {
     void onGroupClicked(String groupId, String groupName);
-    void onGroupInfoClicked(Group group);
 }

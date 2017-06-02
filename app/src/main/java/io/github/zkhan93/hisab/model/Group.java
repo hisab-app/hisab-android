@@ -215,7 +215,7 @@ public class Group implements Parcelable {
                 ", createdOn=" + createdOn +
                 ", updatedOn=" + updatedOn +
                 ", lastCheckedOn=" + lastCheckedOn +
-                ", lastExpense=" + lastExpense.toString() +
+                ", lastExpense=" + lastExpense +
                 '}';
     }
 

@@ -62,10 +62,6 @@ public class WidgetConfigActivity extends Activity {
                 finish();
             }
 
-            @Override
-            public void onGroupInfoClicked(Group group) {
-
-            }
         };
     }
 
