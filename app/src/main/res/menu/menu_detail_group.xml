@@ -1,17 +1,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools"
-      tools:context="io.github.zkhan93.hisab.ui.DetailGroupActivity">
-    <item
-        android:id="@+id/action_rename"
-        android:icon="@drawable/ic_mode_edit_grey_50_24dp"
-        android:orderInCategory="100"
-        android:title="@string/action_rename"
-        app:showAsAction="ifRoom"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="io.github.zkhan93.hisab.ui.DetailGroupActivity">
     <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share_grey_50_24dp"
-        android:orderInCategory="100"
+        android:orderInCategory="10"
         android:title="@string/action_share"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_rename"
+        android:icon="@drawable/ic_mode_edit_grey_50_24dp"
+        android:orderInCategory="20"
+        android:title="@string/action_rename"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_info"
+        android:icon="@drawable/ic_info_grey_50_24dp"
+        android:orderInCategory="30"
+        android:title="@string/action_info"
+        app:showAsAction="ifRoom" />
+
 </menu>

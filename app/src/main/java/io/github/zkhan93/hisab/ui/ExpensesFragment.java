@@ -105,7 +105,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         groupExpensesRef = dbRef.child("expenses").child(groupId);
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
-        Util.deleteNotifications(getActivity().getApplicationContext(),groupId);
+        Util.deleteNotifications(getActivity().getApplicationContext(), groupId);
     }
 
     public void changeGroup(String groupId) {
@@ -129,6 +129,9 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         View rootView = inflater.inflate(R.layout.fragment_expenses, container, false);
         ButterKnife.bind(this, rootView);
         expensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ExpenseItemDecoration expenseItemDecoration = new ExpenseItemDecoration(getResources(), R.drawable.horizontal_divider, getActivity().getTheme());
+        expensesList.addItemDecoration(expenseItemDecoration);
 
         expensesAdapter = new ExpensesAdapter(me, groupId, this, (SummaryActionItemClbk)
                 getActivity());
@@ -168,6 +171,10 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                 return true;
             case R.id.action_rename:
                 showRenameUi();
+                return true;
+            case R.id.action_info:
+
+                return true;
             default:
                 return false;
         }

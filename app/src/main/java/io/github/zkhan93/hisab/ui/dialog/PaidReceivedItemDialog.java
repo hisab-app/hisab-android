@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,18 +31,24 @@ import io.github.zkhan93.hisab.ui.adapter.MembersAdapter;
  * Created by Zeeshan Khan on 8/9/2016.
  */
 public class PaidReceivedItemDialog extends DialogFragment implements UserItemActionClickClbk,
-        TextWatcher {
+        TextWatcher, RadioGroup.OnCheckedChangeListener {
     public static final String TAG = PaidReceivedItemDialog.class.getSimpleName();
 
 
     @BindView(R.id.amount)
     TextInputEditText amount;
+
     @BindView(R.id.optionGiveTake)
     RadioGroup optionGiveTake;
+
     @BindView(R.id.members)
     RecyclerView members;
+
     @BindView(R.id.description)
     TextInputEditText description;
+
+    @BindView(R.id.usersHeader)
+    TextView usersHeader;
 
     private User me;
     private String groupId;
@@ -56,7 +64,7 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
                         .dialog_create_paid_received_item,
                 null);
         ButterKnife.bind(this, view);
-
+        optionGiveTake.setOnCheckedChangeListener(this);
         if (savedInstanceState == null) {
             Bundle bundle = getArguments();
             groupId = bundle.getString("groupId");
@@ -189,5 +197,18 @@ public class PaidReceivedItemDialog extends DialogFragment implements UserItemAc
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+        switch (checkedId) {
+            case R.id.paid:
+                usersHeader.setText(getString(R.string.to));
+                break;
+            case R.id.received:
+                usersHeader.setText(getString(R.string.from));
+                break;
+
+        }
     }
 }

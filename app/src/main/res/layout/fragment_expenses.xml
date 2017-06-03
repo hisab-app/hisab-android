@@ -1,21 +1,17 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/expenses"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/toolbar_height"
+        android:paddingBottom="64dp"
         tools:context=".ui.ExpensesFragment"
-        tools:listitem="@layout/expense_item"
-        >
-    </android.support.v7.widget.RecyclerView>
+        tools:listitem="@layout/expense_item" />
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fabMenu"
@@ -40,8 +36,7 @@
             app:fab_colorPressed="@color/colorPrimaryDark"
             app:fab_colorRipple="@color/colorPrimaryLight"
             app:fab_label="@string/fab_shared"
-            app:fab_size="mini"
-            />
+            app:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fabCreatePaidReceived"
@@ -52,7 +47,6 @@
             app:fab_colorPressed="@color/colorPrimaryDark"
             app:fab_colorRipple="@color/colorPrimaryLight"
             app:fab_label="@string/fab_paid_received"
-            app:fab_size="mini"
-            />
+            app:fab_size="mini" />
     </com.github.clans.fab.FloatingActionMenu>
 </FrameLayout>

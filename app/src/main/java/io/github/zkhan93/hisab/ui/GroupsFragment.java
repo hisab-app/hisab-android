@@ -80,8 +80,8 @@ public class GroupsFragment extends Fragment implements
         groupsAdapter = new GroupsAdapter((GroupItemClickClbk) getActivity(), me, this);
 
 
-        HorizontalDividerDecoration horizontalDividerDecoration = new HorizontalDividerDecoration(getResources(), R.drawable.horizontal_divider, getActivity().getTheme());
-        groupList.addItemDecoration(horizontalDividerDecoration);
+        GroupItemDecoration groupItemDecoration = new GroupItemDecoration(getResources(), R.drawable.horizontal_divider, getActivity().getTheme());
+        groupList.addItemDecoration(groupItemDecoration);
 
         groupList.setAdapter(groupsAdapter);
         if (savedInstanceState != null)

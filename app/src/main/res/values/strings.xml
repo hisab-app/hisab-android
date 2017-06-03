@@ -3,7 +3,14 @@
 
     <string name="rs" translatable="false">\u20B9</string>
     <string name="paid">Paid</string>
+    <string name="to">To</string>
+    <string name="from">From</string>
     <string name="received" translatable="false">Received</string>
+
+    <string name="n_members">%1$d members</string>
+    <string name="no_member">only you</string>
+
+    <string name="amount">%1$.2f %2$s</string>
 
     <string name="title_activity_entry">@string/app_name</string>
     <string name="title_activity_groups">Groups</string>
@@ -89,7 +96,6 @@
     <string name="err_empty_desc">Description cannot be empty</string>
     <string name="err_amount_non_zero_positive">Amount must be a non zero positive value</string>
     <string name="err_long_desc">Keep the description short and crisp.</string>
-
 
 
     <string name="fab_shared">Add Expense</string>

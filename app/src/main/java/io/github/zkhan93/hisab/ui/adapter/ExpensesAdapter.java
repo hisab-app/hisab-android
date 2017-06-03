@@ -13,6 +13,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.github.zkhan93.hisab.R;
@@ -149,6 +151,9 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case TYPE.SUMMARY:
                 return new ExpenseSummaryVH(inflater.inflate(R.layout.expense_summary_item,
                         parent, false), this);
+            case TYPE.NORMAL_SELF:
+                return new ExpenseItemVH(inflater.inflate(R.layout.expense_item_self,
+                        parent, false), expenseItemClbk);
             default:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item, parent, false),
                         expenseItemClbk);
@@ -159,14 +164,12 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE.NORMAL:
+            case TYPE.NORMAL_SELF:
                 ((ExpenseItemVH) holder).setExpense(expenses.get(position - 1), me);
-                if (position == getItemCount() - 1) {
-                    ((ExpenseItemVH) holder).hideDivider();
-                }
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
-                        () + getPaidReceived(), noOfMembers, me, owner);
+                        () + getPaidReceived(), noOfMembers, me, owner, getThisMonthAmount(), getTodayAmount());
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -180,6 +183,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return TYPE.EMPTY;
         else if (position == 0)
             return TYPE.SUMMARY;
+        else if (expenses.get(position - 1).getOwner().getId().equals(me.getId()))
+            return TYPE.NORMAL_SELF;
         else
             return TYPE.NORMAL;
     }
@@ -265,6 +270,39 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         noOfMembers = 0;
     }
 
+    private float getTodayAmount() {
+        float res = 0;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long todayMidnight = cal.getTimeInMillis();
+        for (ExpenseItem item : expenses) {
+            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item.getCreatedOn() >= todayMidnight) {
+                res += item.getAmount();
+            }
+        }
+        return res;
+    }
+
+    private float getThisMonthAmount() {
+        float res = 0;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long time = cal.getTimeInMillis();
+        for (ExpenseItem item : expenses) {
+            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item.getCreatedOn() >= time) {
+                res += item.getAmount();
+            }
+        }
+        return res;
+    }
+
     private float getTotalAmount() {
         float res = 0;
         for (ExpenseItem ex : expenses) {
@@ -318,5 +356,6 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int EMPTY = 0;
         int NORMAL = 1;
         int SUMMARY = 2;
+        int NORMAL_SELF = 3;
     }
 }

@@ -2,34 +2,29 @@ package io.github.zkhan93.hisab.ui;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
 
-import static io.github.zkhan93.hisab.ui.adapter.GroupsAdapter.TAG;
-
 /**
  * Created by zeeshan on 31/5/17.
  */
 
-public class HorizontalDividerDecoration extends RecyclerView.ItemDecoration {
+public class GroupItemDecoration extends RecyclerView.ItemDecoration {
     private Drawable dividerDrawable;
     private Drawable inverseDividerDrawable;
-    DisplayMetrics metrics;
-    int leftOffset;
-    int rightOffset;
-    public static final String TAG = HorizontalDividerDecoration.class.getSimpleName();
+
+    private int leftOffset;
+    private int rightOffset;
+    public static final String TAG = GroupItemDecoration.class.getSimpleName();
 
     @SuppressWarnings("deprecation")
-    public HorizontalDividerDecoration(Resources resources, int dividerId, Resources.Theme theme) {
+    public GroupItemDecoration(Resources resources, int dividerId, Resources.Theme theme) {
         if (Build.VERSION.SDK_INT < 21) {
             dividerDrawable = resources.getDrawable(dividerId);
             inverseDividerDrawable = resources.getDrawable(R.drawable.horizontal_inverse_divider);
@@ -38,7 +33,7 @@ public class HorizontalDividerDecoration extends RecyclerView.ItemDecoration {
             inverseDividerDrawable = resources.getDrawable(R.drawable.horizontal_inverse_divider, theme);
         }
 
-        metrics = resources.getDisplayMetrics();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
         leftOffset = (int) (metrics.density * 72); // leave icon and padding
         rightOffset = (int) (metrics.density * 16); //leave the item padding from right
     }

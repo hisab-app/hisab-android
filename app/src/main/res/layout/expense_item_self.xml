@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="1dp"
+    android:background="?selectableItemBackground"
+    android:gravity="end"
+    android:minHeight="?attr/listPreferredItemHeight"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    android:paddingEnd="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center|start">
+
+        <ImageButton
+            android:id="@+id/buttonExpand"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@null"
+            android:src="@drawable/transition" />
+
+        <TextView
+            android:id="@+id/details"
+            style="@style/Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="12 PM" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end">
+
+            <ImageView
+                android:id="@+id/hasImage"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_attach_file_grey_500_18dp" />
+
+            <ImageView
+                android:id="@+id/typeCash"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_attach_money_grey_500_18dp" />
+
+            <ImageView
+                android:id="@+id/typeShare"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_shopping_cart_grey_500_18dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/name"
+            style="@style/Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:textStyle="bold"
+            tools:text="You" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:maxHeight="24dp"
+            android:maxWidth="24dp"
+            android:src="@drawable/ic_account_circle_grey_600_48dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/amount"
+        style="@style/Body2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="16sp"
+        tools:text="483.23" />
+
+    <TextView
+        android:id="@+id/description"
+        style="@style/Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:maxLines="4"
+        tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero." />
+
+    <LinearLayout
+        android:id="@+id/actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/delete"
+            style="@style/Base.Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:text="@string/btn_txt_delete"
+            android:textColor="@color/colorDanger"
+            tools:text="delete" />
+
+        <Button
+            android:id="@+id/edit"
+            style="@style/Base.Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:text="@string/btn_txt_edit"
+            tools:text="EDIT" />
+    </LinearLayout>
+</LinearLayout>

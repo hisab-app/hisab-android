@@ -1,6 +1,10 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
 import android.content.Context;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -8,7 +12,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -25,24 +31,56 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.util.Util;
 
+import static android.R.attr.button;
+import static android.R.attr.textDirection;
+
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnClickListener,
-        PopupMenu.OnMenuItemClickListener {
+public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public static final String TAG = ExpenseItemVH.class.getSimpleName();
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd, MMM", Locale
             .ENGLISH);
 
+    @BindView(R.id.name)
+    TextView name;
+
     @BindView(R.id.description)
     TextView description;
+
     @BindView(R.id.details)
     TextView details;
+
     @BindView(R.id.amount)
     TextView amount;
+
+    @BindView(R.id.typeCash)
+    ImageView typeCash;
+
+    @BindView(R.id.typeShare)
+    ImageView typeShare;
+
+    @BindView(R.id.hasImage)
+    ImageView hasImage;
+
+    @Nullable
+    @BindView(R.id.buttonExpand)
+    ImageButton buttonExpand;
+
+    @Nullable
+    @BindView(R.id.delete)
+    Button btnDelete;
+
+    @Nullable
+    @BindView(R.id.edit)
+    Button btnEdit;
+
+    @Nullable
     @BindView(R.id.actions)
-    ImageButton actions;
+    View actionsContainer;
+
+    @Nullable
     @BindView(R.id.image)
     CircleImageView authorImage;
 
@@ -50,7 +88,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
     private Context context;
-    private PopupMenu popup;
+    private TransitionDrawable tdrawable;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
             expenseItemClbk) {
@@ -58,10 +96,15 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         ButterKnife.bind(this, itemView);
         this.expenseItemClbk = expenseItemClbk;
         this.context = itemView.getContext();
-        popup = new PopupMenu(context, actions, Gravity.RIGHT, 0, R.style.ItemActionPopup);
-        popup.getMenuInflater().inflate(R.menu.menu_expense_item_actions, popup.getMenu());
-        popup.setOnMenuItemClickListener(this);
-        actions.setOnClickListener(this);
+
+        if (buttonExpand != null) {
+            buttonExpand.setOnClickListener(this);
+            tdrawable = (TransitionDrawable) buttonExpand.getDrawable();
+        }
+        if (btnDelete != null)
+            btnDelete.setOnClickListener(this);
+        if (btnEdit != null)
+            btnEdit.setOnClickListener(this);
     }
 
     public void setExpense(ExpenseItem expense, User me) {
@@ -78,37 +121,40 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
             tmp.append(expense.getDescription());
 
         description.setText(tmp);
-        tmp.setLength(0);
+
         if (me.getEmail().equals(expense.getOwner().getEmail())) {
-            tmp.append("You");
-            actions.setVisibility(View.VISIBLE);
+            name.setText(expense.getOwner().getName());
+//            name.setText("You");
         } else {
-            tmp.append(expense.getOwner().getName());
-            actions.setVisibility(View.GONE);
+            name.setText(expense.getOwner().getName());
         }
-        tmp.append(" | ");
-        tmp.append(expense.getItemType() == ExpenseItem.ITEM_TYPE.SHARED ? "Shared" :
-                "Paid/Received");
-        tmp.append(" | ");
-        tmp.append(DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(),
-                true));
-        details.setText(tmp);
-        Picasso.with(context).load(Util.getGavatarUrl(expense.getOwner().getEmail(), 200))
-                .placeholder(R.drawable.big_user).fit().centerCrop().into(authorImage);
+
+        typeCash.setVisibility(expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED ? View.VISIBLE : View.GONE);
+        typeShare.setVisibility(expense.getItemType() == ExpenseItem.ITEM_TYPE.SHARED ? View.VISIBLE : View.GONE);
+
+        hasImage.setVisibility(expense.getDescription().length() % 2 == 0 ? View.VISIBLE : View.GONE);
+
+        details.setText(DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(),
+                false));
+        if (authorImage != null)
+            Picasso.with(context).load(Util.getGavatarUrl(expense.getOwner().getEmail(), 200))
+                    .placeholder(R.drawable.big_user).fit().centerCrop().into(authorImage);
     }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
         switch (id) {
-            case R.id.edit:
-                update();
+            case R.id.buttonExpand:
+                tdrawable.startTransition(200);
+                boolean expanded = actionsContainer.getVisibility() == View.VISIBLE;
+                actionsContainer.setVisibility(expanded ? View.GONE : View.VISIBLE);
                 break;
             case R.id.delete:
                 expenseItemClbk.deleteExpense(expense.getId());
                 break;
-            case R.id.actions:
-                popup.show();
+            case R.id.edit:
+                update();
                 break;
             default:
                 Log.d(TAG, "click not implemented");
@@ -119,28 +165,4 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         expenseItemClbk.showEditUi(expense);
     }
 
-    public void hideDivider() {
-
-    }
-
-    /**
-     * This method will be invoked when a menu item is clicked if the item
-     * itself did not already handle the event.
-     *
-     * @param item the menu item that was clicked
-     * @return {@code true} if the event was handled, {@code false}
-     * otherwise
-     */
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_edit:
-                update();
-                return true;
-            case R.id.delete:
-                expenseItemClbk.deleteExpense(expense.getId());
-                return true;
-        }
-        return false;
-    }
 }
