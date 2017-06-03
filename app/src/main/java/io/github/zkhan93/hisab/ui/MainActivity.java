@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -192,7 +193,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             (GroupsFragment.TAG);
                     if (fragment == null)
                         fragment = new GroupsFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                    ft.replace(R.id
                             .fragmentContainer, fragment, GroupsFragment.TAG).commit();
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                     activeGroupId = null;
@@ -411,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onGroupClicked(String groupId, String groupName) {
         //updating member variables
+
         activeGroupId = groupId;
         activeGroupName = groupName;
         setTitle(activeGroupName);
@@ -424,12 +428,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             bundle.putString("groupId", groupId);
             bundle.putString("groupName", groupName);
             fragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace(isTwoPaneMode ? R.id
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            ft.replace(isTwoPaneMode ? R.id
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
         } else {
             Log.d(TAG, "changing group Id" + groupId);
-            getSupportFragmentManager().beginTransaction().replace(isTwoPaneMode ? R.id
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            ft.replace(isTwoPaneMode ? R.id
                             .secFragmentContainer : R.id.fragmentContainer, fragment,
                     ExpensesFragment.TAG).commit();
             getSupportFragmentManager().executePendingTransactions();

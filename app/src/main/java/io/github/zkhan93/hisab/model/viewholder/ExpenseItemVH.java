@@ -1,17 +1,16 @@
 package io.github.zkhan93.hisab.model.viewholder;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.graphics.drawable.TransitionDrawable;
-import android.os.Build;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,9 +29,6 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
 import io.github.zkhan93.hisab.util.Util;
-
-import static android.R.attr.button;
-import static android.R.attr.textDirection;
 
 /**
  * Created by Zeeshan Khan on 6/26/2016.
@@ -66,7 +62,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 
     @Nullable
     @BindView(R.id.buttonExpand)
-    ImageButton buttonExpand;
+    ImageButton btnExpand;
 
     @Nullable
     @BindView(R.id.delete)
@@ -88,18 +84,19 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     private ExpenseItemClbk expenseItemClbk;
     private ExpenseItem expense;
     private Context context;
-    private TransitionDrawable tdrawable;
+    private Drawable tdrawable;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
             expenseItemClbk) {
         super(itemView);
+//        itemView.setOnClickListener(this);
         ButterKnife.bind(this, itemView);
         this.expenseItemClbk = expenseItemClbk;
         this.context = itemView.getContext();
 
-        if (buttonExpand != null) {
-            buttonExpand.setOnClickListener(this);
-            tdrawable = (TransitionDrawable) buttonExpand.getDrawable();
+        if (btnExpand != null) {
+            btnExpand.setOnClickListener(this);
+            tdrawable = btnExpand.getDrawable();
         }
         if (btnDelete != null)
             btnDelete.setOnClickListener(this);
@@ -146,9 +143,24 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
         int id = view.getId();
         switch (id) {
             case R.id.buttonExpand:
-                tdrawable.startTransition(200);
-                boolean expanded = actionsContainer.getVisibility() == View.VISIBLE;
-                actionsContainer.setVisibility(expanded ? View.GONE : View.VISIBLE);
+                final boolean expanded = actionsContainer.getVisibility() == View.VISIBLE;
+                if (btnExpand != null) {
+                    final int mShortAnimationDuration = context.getResources().getInteger(
+                            android.R.integer.config_shortAnimTime) / 2;
+                    btnExpand.setAlpha(1f);
+                    final ViewPropertyAnimator animator = btnExpand.animate();
+                    animator.alpha(0f).setDuration(mShortAnimationDuration).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            actionsContainer.setVisibility(expanded ? View.GONE : View.VISIBLE);
+                            btnExpand.setImageDrawable(
+                                    ContextCompat.getDrawable(context, expanded ? R.drawable.ic_keyboard_arrow_down_grey_500_18dp : R.drawable.ic_keyboard_arrow_up_grey_500_18dp)
+                            );
+                            animator.alpha(1f).setDuration(mShortAnimationDuration);
+                        }
+                    });
+
+                }
                 break;
             case R.id.delete:
                 expenseItemClbk.deleteExpense(expense.getId());
@@ -159,6 +171,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
             default:
                 Log.d(TAG, "click not implemented");
         }
+
     }
 
     private void update() {

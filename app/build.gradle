@@ -4,7 +4,7 @@ apply plugin: 'org.greenrobot.greendao'
 android {
     dexOptions{
         maxProcessCount 2
-        javaMaxHeapSize "2g"
+        javaMaxHeapSize "4g"
     }
     signingConfigs {
         config {

@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="1dp"
-    android:background="?selectableItemBackground"
+    android:foreground="?android:attr/selectableItemBackground"
     android:gravity="end"
     android:minHeight="?attr/listPreferredItemHeight"
     android:orientation="vertical"
+    android:clickable="true"
     android:paddingBottom="8dp"
     android:paddingEnd="16dp"
     android:paddingLeft="16dp"
@@ -26,7 +27,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@null"
-            android:src="@drawable/transition" />
+            android:src="@drawable/ic_keyboard_arrow_down_grey_500_18dp" />
 
         <TextView
             android:id="@+id/details"
