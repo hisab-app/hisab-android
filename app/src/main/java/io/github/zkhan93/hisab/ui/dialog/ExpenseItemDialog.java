@@ -1,10 +1,10 @@
 package io.github.zkhan93.hisab.ui.dialog;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,7 +20,7 @@ import io.github.zkhan93.hisab.ui.MainActivity;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
+public class ExpenseItemDialog extends DialogFragment implements TextWatcher {
 
     public static final String TAG = ExpenseItemDialog.class.getSimpleName();
 
@@ -43,12 +43,11 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (validateValues(description.getText()
-                        .toString(), amount.getText().toString())) {
+                if (validateValues()) {
                     ((MainActivity) getActivity()).createExpense(description.getText()
-                            .toString(), Float.parseFloat(amount.getText().toString()),
-                            ExpenseItem.ITEM_TYPE.SHARED,null,0);
-                }else{
+                                    .toString(), Float.parseFloat(amount.getText().toString()),
+                            ExpenseItem.ITEM_TYPE.SHARED, null, 0);
+                } else {
 
                 }
             }
@@ -62,15 +61,28 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
         return builder.create();
     }
 
-    public boolean validateValues(String desc, String amt) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        enableIfValidInput();
+    }
+
+    private void enableIfValidInput() {
+        if (description.getText().toString().trim().isEmpty() || amount.getText().toString().trim().isEmpty())
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        else
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+    }
+
+    public boolean validateValues() {
         boolean result = true;
         try {
-            if (desc == null || desc.isEmpty()) {
+            if (description.getText().toString().trim().isEmpty()) {
                 description.setError(getString(R.string.err_empty_desc));
                 description.requestFocus();
                 result = false;
             }
-            Float famt = Float.parseFloat(amt);
+            Float famt = Float.parseFloat(amount.getText().toString().trim());
             if (famt <= 0) {
                 amount.setError(getString(R.string.err_amount_non_zero_positive));
                 amount.requestFocus();
@@ -96,10 +108,16 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher{
 
     @Override
     public void afterTextChanged(Editable editable) {
-        int len=editable.toString().length();
-        if(len>100){
-            editable.delete(100,len);
+        int len = editable.toString().length();
+        if (len > 100) {
+            editable.delete(100, len);
             description.setError(getString(R.string.err_long_desc));
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 }

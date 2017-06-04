@@ -1,5 +1,6 @@
 package io.github.zkhan93.hisab.ui.adapter;
 
+import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,14 +15,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.ExpenseItemClbk;
+import io.github.zkhan93.hisab.model.callback.ExpenseItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
+import io.github.zkhan93.hisab.model.ui.ExExpenseItem;
 import io.github.zkhan93.hisab.model.viewholder.EmptyVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseItemVH;
 import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
@@ -30,11 +32,11 @@ import io.github.zkhan93.hisab.model.viewholder.ExpenseSummaryVH;
  * Created by Zeeshan Khan on 6/26/2016.
  */
 public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        ChildEventListener, SummaryActionItemClbk {
+        ChildEventListener, SummaryActionItemClbk, ExpenseItemClickClbk {
 
     public static final String TAG = ExpensesAdapter.class.getSimpleName();
 
-    private List<ExpenseItem> expenses;
+    private List<ExExpenseItem> expenses;
     private User me, owner;
     private DatabaseReference expensesRef, dbRef, sharedRef, archiveRef, ownerRef;
     private ExpenseItemClbk expenseItemClbk;
@@ -153,10 +155,10 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         parent, false), this);
             case TYPE.NORMAL_SELF:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item_self,
-                        parent, false), expenseItemClbk);
+                        parent, false), expenseItemClbk, this);
             default:
                 return new ExpenseItemVH(inflater.inflate(R.layout.expense_item, parent, false),
-                        expenseItemClbk);
+                        expenseItemClbk, this);
         }
     }
 
@@ -169,7 +171,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case TYPE.SUMMARY:
                 ((ExpenseSummaryVH) holder).setSummaryExpense(getTotalAmount(), getMyExpensesSum
-                        () + getPaidReceived(), noOfMembers, me, owner, getThisMonthAmount(), getTodayAmount());
+                        () + getPaidReceived(), noOfMembers, me, owner, getThisMonthAmount(),
+                        getTodayAmount());
                 break;
         }
         if (holder instanceof EmptyVH)
@@ -200,7 +203,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         ExpenseItem expense = dataSnapshot.getValue(ExpenseItem.class);
         expense.setId(dataSnapshot.getKey());
-        expenses.add(0, expense);
+        expenses.add(0, new ExExpenseItem(expense));
         notifyItemInserted(1);
         notifyItemChanged(0);
     }
@@ -211,7 +214,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         expense.setId(dataSnapshot.getKey());
         int index = findExpenseIndex(dataSnapshot.getKey());
         if (index != -1) {
-            expenses.set(index, expense);
+            expenses.set(index, new ExExpenseItem(expense));
             notifyItemChanged(index + 1);
             notifyItemChanged(0);
         }
@@ -279,7 +282,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         cal.set(Calendar.MILLISECOND, 0);
         long todayMidnight = cal.getTimeInMillis();
         for (ExpenseItem item : expenses) {
-            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item.getCreatedOn() >= todayMidnight) {
+            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item
+                    .getCreatedOn() >= todayMidnight) {
                 res += item.getAmount();
             }
         }
@@ -296,7 +300,8 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         cal.set(Calendar.MILLISECOND, 0);
         long time = cal.getTimeInMillis();
         for (ExpenseItem item : expenses) {
-            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item.getCreatedOn() >= time) {
+            if (item != null && item.getItemType() == ExpenseItem.ITEM_TYPE.SHARED && item
+                    .getCreatedOn() >= time) {
                 res += item.getAmount();
             }
         }
@@ -338,7 +343,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public void archiveGrp(String groupId, List<ExpenseItem> expensesMap) {
+    public void archiveGrp(String groupId, List<ExExpenseItem> expensesMap) {
 //        Map<String, Object> mExpenses = new HashMap<>();
 //        for (ExpenseItem e : expenses) {
 //            mExpenses.put(e.getId(), e.toMap());
@@ -350,6 +355,18 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void moreInfo() {
         summaryActionItemClbk.moreInfo();
+    }
+
+    @Override
+    public void onExpenseExpanded(String exepnseId) {
+        int i = 0;
+        for (ExExpenseItem item : expenses) {
+            if (item.getId().equals(exepnseId)) {
+                notifyItemChanged(i + 1);
+                break;
+            }
+            i += 1;
+        }
     }
 
     interface TYPE {

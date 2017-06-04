@@ -1,23 +1,35 @@
 package io.github.zkhan93.hisab.ui;
 
-import android.app.DialogFragment;
+import android.animation.Animator;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.transition.TransitionManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -46,11 +58,11 @@ import io.github.zkhan93.hisab.model.callback.GroupRenameClbk;
 import io.github.zkhan93.hisab.model.callback.ShowMessageClbk;
 import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
 import io.github.zkhan93.hisab.ui.adapter.ExpensesAdapter;
+import io.github.zkhan93.hisab.ui.dialog.CashItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
+import io.github.zkhan93.hisab.ui.dialog.EditCashItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
-import io.github.zkhan93.hisab.ui.dialog.EditPaidReceivedItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
-import io.github.zkhan93.hisab.ui.dialog.PaidReceivedItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.RenameGroupDialog;
 import io.github.zkhan93.hisab.util.Util;
 
@@ -64,10 +76,13 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     //member views
     @BindView(R.id.expenses)
     RecyclerView expensesList;
+
     @BindView(R.id.fabMenu)
     FloatingActionMenu fabMenu;
+
     @BindView(R.id.fabCreateShared)
     FloatingActionButton fabShareEntry;
+
     @BindView(R.id.fabCreatePaidReceived)
     FloatingActionButton fabGiveTakeEntryEntry;
 
@@ -107,6 +122,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         showMessageClbk = getActivity() instanceof MainActivity ? (ShowMessageClbk) getActivity()
                 : null;
         Util.deleteNotifications(getActivity().getApplicationContext(), groupId);
+
     }
 
     public void changeGroup(String groupId) {
@@ -155,7 +171,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         fabMenu.setClosedOnTouchOutside(true);
         fabShareEntry.setOnClickListener(this);
         fabGiveTakeEntryEntry.setOnClickListener(this);
-
+        hideFabMenu();
         return rootView;
     }
 
@@ -194,6 +210,26 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         super.onStart();
         expensesAdapter.registerEventListener();
         groupNameRef.addValueEventListener(this);
+
+        fabMenu.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fabMenu.showMenu(true);
+            }
+        }, 400);
+
+//        int cx = fabMenu.getRight();
+//        int cy = fabMenu.getBottom();
+//        int finalRadius = Math.max(fabMenu.getWidth(), fabMenu.getHeight());
+//        Animator anim = ViewAnimationUtils.createCircularReveal(fabMenu, cx, cy, 0, finalRadius);
+//        fabMenu.setVisibility(View.VISIBLE);
+//        anim.setDuration(1000);
+//        anim.setInterpolator(new AccelerateInterpolator());
+//        anim.start();
+    }
+
+    public void hideFabMenu() {
+        fabMenu.hideMenu(true);
     }
 
     @Override
@@ -262,18 +298,23 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         }
     }
 
+
     private void showAddGiveTakeEntryView() {
-        DialogFragment dialog = new PaidReceivedItemDialog();
+        DialogFragment dialog = new CashItemDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable("me", me);
         bundle.putString("groupId", groupId);
         dialog.setArguments(bundle);
-        dialog.show(getActivity().getFragmentManager(), PaidReceivedItemDialog.TAG);
+//        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//        ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+        dialog.show(getActivity().getSupportFragmentManager(), CashItemDialog.TAG);
     }
 
     private void showAddExpenseView() {
-        DialogFragment dialog = new ExpenseItemDialog();
-        dialog.show(getActivity().getFragmentManager(), ExpenseItemDialog.TAG);
+        android.support.v4.app.DialogFragment dialog = new ExpenseItemDialog();
+//        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//        ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+        dialog.show(getActivity().getSupportFragmentManager(), ExpenseItemDialog.TAG);
     }
 
     @Override
@@ -348,7 +389,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     }
 
     /**
-     * Called from {@link ExpenseItemDialog} and {@link PaidReceivedItemDialog}'s positive
+     * Called from {@link ExpenseItemDialog} and {@link CashItemDialog}'s positive
      * button's [@link OnClickListener]
      *
      * @param description decription of expense to create
@@ -413,13 +454,13 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                 dialog.show(getActivity().getFragmentManager(), EditExpenseItemDialog.TAG);
                 break;
             case ExpenseItem.ITEM_TYPE.PAID_RECEIVED:
-                EditPaidReceivedItemDialog pdialog = new EditPaidReceivedItemDialog();
+                EditCashItemDialog pdialog = new EditCashItemDialog();
                 Bundle pbundle = new Bundle();
                 pbundle.putParcelable("expense", expense);
                 pbundle.putString("groupId", groupId);
                 pbundle.putParcelable("me", me);
                 pdialog.setArguments(pbundle);
-                pdialog.show(getActivity().getFragmentManager(), EditPaidReceivedItemDialog.TAG);
+                pdialog.show(getActivity().getFragmentManager(), EditCashItemDialog.TAG);
                 break;
             default:
                 Log.d(TAG, "trying to edit a invalid expense item");

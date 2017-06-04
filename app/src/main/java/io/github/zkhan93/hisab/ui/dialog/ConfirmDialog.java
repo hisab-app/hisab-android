@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.ui.ExpensesFragment;
 import io.github.zkhan93.hisab.ui.MainActivity;
 
@@ -43,6 +44,12 @@ public class ConfirmDialog extends DialogFragment {
         outState.putString("positiveBtnTxt", positiveBtnTxt);
         outState.putString("negativeBtnTxt", negativeBtnTxt);
         outState.putInt("type", type);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     private DialogInterface.OnShowListener getOnShowListener(int type) {

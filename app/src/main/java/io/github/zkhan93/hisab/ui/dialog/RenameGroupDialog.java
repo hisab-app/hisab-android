@@ -74,4 +74,10 @@ public class RenameGroupDialog extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putString("name", groupName.getText().toString());
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
 }

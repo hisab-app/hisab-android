@@ -45,7 +45,6 @@ public class ExpenseItemDecoration extends RecyclerView.ItemDecoration {
 
             View child = parent.getChildAt(i);
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-
             int ty = (int) (child.getTranslationY() + 0.5f);
 
             int top = child.getBottom() + params.bottomMargin + ty;

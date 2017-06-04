@@ -4,18 +4,21 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.transition.Fade;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,9 +53,10 @@ import io.github.zkhan93.hisab.model.User;
 import io.github.zkhan93.hisab.model.callback.GroupItemClickClbk;
 import io.github.zkhan93.hisab.model.callback.ShowMessageClbk;
 import io.github.zkhan93.hisab.model.callback.SummaryActionItemClbk;
+import io.github.zkhan93.hisab.model.ui.ExExpenseItem;
 import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
-import io.github.zkhan93.hisab.ui.dialog.GroupDetailDialog;
+import io.github.zkhan93.hisab.ui.dialog.GroupInfoDialog;
 import io.github.zkhan93.hisab.util.Util;
 
 import static io.github.zkhan93.hisab.ui.GroupsFragment.GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS;
@@ -91,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * to hold expenses until confirmed by User and then write it to firebase
      */
-    private List<ExpenseItem> expenses;
+    private List<ExExpenseItem> expenses;
     private String toDeleteExpenseId, activeGroupId, activeGroupName;
 
     {
@@ -189,7 +193,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case android.R.id.home:
                 if (!isTwoPaneMode) {
-                    Fragment fragment = getSupportFragmentManager().findFragmentByTag
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag(ExpensesFragment.TAG);
+                    if (fragment != null)
+                        ((ExpensesFragment) fragment).hideFabMenu();
+                    fragment = getSupportFragmentManager().findFragmentByTag
                             (GroupsFragment.TAG);
                     if (fragment == null)
                         fragment = new GroupsFragment();
@@ -390,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * {@link SummaryActionItemClbk} implementation
      */
     @Override
-    public void archiveGrp(final String groupId, final List<ExpenseItem> expenses) {
+    public void archiveGrp(final String groupId, final List<ExExpenseItem> expenses) {
         Bundle bundle = new Bundle();
         bundle.putInt("type", ConfirmDialog.TYPE.GROUP_ARCHIVE);
         bundle.putString("msg", "Do you really want to archive?");//TODO: String resource
@@ -456,12 +463,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onGroupInfoClicked(Group group) {
         if (group == null)
             return;
-        GroupDetailDialog groupDetailDialog = new GroupDetailDialog();
+        GroupInfoDialog groupInfoDialog = new GroupInfoDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable("me", me);
         bundle.putParcelable("group", group);
-        groupDetailDialog.setArguments(bundle);
-        groupDetailDialog.show(getFragmentManager(), GroupDetailDialog.TAG);
+        groupInfoDialog.setArguments(bundle);
+        groupInfoDialog.show(getFragmentManager(), GroupInfoDialog.TAG);
     }
 
     /**
