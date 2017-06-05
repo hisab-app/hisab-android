@@ -1,15 +1,30 @@
 package io.github.zkhan93.hisab.ui.dialog;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,14 +35,24 @@ import io.github.zkhan93.hisab.ui.MainActivity;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseItemDialog extends DialogFragment implements TextWatcher {
+public class ExpenseItemDialog extends DialogFragment implements TextWatcher, View.OnClickListener {
 
     public static final String TAG = ExpenseItemDialog.class.getSimpleName();
 
     @BindView(R.id.description)
     TextInputEditText description;
+
     @BindView(R.id.amount)
     TextInputEditText amount;
+
+    @BindView(R.id.addImage)
+    ImageButton btnAddImage;
+
+    @BindView(R.id.clickImage)
+    ImageButton btnClickImage;
+
+    @BindView(R.id.image)
+    ImageView image;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -57,7 +82,8 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher {
                 dialogInterface.dismiss();
             }
         });
-
+        btnAddImage.setOnClickListener(this);
+        btnClickImage.setOnClickListener(this);
         return builder.create();
     }
 
@@ -68,7 +94,8 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher {
     }
 
     private void enableIfValidInput() {
-        if (description.getText().toString().trim().isEmpty() || amount.getText().toString().trim().isEmpty())
+        if (description.getText().toString().trim().isEmpty() || amount.getText().toString().trim
+                ().isEmpty())
             ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
         else
             ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
@@ -119,5 +146,71 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        switch (v.getId()) {
+            case R.id.addImage:
+                // Show only images, no videos or anything else
+                intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                // Always show the chooser (if there are multiple options available)
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+                break;
+            case R.id.clickImage:
+                // Show only images, no videos or anything else
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission
+                        .CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    // Always show the chooser (if there are multiple options available)
+                    startActivityForResult(intent, 1);
+                } else {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                            Manifest.permission.CAMERA)) {
+                        Toast.makeText(getActivity(), "allow camera permission", Toast
+                                .LENGTH_LONG).show();
+                    } else {
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest
+                                .permission.CAMERA}, 0);
+                    }
+                }
+                break;
+            default:
+                Log.d(TAG, "click not implemented");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 0) {
+            if (data == null) return;
+            Log.d(TAG, "data: " + data.getDataString());
+            Picasso.with(getActivity().getApplicationContext()).load(data.getDataString())
+                    .into(image);
+            image.setVisibility(View.VISIBLE);
+            return;
+        } else if (requestCode == 1) {
+            if (data == null) return;
+            Bitmap bitmapImage = (Bitmap) data.getExtras().get("data");
+            image.setImageBitmap(bitmapImage);
+            image.setVisibility(View.VISIBLE);
+        } else
+            super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // Always show the chooser (if there are multiple options available)
+                startActivityForResult(intent, 1);
+            }
+        } else
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
