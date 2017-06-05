@@ -5,6 +5,7 @@
     <string name="paid">Paid</string>
     <string name="to">To</string>
     <string name="from">From</string>
+    <string name="remove">Remove</string>
     <string name="received" translatable="false">Received</string>
 
     <string name="n_members">%1$d members</string>

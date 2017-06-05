@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
@@ -19,18 +18,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.ui.MainActivity;
+import io.github.zkhan93.hisab.util.ImagePicker;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -47,14 +43,16 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
     @BindView(R.id.amount)
     TextInputEditText amount;
 
-    @BindView(R.id.addImage)
-    ImageButton btnAddImage;
-
-    @BindView(R.id.clickImage)
-    ImageButton btnClickImage;
+//    @BindView(R.id.addImage)
+//    View btnAddImage;
+//
+//    @BindView(R.id.clickImage)
+//    ImageButton btnClickImage;
 
     @BindView(R.id.image)
     ImageView image;
+
+    private boolean imageAdded;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -65,6 +63,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
                 null);
         ButterKnife.bind(this, view);
         description.addTextChangedListener(this);
+        amount.addTextChangedListener(this);
         builder.setView(view);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
                 .OnClickListener() {
@@ -84,8 +83,9 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
                 dialogInterface.dismiss();
             }
         });
-        btnAddImage.setOnClickListener(this);
-        btnClickImage.setOnClickListener(this);
+        image.setOnClickListener(this);
+        imageAdded = false;
+//        btnClickImage.setOnClickListener(this);
         return builder.create();
     }
 
@@ -137,11 +137,11 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
 
     @Override
     public void afterTextChanged(Editable editable) {
-        int len = editable.toString().length();
+        int len = description.getText().toString().length();
         if (len > 100) {
-            editable.delete(100, len);
             description.setError(getString(R.string.err_long_desc));
         }
+        enableIfValidInput();
     }
 
     @Override
@@ -152,26 +152,16 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
 
     @Override
     public void onClick(View v) {
-        Intent intent;
         switch (v.getId()) {
-            case R.id.addImage:
-                // Show only images, no videos or anything else
-                intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                // Always show the chooser (if there are multiple options available)
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
-                break;
-            case R.id.clickImage:
+            case R.id.image:
                 // Show only images, no videos or anything else
                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission
                         .CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    // Always show the chooser (if there are multiple options available)
-                    startActivityForResult(intent, 1);
+                    showSelectImage();
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                             Manifest.permission.CAMERA)) {
+                        //TODO: explain  why you need permission
                         Toast.makeText(getActivity(), "allow camera permission", Toast
                                 .LENGTH_LONG).show();
                     } else {
@@ -185,20 +175,25 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
         }
     }
 
+    private void showSelectImage() {
+        startActivityForResult(ImagePicker.getPickImageIntent(getActivity(), imageAdded), 0);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0) {
             if (resultCode != RESULT_OK) return;
-            Log.d(TAG, "data: " + data.getDataString());
-            Picasso.with(getActivity().getApplicationContext()).load(data.getDataString())
-                    .into(image);
-            image.setVisibility(View.VISIBLE);
-            return;
-        } else if (requestCode == 1) {
-            if (resultCode != RESULT_OK) return;
-            Bitmap bitmapImage = (Bitmap) data.getExtras().get("data");
-            image.setImageBitmap(bitmapImage);
-            image.setVisibility(View.VISIBLE);
+            if (data.getBooleanExtra("remove_image", false)) {
+                image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
+                        .ic_add_a_photo_grey_500_24dp));
+                imageAdded = false;
+                return;
+            }
+            Bitmap bitmap = ImagePicker.getImageFromResult(getContext(), resultCode, data);
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            image.setImageBitmap(bitmap);
+            imageAdded = true;
         } else
             super.onActivityResult(requestCode, resultCode, data);
     }
@@ -208,9 +203,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
                                            @NonNull int[] grantResults) {
         if (requestCode == 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                // Always show the chooser (if there are multiple options available)
-                startActivityForResult(intent, 1);
+                showSelectImage();
             }
         } else
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);

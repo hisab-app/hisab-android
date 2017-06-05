@@ -34,7 +34,12 @@
             android:name=".ui.MainActivity"
             android:label="@string/title_activity_groups"
             android:theme="@style/AppTheme.NoActionBar"/>
-
+        <activity
+            android:name=".util.RemoveExpenseImageActivity"
+            android:icon="@drawable/ic_delete_red_500_48dp"
+            android:label="@string/remove"
+            android:theme="@android:style/Theme.NoDisplay"
+            />
         <!--<service android:name=".service.NotificationService"/>-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
