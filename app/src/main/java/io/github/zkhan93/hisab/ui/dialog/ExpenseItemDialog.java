@@ -32,6 +32,8 @@ import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.model.ExpenseItem;
 import io.github.zkhan93.hisab.ui.MainActivity;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
@@ -186,14 +188,14 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0) {
-            if (data == null) return;
+            if (resultCode != RESULT_OK) return;
             Log.d(TAG, "data: " + data.getDataString());
             Picasso.with(getActivity().getApplicationContext()).load(data.getDataString())
                     .into(image);
             image.setVisibility(View.VISIBLE);
             return;
         } else if (requestCode == 1) {
-            if (data == null) return;
+            if (resultCode != RESULT_OK) return;
             Bitmap bitmapImage = (Bitmap) data.getExtras().get("data");
             image.setImageBitmap(bitmapImage);
             image.setVisibility(View.VISIBLE);
