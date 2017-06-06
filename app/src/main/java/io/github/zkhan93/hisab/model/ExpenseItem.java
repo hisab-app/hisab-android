@@ -42,6 +42,7 @@ public class ExpenseItem implements Parcelable {
      */
     int itemType;
     String description;
+    String image;
     float amount;
     long createdOn, updatedOn;
     User with;
@@ -54,9 +55,11 @@ public class ExpenseItem implements Parcelable {
     }
 
     public ExpenseItem(String id, int itemType, String groupId, User owner, String description,
-                       float amount, long createdOn, long updatedOn, User with, int shareType) {
+                       float amount, String image, long createdOn, long updatedOn, User with, int
+                               shareType) {
         this(description, amount, with, shareType);
         this.id = id;
+        this.image = image;
         this.groupId = groupId;
         this.owner = owner;
         this.createdOn = createdOn;
@@ -88,6 +91,7 @@ public class ExpenseItem implements Parcelable {
         updatedOn = parcel.readLong();
         with = parcel.readParcelable(User.class.getClassLoader());
         shareType = parcel.readInt();
+        image = parcel.readString();
     }
 
     @Exclude
@@ -173,6 +177,14 @@ public class ExpenseItem implements Parcelable {
         this.updatedOn = updatedOn;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
         return "ExpenseItem{" +
@@ -182,6 +194,7 @@ public class ExpenseItem implements Parcelable {
                 ", itemType=" + itemType +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
+                ", image=" + image +
                 ", createdOn=" + createdOn +
                 ", updatedOn=" + updatedOn +
                 ", with=" + with +
@@ -206,6 +219,7 @@ public class ExpenseItem implements Parcelable {
         parcel.writeLong(updatedOn);
         parcel.writeParcelable(with, i);
         parcel.writeInt(shareType);
+        parcel.writeString(image);
     }
 
     public Map<String, Object> toMap() {
@@ -217,6 +231,7 @@ public class ExpenseItem implements Parcelable {
         map.put("amount", (double) amount);
         map.put("createdOn", createdOn);
         map.put("updatedOn", updatedOn);
+        map.put("image", image);
         if (itemType == ITEM_TYPE.PAID_RECEIVED) {
             map.put("with", with);
             map.put("shareType", shareType);

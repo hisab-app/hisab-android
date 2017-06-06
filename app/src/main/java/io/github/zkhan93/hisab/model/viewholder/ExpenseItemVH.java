@@ -2,21 +2,14 @@ package io.github.zkhan93.hisab.model.viewholder;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
-import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -68,6 +61,9 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     @BindView(R.id.hasImage)
     ImageView hasImage;
 
+    @BindView(R.id.showImage)
+    ImageView showImage;
+
     @Nullable
     @BindView(R.id.buttonExpand)
     ImageButton btnExpand;
@@ -93,7 +89,6 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     private ExExpenseItem expense;
     private Context context;
     private final int mShortAnimationDuration;
-
     private View itemView;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
@@ -144,9 +139,15 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 View.VISIBLE : View.GONE);
         typeShare.setVisibility(expense.getItemType() == ExpenseItem.ITEM_TYPE.SHARED ? View
                 .VISIBLE : View.GONE);
-
-        hasImage.setVisibility(expense.getDescription().length() % 2 == 0 ? View.VISIBLE : View
+        hasImage.setVisibility(expense.getImage() != null ? View.VISIBLE : View
                 .GONE);
+        hasImage.setOnClickListener(this);
+        if (expense.isImageVisible()) {
+            Picasso.with(context).load(expense.getImage()).into(showImage);
+            showImage.setVisibility(View.VISIBLE);
+        } else {
+            showImage.setVisibility(View.GONE);
+        }
 
         details.setText(DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(),
                 false));
@@ -181,7 +182,7 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                     animator.translationYBy(expense.isExpanded() ? -10 : 10).alpha(0.5f).setDuration
                             (mShortAnimationDuration);
                     expense.setExpanded(!expense.isExpanded());
-                    expenseItemClickClbk.onExpenseExpanded(expense.getId());
+                    expenseItemClickClbk.onExpenseChanged(expense.getId());
                 }
                 break;
             case R.id.delete:
@@ -189,6 +190,14 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 break;
             case R.id.edit:
                 update();
+                break;
+            case R.id.hasImage:
+                expense.setImageVisible(!expense.isImageVisible());
+                showImage.setVisibility(expense.isImageVisible() ? View.VISIBLE : View.GONE);
+                if (expense.isImageVisible()) {
+                    Picasso.with(context).load(expense.getImage()).into(showImage);
+                }
+                expenseItemClickClbk.onExpenseChanged(expense.getId());
                 break;
             default:
                 Log.d(TAG, "click not implemented");

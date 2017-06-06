@@ -358,7 +358,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public void onExpenseExpanded(String exepnseId) {
+    public void onExpenseChanged(String exepnseId) {
         int i = 0;
         for (ExExpenseItem item : expenses) {
             if (item.getId().equals(exepnseId)) {

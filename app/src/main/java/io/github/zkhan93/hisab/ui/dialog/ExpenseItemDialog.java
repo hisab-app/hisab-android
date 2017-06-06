@@ -33,7 +33,8 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Created by Zeeshan Khan on 6/26/2016.
  */
-public class ExpenseItemDialog extends DialogFragment implements TextWatcher, View.OnClickListener {
+public class ExpenseItemDialog extends DialogFragment implements TextWatcher, View
+        .OnClickListener, View.OnFocusChangeListener {
 
     public static final String TAG = ExpenseItemDialog.class.getSimpleName();
 
@@ -53,6 +54,8 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
     ImageView image;
 
     private boolean imageAdded;
+    private int currentEditTextId;
+    private Bitmap selectedImage;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -65,17 +68,17 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
         description.addTextChangedListener(this);
         amount.addTextChangedListener(this);
         builder.setView(view);
+        description.setOnFocusChangeListener(this);
+        amount.setOnFocusChangeListener(this);
         builder.setPositiveButton(R.string.label_create, new DialogInterface
                 .OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (validateValues()) {
-                    ((MainActivity) getActivity()).createExpense(description.getText()
-                                    .toString(), Float.parseFloat(amount.getText().toString()),
-                            ExpenseItem.ITEM_TYPE.SHARED, null, 0);
-                } else {
+                ((MainActivity) getActivity()).createExpense(description.getText()
+                                .toString(), Float.parseFloat(amount.getText().toString()),
+                        ImagePicker.getSelectedImageUri(),
+                        ExpenseItem.ITEM_TYPE.SHARED, null, 0);
 
-                }
             }
         }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             @Override
@@ -95,34 +98,15 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
         enableIfValidInput();
     }
 
+    /**
+     * Enable created button without setting error messages
+     */
     private void enableIfValidInput() {
         if (description.getText().toString().trim().isEmpty() || amount.getText().toString().trim
                 ().isEmpty())
             ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
         else
             ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-    }
-
-    public boolean validateValues() {
-        boolean result = true;
-        try {
-            if (description.getText().toString().trim().isEmpty()) {
-                description.setError(getString(R.string.err_empty_desc));
-                description.requestFocus();
-                result = false;
-            }
-            Float famt = Float.parseFloat(amount.getText().toString().trim());
-            if (famt <= 0) {
-                amount.setError(getString(R.string.err_amount_non_zero_positive));
-                amount.requestFocus();
-                result = false;
-            }
-        } catch (NumberFormatException ex) {
-            amount.setError(getString(R.string.err_invalid_amount));
-            amount.requestFocus();
-            result = false;
-        }
-        return result;
     }
 
     @Override
@@ -137,9 +121,36 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
 
     @Override
     public void afterTextChanged(Editable editable) {
-        int len = description.getText().toString().length();
-        if (len > 100) {
-            description.setError(getString(R.string.err_long_desc));
+        CharSequence charSequence = editable.toString();
+        int len = editable.toString().length();
+        /*Show error for only the filed being edited and not the other one whcih is not yet
+        received focus*/
+        switch (currentEditTextId) {
+            case R.id.description:
+
+                if (charSequence.toString().isEmpty()) {
+                    description.setError(getString(R.string.err_required, "Description"));
+                } else if (charSequence.toString().length() > 100) {
+                    editable.delete(100, len);
+                    description.setError("Keep the description short and crisp.");
+                } else
+                    description.setError(null);
+
+                break;
+            case R.id.amount:
+                if (charSequence.toString().isEmpty()) {
+                    amount.setError(getString(R.string.err_required, "Amount"));
+                }
+                try {
+                    float amt = Float.parseFloat(charSequence.toString());
+                    if (amt <= 0) {
+                        amount.setError(getString(R.string.err_zero_amount));
+                    } else
+                        amount.setError(null);
+                } catch (NumberFormatException ex) {
+                    amount.setError(getString(R.string.err_invalid_amount));
+                }
+                break;
         }
         enableIfValidInput();
     }
@@ -190,9 +201,9 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
                 imageAdded = false;
                 return;
             }
-            Bitmap bitmap = ImagePicker.getImageFromResult(getContext(), resultCode, data);
+            selectedImage = ImagePicker.getImageFromResult(getActivity(), resultCode, data);
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            image.setImageBitmap(bitmap);
+            image.setImageBitmap(selectedImage);
             imageAdded = true;
         } else
             super.onActivityResult(requestCode, resultCode, data);
@@ -207,5 +218,11 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
             }
         } else
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus)
+            currentEditTextId = v.getId();
     }
 }

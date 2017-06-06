@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import io.github.zkhan93.hisab.model.ExpenseItem;
-import io.github.zkhan93.hisab.model.User;
 
 /**
  * Created by zeeshan on 4/6/17.
@@ -13,6 +12,8 @@ import io.github.zkhan93.hisab.model.User;
 public class ExExpenseItem extends ExpenseItem implements Parcelable {
 
     private boolean expanded;
+    private boolean imageVisible;
+
     public static final Creator<ExExpenseItem> CREATOR = new Creator<ExExpenseItem>() {
         @Override
         public ExExpenseItem createFromParcel(Parcel parcel) {
@@ -28,8 +29,19 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
     public ExExpenseItem(ExpenseItem expenseItem) {
         super(expenseItem.getId(), expenseItem.getItemType(), expenseItem.getGroupId(),
                 expenseItem.getOwner(), expenseItem.getDescription(), expenseItem.getAmount(),
-                expenseItem.getCreatedOn(), expenseItem.getUpdatedOn(), expenseItem.getWith(), expenseItem.getShareType());
+                expenseItem.getImage(), expenseItem.getCreatedOn(), expenseItem.getUpdatedOn(),
+                expenseItem.getWith(),
+                expenseItem.getShareType());
         this.expanded = false;
+        this.imageVisible = false;
+    }
+
+    public boolean isImageVisible() {
+        return imageVisible;
+    }
+
+    public void setImageVisible(boolean imageVisible) {
+        this.imageVisible = imageVisible;
     }
 
     public boolean isExpanded() {
@@ -42,9 +54,10 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
 
     public ExExpenseItem(Parcel parcel) {
         super(parcel);
-        boolean[] arr = new boolean[1];
+        boolean[] arr = new boolean[2];
         parcel.readBooleanArray(arr);
         expanded = arr[0];
+        imageVisible = arr[1];
     }
 
     @Override
@@ -55,6 +68,6 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeBooleanArray(new boolean[]{expanded});
+        parcel.writeBooleanArray(new boolean[]{expanded, imageVisible});
     }
 }

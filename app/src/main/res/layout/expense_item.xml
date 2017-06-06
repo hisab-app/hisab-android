@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="1dp"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:minHeight="?attr/listPreferredItemHeight"
-    android:orientation="vertical"
-    android:paddingBottom="8dp"
-    android:clickable="true"
-    android:paddingEnd="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingStart="16dp"
-    android:paddingTop="8dp">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="1dp"
+              android:clickable="true"
+              android:foreground="?android:attr/selectableItemBackground"
+              android:minHeight="?attr/listPreferredItemHeight"
+              android:orientation="vertical"
+              android:paddingBottom="8dp"
+              android:paddingEnd="16dp"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:paddingStart="16dp"
+              android:paddingTop="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:layout_height="24dp"
             android:maxHeight="24dp"
             android:maxWidth="24dp"
-            android:src="@drawable/ic_account_circle_grey_600_48dp" />
+            android:src="@drawable/ic_account_circle_grey_600_48dp"/>
 
         <TextView
             android:id="@+id/name"
@@ -36,7 +36,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:textStyle="bold"
-            tools:text="Zeeshan Khan" />
+            tools:text="Zeeshan Khan"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -52,7 +52,7 @@
                 android:layout_height="16dp"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                android:src="@drawable/ic_shopping_cart_grey_500_18dp" />
+                android:src="@drawable/ic_shopping_cart_grey_500_18dp"/>
 
             <ImageView
                 android:id="@+id/typeCash"
@@ -60,7 +60,7 @@
                 android:layout_height="16dp"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                android:src="@drawable/ic_attach_money_grey_500_18dp" />
+                android:src="@drawable/ic_attach_money_grey_500_18dp"/>
 
             <ImageView
                 android:id="@+id/hasImage"
@@ -68,7 +68,7 @@
                 android:layout_height="16dp"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                android:src="@drawable/ic_attach_file_grey_500_18dp" />
+                android:src="@drawable/ic_attach_file_grey_500_18dp"/>
         </LinearLayout>
 
         <TextView
@@ -76,7 +76,7 @@
             style="@style/Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="12 PM" />
+            tools:text="12 PM"/>
     </LinearLayout>
 
     <TextView
@@ -86,7 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="16sp"
-        tools:text="483.23" />
+        tools:text="483.23"/>
 
     <TextView
         android:id="@+id/description"
@@ -94,5 +94,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="4"
-        tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero." />
+        tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero."/>
+
+    <ImageView
+        android:id="@+id/showImage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        android:scaleType="centerCrop"/>
 </LinearLayout>

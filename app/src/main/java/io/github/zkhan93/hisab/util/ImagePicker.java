@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class ImagePicker {
 
-    private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;        // min pixels
+    private static final int DEFAULT_MIN_WIDTH_QUALITY = 600;        // min pixels
     private static final String TAG = "ImagePicker";
     private static final String TEMP_IMAGE_NAME = "tempImage";
 
@@ -73,29 +73,39 @@ public class ImagePicker {
         return list;
     }
 
+    private static boolean isCamera;
+    private static Uri selectedImageUri;
+    private static Bitmap selectedBitmapImage;
+
+    public static Bitmap getSelectedBitmapImage() {
+        return selectedBitmapImage;
+    }
+
+    public static Uri getSelectedImageUri() {
+        return selectedImageUri;
+    }
 
     public static Bitmap getImageFromResult(Context context, int resultCode,
                                             Intent imageReturnedIntent) {
         Log.d(TAG, "getImageFromResult, resultCode: " + resultCode);
-        Bitmap bm = null;
         File imageFile = getTempFile(context);
         if (resultCode == Activity.RESULT_OK) {
-            Uri selectedImage;
-            boolean isCamera = (imageReturnedIntent == null ||
+
+            isCamera = (imageReturnedIntent == null ||
                     imageReturnedIntent.getData() == null ||
                     imageReturnedIntent.getData().toString().contains(imageFile.toString()));
             if (isCamera) {     /** CAMERA **/
-                selectedImage = Uri.fromFile(imageFile);
+                selectedImageUri = Uri.fromFile(imageFile);
             } else {            /** ALBUM **/
-                selectedImage = imageReturnedIntent.getData();
+                selectedImageUri = imageReturnedIntent.getData();
             }
-            Log.d(TAG, "selectedImage: " + selectedImage);
+            Log.d(TAG, "selectedImageUri: " + selectedImageUri);
 
-            bm = getImageResized(context, selectedImage);
-            int rotation = getRotation(context, selectedImage, isCamera);
-            bm = rotate(bm, rotation);
+            selectedBitmapImage = getImageResized(context, selectedImageUri);
+            int rotation = getRotation(context, selectedImageUri, isCamera);
+            selectedBitmapImage = rotate(selectedBitmapImage, rotation);
         }
-        return bm;
+        return selectedBitmapImage;
     }
 
 

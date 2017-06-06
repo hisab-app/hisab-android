@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="1dp"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:gravity="end"
-    android:minHeight="?attr/listPreferredItemHeight"
-    android:orientation="vertical"
-    android:clickable="true"
-    android:paddingBottom="8dp"
-    android:paddingEnd="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingStart="16dp"
-    android:paddingTop="8dp">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="1dp"
+              android:clickable="true"
+              android:foreground="?android:attr/selectableItemBackground"
+              android:gravity="end"
+              android:minHeight="?attr/listPreferredItemHeight"
+              android:orientation="vertical"
+              android:paddingBottom="8dp"
+              android:paddingEnd="16dp"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:paddingStart="16dp"
+              android:paddingTop="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,14 +27,14 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@null"
-            android:src="@drawable/ic_keyboard_arrow_down_grey_500_18dp" />
+            android:src="@drawable/ic_keyboard_arrow_down_grey_500_18dp"/>
 
         <TextView
             android:id="@+id/details"
             style="@style/Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="12 PM" />
+            tools:text="12 PM"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -50,7 +50,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
-                android:src="@drawable/ic_attach_file_grey_500_18dp" />
+                android:src="@drawable/ic_attach_file_grey_500_18dp"/>
 
             <ImageView
                 android:id="@+id/typeCash"
@@ -58,7 +58,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
-                android:src="@drawable/ic_attach_money_grey_500_18dp" />
+                android:src="@drawable/ic_attach_money_grey_500_18dp"/>
 
             <ImageView
                 android:id="@+id/typeShare"
@@ -66,7 +66,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
-                android:src="@drawable/ic_shopping_cart_grey_500_18dp" />
+                android:src="@drawable/ic_shopping_cart_grey_500_18dp"/>
         </LinearLayout>
 
         <TextView
@@ -77,7 +77,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:textStyle="bold"
-            tools:text="You" />
+            tools:text="You"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/image"
@@ -85,7 +85,7 @@
             android:layout_height="24dp"
             android:maxHeight="24dp"
             android:maxWidth="24dp"
-            android:src="@drawable/ic_account_circle_grey_600_48dp" />
+            android:src="@drawable/ic_account_circle_grey_600_48dp"/>
     </LinearLayout>
 
     <TextView
@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="16sp"
-        tools:text="483.23" />
+        tools:text="483.23"/>
 
     <TextView
         android:id="@+id/description"
@@ -104,7 +104,14 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:maxLines="4"
-        tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero." />
+        tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero."/>
+
+    <ImageView
+        android:id="@+id/showImage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/actions"
@@ -121,7 +128,7 @@
             android:background="?selectableItemBackground"
             android:text="@string/btn_txt_delete"
             android:textColor="@color/colorDanger"
-            tools:text="delete" />
+            tools:text="delete"/>
 
         <Button
             android:id="@+id/edit"
@@ -130,6 +137,6 @@
             android:layout_height="wrap_content"
             android:background="?selectableItemBackground"
             android:text="@string/btn_txt_edit"
-            tools:text="EDIT" />
+            tools:text="EDIT"/>
     </LinearLayout>
 </LinearLayout>

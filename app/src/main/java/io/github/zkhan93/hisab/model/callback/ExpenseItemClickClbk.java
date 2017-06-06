@@ -5,5 +5,5 @@ package io.github.zkhan93.hisab.model.callback;
  */
 
 public interface ExpenseItemClickClbk {
-    void onExpenseExpanded(String expenseId);
+    void onExpenseChanged(String expenseId);
 }

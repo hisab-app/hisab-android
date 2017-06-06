@@ -451,7 +451,7 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("expense", expense);
                 dialog.setArguments(bundle);
-                dialog.show(getActivity().getFragmentManager(), EditExpenseItemDialog.TAG);
+                dialog.show(getActivity().getSupportFragmentManager(), EditExpenseItemDialog.TAG);
                 break;
             case ExpenseItem.ITEM_TYPE.PAID_RECEIVED:
                 EditCashItemDialog pdialog = new EditCashItemDialog();

@@ -99,7 +99,7 @@ public class CashItemDialog extends DialogFragment implements UserItemActionClic
 //                            .paid) : getString(R.string.received);
                     ((MainActivity) getActivity()).createExpense(description.getText().toString(), Float.parseFloat(amount
                                     .getText()
-                                    .toString()),
+                                    .toString()),null,
                             ExpenseItem.ITEM_TYPE.PAID_RECEIVED, checkedUser, shareType);
                 } else {
                     Log.d(TAG, "validation failed");

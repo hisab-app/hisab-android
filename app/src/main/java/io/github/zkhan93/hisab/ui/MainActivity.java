@@ -4,9 +4,13 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -23,6 +27,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -30,12 +35,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -57,9 +68,11 @@ import io.github.zkhan93.hisab.model.ui.ExExpenseItem;
 import io.github.zkhan93.hisab.ui.dialog.ConfirmDialog;
 import io.github.zkhan93.hisab.ui.dialog.CreateGroupDialog;
 import io.github.zkhan93.hisab.ui.dialog.GroupInfoDialog;
+import io.github.zkhan93.hisab.util.ImagePicker;
 import io.github.zkhan93.hisab.util.Util;
 
-import static io.github.zkhan93.hisab.ui.GroupsFragment.GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS;
+import static io.github.zkhan93.hisab.ui.GroupsFragment
+        .GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         OnCompleteListener<Void>, PreferenceChangeListener, DialogInterface.OnClickListener,
@@ -193,7 +206,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case android.R.id.home:
                 if (!isTwoPaneMode) {
-                    Fragment fragment = getSupportFragmentManager().findFragmentByTag(ExpensesFragment.TAG);
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag
+                            (ExpensesFragment.TAG);
                     if (fragment != null)
                         ((ExpensesFragment) fragment).hideFabMenu();
                     fragment = getSupportFragmentManager().findFragmentByTag
@@ -201,7 +215,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (fragment == null)
                         fragment = new GroupsFragment();
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                    ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim
+                            .slide_out_right);
                     ft.replace(R.id
                             .fragmentContainer, fragment, GroupsFragment.TAG).commit();
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -259,10 +274,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case GRP_FRAGMENT_PERMISSIONS_REQUEST_READ_CONTACTS: {
-                Fragment grpFragment = getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG);
+                Fragment grpFragment = getSupportFragmentManager().findFragmentByTag
+                        (GroupsFragment.TAG);
                 if (grpFragment == null || !(grpFragment instanceof GroupsFragment))
                     return;
                 if (grantResults.length > 0
@@ -307,8 +324,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         snackbar.show();
     }
 
-    public void createExpense(String description, float amount, int itemType, User with, int
-            shareType) {
+    public void createExpense(String description, float amount, Uri imageUri, int itemType, User
+            with, int
+                                      shareType) {
         ExpenseItem expenseItem;
         if (itemType == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
             expenseItem = new ExpenseItem(description, amount, with, shareType);
@@ -316,9 +334,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             expenseItem = new ExpenseItem(description, amount);
         expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
         expenseItem.setOwner(me);
+
+        final DatabaseReference newExpense = groupExpensesRef.push();
+        Log.d(TAG, "new expense key" + newExpense.getKey());
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
 // id branch
-        groupExpensesRef.push().setValue(expenseItem).addOnCompleteListener(this, new
+        if (imageUri != null) {
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType
+                    (getContentResolver().getType(imageUri)); // extension without .
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImagePicker.getSelectedBitmapImage().compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            storageRef.child("expenses").child(newExpense.getKey() + '.' + extension)
+                    .putBytes(data)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.d(TAG, "uploaded");
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                            newExpense.child("image").setValue(downloadUrl.toString());
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "failed image upload");
+                }
+            });
+
+        }
+
+        newExpense.setValue(expenseItem).addOnCompleteListener(this, new
                 OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -330,6 +378,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
+
     }
 
     /**
@@ -380,7 +429,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             });
                     break;
                 case ConfirmDialog.TYPE.GROUP_DELETE:
-                    ((GroupsFragment) getSupportFragmentManager().findFragmentByTag(GroupsFragment.TAG)).deleteSelectedGroupConfirmed();
+                    ((GroupsFragment) getSupportFragmentManager().findFragmentByTag
+                            (GroupsFragment.TAG)).deleteSelectedGroupConfirmed();
                     ;
                     break;
                 default:
