@@ -1,46 +1,43 @@
 package io.github.zkhan93.hisab.ui;
 
-import android.animation.Animator;
-import android.content.Context;
-import android.os.Build;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.transition.TransitionManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
-import android.widget.Button;
-import android.widget.Toast;
+import android.webkit.MimeTypeMap;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -64,6 +61,7 @@ import io.github.zkhan93.hisab.ui.dialog.EditCashItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.EditExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.ExpenseItemDialog;
 import io.github.zkhan93.hisab.ui.dialog.RenameGroupDialog;
+import io.github.zkhan93.hisab.util.ImagePicker;
 import io.github.zkhan93.hisab.util.Util;
 
 /**
@@ -147,7 +145,8 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
         ButterKnife.bind(this, rootView);
         expensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ExpenseItemDecoration expenseItemDecoration = new ExpenseItemDecoration(getResources(), R.drawable.horizontal_divider, getActivity().getTheme());
+        ExpenseItemDecoration expenseItemDecoration = new ExpenseItemDecoration(getResources(), R
+                .drawable.horizontal_divider, getActivity().getTheme());
         expensesList.addItemDecoration(expenseItemDecoration);
         expensesList.setItemAnimator(new DefaultItemAnimator());
 
@@ -481,22 +480,65 @@ public class ExpensesFragment extends Fragment implements ValueEventListener,
     }
 
     @Override
-    public void update(ExpenseItem expense) {
-        expense.setUpdatedOn(Calendar.getInstance().getTimeInMillis());
-        groupExpensesRef.child(expense.getId())
+    public void update(final ExpenseItem expense, boolean imageChanged, boolean imageAdded) {
+        // prevent extra data from getting send to firebase
+        final String expenseId = expense.getId();
+        Log.d(TAG, "expense to udate: " + expense.toJson());
+        groupExpensesRef.child(expenseId)
                 .setValue(expense)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
+
                             String msg = "Error Occurred:";
-                            if (task.getException() != null)
+                            if (task.getException() != null) {
+                                Log.d(TAG, "exception upating expense", task.getException());
                                 msg += task.getException().getLocalizedMessage();
+                            }
                             showMessageClbk.showMessage(msg, ShowMessageClbk.TYPE.SNACKBAR,
                                     Snackbar.LENGTH_INDEFINITE);
                         }
                     }
                 });
+
+        if (imageChanged) {
+            if (imageAdded) {
+                Uri imageUri = ImagePicker.getSelectedImageUri();
+                if (imageUri != null) {
+                    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                    String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType
+                            (getActivity().getContentResolver().getType(imageUri)); // extension
+                    // without .
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImagePicker.getSelectedBitmapImage().compress(Bitmap.CompressFormat.JPEG, 100,
+                            baos);
+                    byte[] data = baos.toByteArray();
+
+                    storageRef.child("expenses").child(expenseId + '.' + extension)
+                            .putBytes(data)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Log.d(TAG, "uploaded");
+                                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                    groupExpensesRef.child(expenseId).child("image").setValue
+                                            (downloadUrl.toString());
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "failed image upload");
+                        }
+                    });
+
+                }
+            } else {
+                groupExpensesRef.child(expenseId).child("image").setValue(null);
+            }
+        }
+
     }
 
     @Override

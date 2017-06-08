@@ -3,6 +3,8 @@ package io.github.zkhan93.hisab.model.ui;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.Exclude;
+
 import io.github.zkhan93.hisab.model.ExpenseItem;
 
 /**
@@ -11,8 +13,8 @@ import io.github.zkhan93.hisab.model.ExpenseItem;
 
 public class ExExpenseItem extends ExpenseItem implements Parcelable {
 
+    @Exclude
     private boolean expanded;
-    private boolean imageVisible;
 
     public static final Creator<ExExpenseItem> CREATOR = new Creator<ExExpenseItem>() {
         @Override
@@ -33,21 +35,15 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
                 expenseItem.getWith(),
                 expenseItem.getShareType());
         this.expanded = false;
-        this.imageVisible = false;
+
     }
 
-    public boolean isImageVisible() {
-        return imageVisible;
-    }
-
-    public void setImageVisible(boolean imageVisible) {
-        this.imageVisible = imageVisible;
-    }
-
+    @Exclude
     public boolean isExpanded() {
         return expanded;
     }
 
+    @Exclude
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
@@ -57,7 +53,6 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
         boolean[] arr = new boolean[2];
         parcel.readBooleanArray(arr);
         expanded = arr[0];
-        imageVisible = arr[1];
     }
 
     @Override
@@ -68,6 +63,6 @@ public class ExExpenseItem extends ExpenseItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeBooleanArray(new boolean[]{expanded, imageVisible});
+        parcel.writeBooleanArray(new boolean[]{expanded});
     }
 }

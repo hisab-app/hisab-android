@@ -76,7 +76,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
             public void onClick(DialogInterface dialogInterface, int i) {
                 ((MainActivity) getActivity()).createExpense(description.getText()
                                 .toString(), Float.parseFloat(amount.getText().toString()),
-                        ImagePicker.getSelectedImageUri(),
+                        imageAdded,
                         ExpenseItem.ITEM_TYPE.SHARED, null, 0);
 
             }
@@ -88,6 +88,18 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
         });
         image.setOnClickListener(this);
         imageAdded = false;
+        if (savedInstanceState != null) {
+            imageAdded = savedInstanceState.getBoolean("imageAdded", false);
+            if (imageAdded) {
+                selectedImage = ImagePicker.getSelectedBitmapImage();
+                image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                image.setImageBitmap(selectedImage);
+            } else {
+                image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
+                        .ic_add_a_photo_grey_500_24dp));
+            }
+        }
 //        btnClickImage.setOnClickListener(this);
         return builder.create();
     }
@@ -96,6 +108,12 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
     public void onResume() {
         super.onResume();
         enableIfValidInput();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("imageAdded", imageAdded);
     }
 
     /**
@@ -194,7 +212,7 @@ public class ExpenseItemDialog extends DialogFragment implements TextWatcher, Vi
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0) {
             if (resultCode != RESULT_OK) return;
-            if (data.getBooleanExtra("remove_image", false)) {
+            if (data != null && data.getBooleanExtra("remove_image", false)) {
                 image.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
                         .ic_add_a_photo_grey_500_24dp));

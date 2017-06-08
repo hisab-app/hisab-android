@@ -1,5 +1,7 @@
 package io.github.zkhan93.hisab.model.callback;
 
+import android.net.Uri;
+
 import io.github.zkhan93.hisab.model.ExpenseItem;
 
 /**
@@ -10,5 +12,5 @@ public interface ExpenseItemClbk {
 
     void showEditUi(ExpenseItem expense);
 
-    void update(ExpenseItem expense);
+    void update(ExpenseItem expense, boolean imageChanged, boolean imageAdded);
 }

@@ -4,8 +4,6 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginTop="1dp"
-              android:clickable="true"
-              android:foreground="?android:attr/selectableItemBackground"
               android:minHeight="?attr/listPreferredItemHeight"
               android:orientation="vertical"
               android:paddingBottom="8dp"
@@ -77,6 +75,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="12 PM"/>
+
+        <ImageButton
+            android:id="@+id/buttonExpand"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_keyboard_arrow_down_grey_500_18dp"/>
     </LinearLayout>
 
     <TextView
@@ -96,10 +102,23 @@
         android:maxLines="4"
         tools:text="Lorem ipsum dolor sit amet, virtute insolens menandri eam ei, sale imperdiet ullamcorper nam ex, quod euripidis per id vero."/>
 
-    <ImageView
-        android:id="@+id/showImage"
+    <LinearLayout
+        android:id="@+id/actions"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
-        android:scaleType="centerCrop"/>
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/showImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:layout_height="150dp"
+            tools:src="@color/cardview_dark_background"
+            tools:visibility="visible"
+            />
+    </LinearLayout>
 </LinearLayout>

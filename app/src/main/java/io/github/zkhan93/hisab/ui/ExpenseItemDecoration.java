@@ -7,6 +7,7 @@ import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.Animation;
 
 import io.github.zkhan93.hisab.R;
 import io.github.zkhan93.hisab.ui.adapter.GroupsAdapter;
@@ -40,15 +41,20 @@ public class ExpenseItemDecoration extends RecyclerView.ItemDecoration {
         int right = parent.getWidth() - parent.getPaddingRight();
 
         int childCount = parent.getChildCount() - 1;
-
+        RecyclerView.LayoutParams params;
+        View child;
+        int ty, top, bottom;
         for (int i = 1; i < childCount; i++) {
+            child = parent.getChildAt(i);
 
-            View child = parent.getChildAt(i);
-            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-            int ty = (int) (child.getTranslationY() + 0.5f);
+            params = (RecyclerView.LayoutParams) child.getLayoutParams();
 
-            int top = child.getBottom() + params.bottomMargin + ty;
-            int bottom = top + dividerDrawable.getIntrinsicHeight();
+            ty = (int) (child.getTranslationY() + 0.5f);
+
+            top = child.getBottom() + params.bottomMargin + ty;
+//          top = child.getTop() + child.getHeight() + params.bottomMargin + ty;
+
+            bottom = top + dividerDrawable.getIntrinsicHeight();
 
             dividerDrawable.setBounds(left + leftOffset, top, right - rightOffset, bottom);
             dividerDrawable.draw(canvas);

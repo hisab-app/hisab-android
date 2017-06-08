@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.gson.Gson;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class ExpenseItem implements Parcelable {
     };
     @Exclude
     String id;
+    @Exclude
     String groupId;
     User owner;
     /**
@@ -112,10 +114,12 @@ public class ExpenseItem implements Parcelable {
         this.itemType = itemType;
     }
 
+    @Exclude
     public String getGroupId() {
         return groupId;
     }
 
+    @Exclude
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
@@ -251,5 +255,9 @@ public class ExpenseItem implements Parcelable {
     public interface SHARE_TYPE {
         int PAID = 0;
         int RECEIVED = 1;
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
     }
 }

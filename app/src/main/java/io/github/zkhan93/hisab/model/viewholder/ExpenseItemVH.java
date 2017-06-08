@@ -80,7 +80,6 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     @BindView(R.id.actions)
     View actionsContainer;
 
-    @Nullable
     @BindView(R.id.image)
     CircleImageView authorImage;
 
@@ -89,12 +88,10 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
     private ExExpenseItem expense;
     private Context context;
     private final int mShortAnimationDuration;
-    private View itemView;
 
     public ExpenseItemVH(View itemView, ExpenseItemClbk
             expenseItemClbk, ExpenseItemClickClbk expenseItemClickClbk) {
         super(itemView);
-        this.itemView = itemView;
         this.expenseItemClickClbk = expenseItemClickClbk;
 //        itemView.setOnClickListener(this);
         ButterKnife.bind(this, itemView);
@@ -133,6 +130,8 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
 //            name.setText("You");
         } else {
             name.setText(expense.getOwner().getName());
+            if (expense.getImage() == null)
+                btnExpand.setVisibility(View.GONE);
         }
 
         typeCash.setVisibility(expense.getItemType() == ExpenseItem.ITEM_TYPE.PAID_RECEIVED ?
@@ -141,19 +140,21 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 .VISIBLE : View.GONE);
         hasImage.setVisibility(expense.getImage() != null ? View.VISIBLE : View
                 .GONE);
-        hasImage.setOnClickListener(this);
-        if (expense.isImageVisible()) {
-            Picasso.with(context).load(expense.getImage()).into(showImage);
-            showImage.setVisibility(View.VISIBLE);
-        } else {
-            showImage.setVisibility(View.GONE);
-        }
+
 
         details.setText(DateUtils.getRelativeTimeSpanString(context, expense.getCreatedOn(),
                 false));
         if (authorImage != null)
             Picasso.with(context).load(Util.getGavatarUrl(expense.getOwner().getEmail(), 200))
                     .placeholder(R.drawable.big_user).fit().centerCrop().into(authorImage);
+
+        if (expense.getImage() != null) {
+            showImage.setVisibility(View.VISIBLE);
+            Picasso.with(context).load(expense.getImage()).into(showImage);
+        } else {
+            showImage.setVisibility(View.GONE);
+        }
+
         if (btnExpand != null) {
             actionsContainer.setVisibility(expense.isExpanded() ? View.VISIBLE : View.GONE);
             btnExpand.setImageDrawable(ContextCompat.getDrawable(context, expense
@@ -190,14 +191,6 @@ public class ExpenseItemVH extends RecyclerView.ViewHolder implements View.OnCli
                 break;
             case R.id.edit:
                 update();
-                break;
-            case R.id.hasImage:
-                expense.setImageVisible(!expense.isImageVisible());
-                showImage.setVisibility(expense.isImageVisible() ? View.VISIBLE : View.GONE);
-                if (expense.isImageVisible()) {
-                    Picasso.with(context).load(expense.getImage()).into(showImage);
-                }
-                expenseItemClickClbk.onExpenseChanged(expense.getId());
                 break;
             default:
                 Log.d(TAG, "click not implemented");

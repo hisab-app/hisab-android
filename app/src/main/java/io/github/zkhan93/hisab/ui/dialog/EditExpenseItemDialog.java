@@ -21,6 +21,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
+
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -53,7 +57,7 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
 
     private ExpenseItemClbk expenseItemUpdateClbk;
     private ExpenseItem expense;
-    private boolean imageAdded;
+    private boolean imageAdded, imageChanged;
     private int currentEditTextId;
 
     @Override
@@ -68,6 +72,8 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
             expense = bundle.getParcelable("expense");
         } else {
             expense = savedInstanceState.getParcelable("expense");
+            imageChanged = savedInstanceState.getBoolean("imageChanged");
+            imageAdded = savedInstanceState.getBoolean("imageAdded");
         }
         expenseItemUpdateClbk = (ExpenseItemClbk) (((MainActivity) getActivity())
                 .getSupportFragmentManager().findFragmentByTag(ExpensesFragment.TAG));
@@ -75,6 +81,28 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         amount.setText(String.valueOf(expense.getAmount()));
         description.setOnFocusChangeListener(this);
         amount.setOnFocusChangeListener(this);
+        if (imageChanged) {
+            if (imageAdded) {
+                Bitmap bitmap = ImagePicker.getSelectedBitmapImage();
+                image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                image.setImageBitmap(bitmap);
+            } else {
+                image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
+                        .ic_add_a_photo_grey_500_24dp));
+            }
+        } else {
+            if (expense.getImage() != null) {
+                image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                Picasso.with(getActivity()).load(expense.getImage()).into(image);
+                imageAdded = true;
+            } else {
+                image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
+                        .ic_add_a_photo_grey_500_24dp));
+                imageAdded = false;
+            }
+        }
         builder.setView(view);
         builder.setPositiveButton(R.string.label_done, this).setNegativeButton(R.string
                 .label_cancel, new DialogInterface.OnClickListener() {
@@ -92,8 +120,9 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
         if (expenseItemUpdateClbk != null) {
             expense.setDescription(description.getText().toString());
             expense.setAmount(Float.parseFloat(amount.getText().toString()));
-            expense.setCreatedOn(Calendar.getInstance().getTimeInMillis());
-            expenseItemUpdateClbk.update(expense);
+            expense.setUpdatedOn(Calendar.getInstance().getTimeInMillis());
+
+            expenseItemUpdateClbk.update(expense, imageChanged, imageAdded);
 
         } else {
             Log.e(TAG, "ExpenseItemUpdateClbk not present, you have to implement ExpenseItemClbk " +
@@ -106,6 +135,8 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("expense", expense);
+        outState.putBoolean("imageAdded", imageAdded);
+        outState.putBoolean("imageChanged", imageChanged);
     }
 
     @Override
@@ -233,11 +264,13 @@ public class EditExpenseItemDialog extends DialogFragment implements DialogInter
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0) {
             if (resultCode != RESULT_OK) return;
-            if (data.getBooleanExtra("remove_image", false)) {
+            imageChanged = true;
+            if (data != null && data.getBooleanExtra("remove_image", false)) {
                 image.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable
                         .ic_add_a_photo_grey_500_24dp));
                 imageAdded = false;
+
                 return;
             }
             Bitmap bitmap = ImagePicker.getImageFromResult(getActivity(), resultCode, data);

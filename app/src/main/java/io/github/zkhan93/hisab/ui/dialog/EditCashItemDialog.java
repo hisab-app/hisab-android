@@ -98,8 +98,9 @@ public class EditCashItemDialog extends DialogFragment implements UserItemAction
                     expense.setShareType(optionGiveTake.getCheckedRadioButtonId() == R.id.paid ?
                             ExpenseItem.SHARE_TYPE.PAID : ExpenseItem.SHARE_TYPE.RECEIVED);
                     expense.setWith(checkedUser);
-                    ((ExpenseItemClbk) ((MainActivity) getActivity()).getSupportFragmentManager().findFragmentByTag
-                            (ExpensesFragment.TAG)).update(expense);
+                    ((ExpenseItemClbk) ((MainActivity) getActivity()).getSupportFragmentManager()
+                            .findFragmentByTag
+                                    (ExpensesFragment.TAG)).update(expense, false, false);
                 } else {
                     Log.d(TAG, "validation failed");
                 }

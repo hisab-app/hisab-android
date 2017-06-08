@@ -324,9 +324,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         snackbar.show();
     }
 
-    public void createExpense(String description, float amount, Uri imageUri, int itemType, User
-            with, int
-                                      shareType) {
+    public void createExpense(String description, float amount, boolean hasImage, int itemType,
+                              User with, int shareType) {
         ExpenseItem expenseItem;
         if (itemType == ExpenseItem.ITEM_TYPE.PAID_RECEIVED)
             expenseItem = new ExpenseItem(description, amount, with, shareType);
@@ -335,27 +334,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         expenseItem.setCreatedOn(Calendar.getInstance().getTimeInMillis());
         expenseItem.setOwner(me);
 
-        final DatabaseReference newExpense = groupExpensesRef.push();
-        Log.d(TAG, "new expense key" + newExpense.getKey());
+        final DatabaseReference expenseRef = groupExpensesRef.push();
+        Log.d(TAG, "new expense key" + expenseRef.getKey());
 //        expenseItem.setGroupId(groupId); no need to set this as data is already under the group
 // id branch
-        if (imageUri != null) {
+        if (hasImage) {
+            Uri imageUri = ImagePicker.getSelectedImageUri();
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
             String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType
-                    (getContentResolver().getType(imageUri)); // extension without .
+                    (getContentResolver().getType(imageUri)); // extension without dot (.)
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImagePicker.getSelectedBitmapImage().compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
-            storageRef.child("expenses").child(newExpense.getKey() + '.' + extension)
+            storageRef.child("expenses").child(expenseRef.getKey() + '.' + extension)
                     .putBytes(data)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Log.d(TAG, "uploaded");
                             Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            newExpense.child("image").setValue(downloadUrl.toString());
+                            expenseRef.child("image").setValue(downloadUrl.toString());
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
-        newExpense.setValue(expenseItem).addOnCompleteListener(this, new
+        expenseRef.setValue(expenseItem).addOnCompleteListener(this, new
                 OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
 
     @Override
-    public void showMessage(String msg, int how, int duration) {
+    public void showMessage(@NonNull String msg, int how, int duration) {
         if (how == TYPE.SNACKBAR)
             showSnackBar(msg, duration, "Ok");
         else
