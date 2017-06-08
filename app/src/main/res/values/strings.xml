@@ -6,6 +6,15 @@
     <string name="to">To</string>
     <string name="from">From</string>
     <string name="remove">Remove</string>
+    <string name="today">Today</string>
+    <string name="total">Total</string>
+    <string name="or">OR</string>
+    <string name="attach_image">Attach image</string>
+    <string name="attached_image">Attached image</string>
+    <string name="shared_expense">Shared expenses</string>
+    <string name="cash_expense">Cash expenses</string>
+    <string name="contains_image">Contains image</string>
+    <string name="expand">Expand</string>
     <string name="received" translatable="false">Received</string>
 
     <string name="n_members">%1$d members</string>

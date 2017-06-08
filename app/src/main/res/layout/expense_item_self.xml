@@ -25,6 +25,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/expand"
             android:src="@drawable/ic_keyboard_arrow_down_grey_500_18dp"/>
 
         <TextView
@@ -48,6 +49,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:contentDescription="@string/contains_image"
                 android:src="@drawable/ic_attach_file_grey_500_18dp"/>
 
             <ImageView
@@ -56,6 +58,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:contentDescription="@string/cash_expense"
                 android:src="@drawable/ic_attach_money_grey_500_18dp"/>
 
             <ImageView
@@ -64,6 +67,7 @@
                 android:layout_height="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:contentDescription="@string/shared_expense"
                 android:src="@drawable/ic_shopping_cart_grey_500_18dp"/>
         </LinearLayout>
 
@@ -120,6 +124,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:contentDescription="@string/attached_image"
             android:scaleType="centerCrop"
             android:visibility="gone"
             tools:layout_height="150dp"

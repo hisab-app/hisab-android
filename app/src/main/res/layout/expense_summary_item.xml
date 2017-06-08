@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Today" />
+                    android:text="@string/today" />
 
                 <TextView
                     android:id="@+id/todayAmount"
@@ -113,7 +113,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Total" />
+                    android:text="@string/total" />
 
                 <TextView
                     android:id="@+id/totalAmount"
